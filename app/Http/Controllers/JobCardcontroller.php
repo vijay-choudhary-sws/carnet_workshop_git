@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\JobCardSparePart;
 use DB;
 use Mail;
 use Auth;
@@ -937,6 +938,7 @@ class JobCardcontroller extends Controller
 
 		/*Get Washbay Service charge */
 		$washbay_data = Washbay::where('jobcard_no', '=', $job_no)->first();
+		$jobCardSpareParts = JobCardSparePart::where('jobcard_no', '=', $job_no)->get();
 		$tbl_custom_fields_service = DB::table('tbl_custom_fields')->where([['form_name', '=', 'service'], ['soft_delete', '=', 0], ['always_visable', '=', 'yes']])->get()->toArray();
 
 		//Custom Field Data fir from Invoice Module
@@ -944,7 +946,7 @@ class JobCardcontroller extends Controller
 
 		//Custom Field Data of User Table (For Customer Module)
 		$tbl_custom_fields_customers = DB::table('tbl_custom_fields')->where([['form_name', '=', 'customer'], ['always_visable', '=', 'yes'], ['soft_delete', '=', 0]])->get()->toArray();
-		$html = view('invoice.serviceinvoicemodel')->with(compact('page_action', 'serviceid', 'tbl_services', 'sales', 'logo', 'job', 's_date', 'vehical', 'customer', 'service_pro', 'service_pro2', 'tbl_service_observation_points', 'service_tax', 'service_taxes', 'discount', 'p_key', 'paid_amount', 'tbl_custom_fields_invoice', 'tbl_custom_fields_service', 'tbl_custom_fields_customers', 'washbay_data', 'taxNumber', 'taxName', 'invoice'))->render();
+		$html = view('invoice.serviceinvoicemodel')->with(compact('page_action', 'serviceid', 'tbl_services', 'sales', 'logo', 'job', 's_date', 'vehical', 'customer', 'service_pro', 'service_pro2', 'tbl_service_observation_points', 'service_tax', 'service_taxes', 'discount', 'p_key', 'paid_amount', 'tbl_custom_fields_invoice', 'tbl_custom_fields_service', 'tbl_custom_fields_customers', 'washbay_data', 'taxNumber', 'taxName', 'invoice','jobCardSpareParts'))->render();
 
 		return response()->json(['success' => true, 'html' => $html]);
 	}

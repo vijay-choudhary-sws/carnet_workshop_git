@@ -49,7 +49,7 @@ class PurchaseSparePartController extends Controller
 		if (count($items) > 0) {
 			$html = view('purchase_spare_part.component.item', compact('items'))->render();
 
-			
+
 			return response()->json(['status' => 1, 'html' => $html]);
 		}
 		return response()->json(['status' => 0, 'msg' => 'Item not found.']);
@@ -116,11 +116,11 @@ class PurchaseSparePartController extends Controller
 		return response()->json(['status' => 1, 'html' => $html]);
 	}
 	public function create(): View
-	{    
+	{
 		return view('purchase_spare_part.create');
 	}
 
 
-	
-  
+
+
 }

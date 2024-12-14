@@ -19,6 +19,7 @@ use App\EmailLog;
 use App\Holiday;
 use App\RepairCategory;
 use App\JobcardDetail;
+use App\JobCardSparePart;
 use App\Notes;
 use App\Stock;
 use App\tbl_service_images;
@@ -378,6 +379,7 @@ class ServicesControler extends Controller
     //add_jobcard store
     public function add_jobcard(Request $request)
     {
+        // echo "<pre>";print_r($request->all());die;
         $message = $request->message;
         $job_no = $request->job_no;
         $service_id = $request->service_id;
@@ -392,6 +394,14 @@ class ServicesControler extends Controller
 
         $in_date = $request->in_date;
         $out_date = $request->out_date;
+
+        $jobcard_item_id = $request->jobcard_item_id;
+        $jobcard_quantity = $request->jobcard_quantity;
+        $jobcard_price = $request->jobcard_price;
+        $jobcard_total_amount = $request->jobcard_total_amount;
+        $jobcard_discount = $request->jobcard_discount;
+        $jobcard_final_amount = $request->jobcard_final_amount;
+        $employee = $request->employee;
 
         if (getDateFormat() == 'm-d-Y') {
             $in_dat = date('Y-m-d H:i:s', strtotime(str_replace('-', '/', $in_date)));
@@ -519,6 +529,23 @@ class ServicesControler extends Controller
             }
         } else {
             //echo "You have not checked MoT Module";
+        }
+
+        if(count($jobcard_item_id) > 0){
+            $stockData = ProductStock::whereIn('id',$jobcard_item_id)->get();
+            foreach ($jobcard_item_id as $itemKey => $itemValue) {
+                $jobCardSparePart = new JobCardSparePart;
+                $jobCardSparePart->jobcard_no = $job_no;
+                $jobCardSparePart->product_stock_id = $itemValue;
+                $jobCardSparePart->product_stock_name = $stockData->where('id',$itemValue)->first()->title;
+                $jobCardSparePart->quantity = $jobcard_quantity[$itemKey];
+                $jobCardSparePart->price = $jobcard_price[$itemKey];
+                $jobCardSparePart->total_amount = $jobcard_total_amount[$itemKey];
+                $jobCardSparePart->discount = $jobcard_discount[$itemKey];
+                $jobCardSparePart->final_amount = $jobcard_final_amount[$itemKey];
+                $jobCardSparePart->machanic_id = $employee[$itemKey];
+                $jobCardSparePart->save();
+            }
         }
 
         //email format

@@ -773,7 +773,7 @@
                                 <h3>{{ trans('message.Spare Part') }}</h3>
                             </div>
                             <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 ps-0">
-                                <button type="button" data-bs-target="#responsive-modal-observation" data-bs-toggle="modal" class="btn btn-outline-secondary clickAddNewButton ms-0 mt-2"> + </button>
+                                <button type="button" class="btn btn-outline-secondary clickAddNewButton ms-0 mt-2" onclick=addForm(this);return;false;> + </button>
                             </div>
                         </div>
                         <div class="col-12">
@@ -795,7 +795,7 @@
                                     <tr>
                                         <td>
                                             <div>
-                                                <select class="form-control select2" id="spare-parts-dropdown" onchange="addRow(this)">
+                                                <select class="form-control select2" id="spare-parts-dropdown" onchange="addJobCardRow(this)">
                                                     <option value="" selected disabled>--Select Spare Part -- </option>
                                              
                                                 </select>
@@ -1031,15 +1031,16 @@
 
 <!-- Scripts starting -->
 <!-- Display observation points in list -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 <script>
     $(document).ready(function() {
        
         $("#spare-parts").select2();
 
-        getLabel();
+        getJobCardLabel();
 
         $('.tbl_points, .check_submit').click(function() {
 
@@ -1324,39 +1325,50 @@
         });
     });
 
-    function addRow(e) {
-        // let isValid = true;
 
-        // $('select[name="category[]"]').each(function() {
-        //     let value = $(this).val();
-        //     if (!value) {
-        //         toastr.info('Category cannot be null.', "INFO");
-        //         isValid = false;
-        //         return false;
-        //     }
-        // });
+    function submitFormAjax(event, formId) {
+        event.preventDefault();
 
-        // $('select[name="item[]"]').each(function() {
-        //     let value = $(this).val();
-        //     if (!value) {
-        //         toastr.info('Item cannot be null.', "INFO");
-        //         isValid = false;
-        //         return false;
-        //     }
-        // });
+        let form = $('#' + formId); // Get the form by its ID
+        let url = form.attr('action');
+        let formData = form.serialize();
 
-        // $('select[name="quantity[]"]').each(function() {
-        //     let value = $(this).val();
-        //     if (!value) {
-        //         toastr.info('Qty cannot be null.', "INFO");
-        //         isValid = false;
-        //         return false;
-        //     }
-        // });
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: formData,
+            success: function(response) {
 
-        // if (!isValid) {
-        //     return;
-        // }
+                toastr.clear();
+
+                if (response.status == 'success') {
+                    toastr.success(response.message, 'Success');
+                }
+
+                // Hide modal and clear modal body
+                $("#bs-example-modal-xl").modal("hide");
+                $(".modal-body-data").html('');
+            },
+            error: function(xhr) {
+                toastr.clear();
+
+                let errorMessages = '';
+                let errors = xhr.responseJSON?.errors || {}; // Handle error response
+                for (let field in errors) {
+                    if (errors.hasOwnProperty(field)) {
+                        let messages = errors[field];
+                        messages.forEach(function(message) {
+                            errorMessages += message + '<br>';
+                        });
+                    }
+                }
+                toastr.error(errorMessages, 'Validation Errors');
+            }
+        });
+    }
+
+
+    function addJobCardRow(e) {
 
         let row = $('#spare-part-tabel tbody tr').length + 1;
 
@@ -1387,7 +1399,7 @@
         });
     }
 
-    function getLabel(){
+    function getJobCardLabel(){
         $.ajax({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -1411,27 +1423,253 @@
         });
     }
 
-    function getPrice(e){
+    function getJobCardPrice(e){
         let row = $(e).parents('tr').attr('data-row');
 
-        let qty = $('input[name="quantity[]"]').eq(row - 1).val();
-        let price = $('input[name="price[]"]').eq(row - 1).val();
-        let discount = $('input[name="discount[]"]').eq(row - 1).val();
+        let qty = $('input[name="jobcard_quantity[]"]').eq(row - 1).val();
+        let price = $('input[name="jobcard_price[]"]').eq(row - 1).val();
+        let discount = $('input[name="jobcard_discount[]"]').eq(row - 1).val();
         
         let totalAmount = parseInt(qty) * parseInt(price);
         let finalAmount = totalAmount - parseInt(discount);
         
-        $('input[name="total_amount[]"]').eq(row - 1).val(totalAmount);
-        $('input[name="final_amount[]"]').eq(row - 1).val(finalAmount);
+        $('input[name="jobcard_total_amount[]"]').eq(row - 1).val(totalAmount);
+        $('input[name="jobcard_final_amount[]"]').eq(row - 1).val(finalAmount);
     }
 
-    function removeRow(e){
+    function removeJobCardRow(e){
         $(e).parents('tr').remove();
         let i = 1;
         $('#spare-part-tabel tbody tr').each(function(){
             $(this).attr('data-row', i++);
         });
     }
+
+    function addForm(e) { 
+        var contentUrl = "{{route('purchase_spare_part.create')}}";
+        $.ajax({
+            type: "GET",
+            url: contentUrl,
+            success: function(data) {
+                $(".modal-body-data").html(data);
+                $("#bs-example-modal-xl").modal("show");
+            },
+            error: function() {
+                alert("Failed to load content.");
+            }
+        });
+    }
+
+function getItem(e) {
+    let cateId = $(e).val();
+    if (!cateId) {
+        toastr.info("Please select a valid category.", 'INFO')
+        return;
+    }
+    let row = $(e).parents('tr').attr('data-row');
+
+    if (!row) {
+        console.error("Row attribute is missing in the parent <tr>.");
+        return;
+    }
+
+    let itemId = [];
+    $('select[name="item[]"]').each(function() {
+        let value = parseFloat($(this).val());
+        if (!isNaN(value)) {
+            itemId.push(value);
+        }
+    });
+
+    $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: "{{ route('purchase_spare_part.getItem') }}",
+        method: "post",
+        data: {
+            cat_id: cateId,
+            item_id: itemId
+        },
+        success: function(res) {
+            if (res.status == 1) {
+                $('select[name="item[]"]').eq(row - 1).html(res.html);
+            } else {
+                toastr.info(res.msg, "INFO");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error: " + error);
+            console.error("Status: " + status);
+            console.error("Response: " + xhr.responseText);
+        }
+    });
+}
+
+function getStock(e) {
+    let stockId = $(e).val();
+    if (!stockId) {
+        toastr.info("Please select a valid item.", "INFO");
+        return;
+    }
+    let row = $(e).parents('tr').attr('data-row');
+    if (!row) {
+        console.error("Row attribute is missing in the parent <tr>.");
+        return;
+    }
+    $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        url: "{{ route('purchase_spare_part.getAmount') }}",
+        method: "post",
+        data: {
+            stock_id: stockId,
+            row_id: row,
+        },
+        success: function(res) {
+            if (res.status == 1) {
+                $('input[name="quantity[]"]').eq(row - 1).attr('max', res.stock).val('1');
+                $('input[name="price[]"]').eq(row - 1).val(res.price);
+                $('input[name="total_price[]"]').eq(row - 1).val(res.price);
+                totalAmount();
+            } else {
+                toastr.info(res.msg, "INFO");
+            }
+        },
+        error: function(xhr, status, error) {
+            {{-- console.error("Error: " + error);
+            console.error("Status: " + status);
+            console.error("Response: " + xhr.responseText); --}}
+        }
+    });
+}
+
+function checkMax(e) { 
+    let value = parseInt($(e).val(), 10);
+    let maxValue = parseInt($(e).attr('max'), 10);
+    if (value < 0) {
+        $(e).val(0);
+    } else if (value > maxValue) {
+        $(e).val(maxValue);
+    }
+    getPrice(e);
+}
+
+function getPrice(e) {
+
+    let qty = parseInt($(e).val(), 10);
+
+    if (isNaN(qty) || qty < 0) {
+        toastr.info("Please enter a valid quantity.", "INFO");
+        return;
+    }
+
+    let row = $(e).parents('tr').attr('data-row');
+    if (!row) {
+        console.error("Row attribute is missing in the parent <tr>.");
+        return;
+    }
+
+    let price = parseFloat($('input[name="price[]"]').eq(row - 1).val());
+
+    if (isNaN(price) || price < 0) {
+        toastr.info("Price is invalid.", "INFO");
+        return;
+    }
+
+    let totalPrice = price * qty;
+    name = "total_price[]"
+    $('input[name="total_price[]"]').eq(row - 1).val(totalPrice);
+
+    totalAmount();
+}
+
+function totalAmount() {
+    let totalAmount = 0;
+    $('input[name="total_price[]"]').each(function() {
+        let value = parseFloat($(this).val());
+        if (!isNaN(value)) {
+            totalAmount += value;
+        }
+    });
+
+    $('#totalAmount').val(totalAmount);
+}
+
+function addRowmodel() {
+
+    let isValid = true;
+
+    $('select[name="category[]"]').each(function() {
+        let value = $(this).val();
+        if (!value) {
+            toastr.info('Category cannot be null.', "INFO");
+            isValid = false;
+            return false;
+        }
+    });
+
+    $('select[name="item[]"]').each(function() {
+        let value = $(this).val();
+        if (!value) {
+            toastr.info('Item cannot be null.', "INFO");
+            isValid = false;
+            return false;
+        }
+    });
+
+        $('select[name="quantity[]"]').each(function() {
+            let value = $(this).val();
+            if (!value) {
+                toastr.info('Qty cannot be null.', "INFO");
+                isValid = false;
+                return false;
+            }
+        });
+
+        if (!isValid) {
+            return;
+        }
+
+        let row = $('#create-order-sparepart tbody tr').length + 1;
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('purchase_spare_part.addRowmodel') }}",
+            method: "post",
+            data: {
+                row: row
+            },
+            success: function(res) {
+                if (res.status == 1) {
+                    $('#create-order-sparepart tbody').append(res.html);
+                    $('.select2').select2();
+                } else {
+                    toastr.info(res.msg, "INFO");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error: " + error);
+                console.error("Status: " + status);
+                console.error("Response: " + xhr.responseText);
+            }
+        });
+        }
+
+    function deleteRow(e) {
+        $(e).parents('tr').remove();
+        let $i = 1;
+        $('#create-order-sparepart tbody tr').each(function() {
+            $(this).attr('data-row', $i++);
+        });
+        totalAmount();
+    }
+
+
+
 </script>
 
 <!-- Form field validation -->

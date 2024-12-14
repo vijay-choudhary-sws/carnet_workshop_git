@@ -31,14 +31,6 @@
                                 </span>
                             @endif
                         </div>
-
-                             <div class="nav toggle">
-                           @can('salespart_add')
-                                        <a href="#"  onclick=addForm(this);return;false; id="" class="addbotton">
-                                            <img src="{{ URL::asset('public/img/icons/plus Button.png') }}" class="mb-2">
-                                        </a>
-                                    @endcan
-                        </div>
                         @include('dashboard.profile')
                     </nav>
                 </div>
@@ -198,28 +190,6 @@
 
             });
         });
-
-
-        function addForm(e) { 
-    var contentUrl = "{{route('purchase_spare_part.create')}}";
-    $.ajax({
-        type: "GET",
-        url: contentUrl,
-        success: function(data) {
-            $(".modal-body-data").html(data);
-            $("#bs-example-modal-xl").modal("show");
-        },
-        error: function() {
-            alert("Failed to load content.");
-        }
-    });
-}
-
-
-
-
-
-
 
         $(document).ready(function() {
 

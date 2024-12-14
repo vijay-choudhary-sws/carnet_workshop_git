@@ -13,7 +13,7 @@ class UniqueSparePartLabel implements Rule
             ->join('spare_parts', 'spare_parts.label_id', '=', 'spare_part_labels.id')
             ->where('spare_part_labels.title', $value)
             ->where('spare_parts.user_id', Auth::id())
-            ->where('spare_parts.spare_part_type', 1)
+            // ->where('spare_parts.spare_part_type', 1)
             ->exists();
 
         return !$exists;

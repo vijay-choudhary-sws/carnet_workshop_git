@@ -424,7 +424,21 @@
                                     <?php
                                     }
                                     ?>
+
+                                    @if (count($jobCardSpareParts) > 0)
+                                        @foreach ($jobCardSpareParts as $jobCardSparePart)
+                                            <tr>
+                                                <td class="text-start cname"><?php echo $i++; ?></td>
+                                                <td class="text-start cname">{{ $jobCardSparePart->product_stock_name }}</td>
+                                                <td class="text-start cname">{{ number_format($jobCardSparePart->price,2) }}</td>
+                                                <td class="text-end cname">{{ number_format($jobCardSparePart->final_amount,2) }}</td>
+                                                <?php $total4 += $jobCardSparePart->final_amount; ?>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                    
                                     <?php
+                                    
 
                                     if ($mot_status == 1) {
 
