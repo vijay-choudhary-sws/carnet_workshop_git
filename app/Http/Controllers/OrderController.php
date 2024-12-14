@@ -7,6 +7,7 @@ use App\Order;
 use App\OrderItem;
 use App\ProductStock;
 use App\SparePart;
+use App\StockHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,7 +31,7 @@ class OrderController extends Controller
   {
     $order_items = OrderItem::where('order_id', $id)->get();
 
-    // echo "<pre>";print_r($order_items[0]->SpareParts->name);die;
+    //  echo "<pre>";print_r($order_items[0]->SpareParts->name);die;
     return view('saas.order.view', compact('order_items'));
   }
 
@@ -38,15 +39,12 @@ class OrderController extends Controller
   public function accept(Request $request)
   {
     $order_item = OrderItem::where('id', $request->id)->first();
-
-
     if ($request->status == 1) {
+      $sparepartStock = SparePart::where('id', $order_item->spare_part_id)->first();
       $spare_part = SparePart::where('id', $order_item->spare_part_id)->first();
       $spare_part->stock = $spare_part->stock - $order_item->quantity;
       $spare_part->save();
-
       $stockProduct = ProductStock::where('label_id', $spare_part->label_id)->first();
-
       if (empty($stockProduct)) {
         $stockProducts = new ProductStock;
         $stockProducts->label_id = $spare_part->label_id;
@@ -58,10 +56,46 @@ class OrderController extends Controller
         $stockProduct->stock = $stockProduct->stock + $order_item->quantity;
         $stockProduct->save();
       }
+      
+      $stockHistory = new StockHistory;
+      $stockHistory->label_id = $spare_part->label_id;
+      $stockHistory->spare_part_id = $order_item->spare_part_id;
+      $stockHistory->category = $order_item->category;
+      $stockHistory->user_id = Auth::user()->id;
+      $stockHistory->last_stock = $sparepartStock->stock;
+      $stockHistory->current_stock = $sparepartStock->stock -  $order_item->quantity;
+      $stockHistory->stock_type = 'removal';
+      $stockHistory->remarks = "Stock removal for order accept";
+      $stockHistory->save();
 
     }
     $order_item->status = $request->status;
     $order_item->save();
+
+    $order_item_for_order = OrderItem::where('order_id', $order_item->order_id)->get();
+    $order_status = [];
+    foreach($order_item_for_order as $order_item_for_orders){
+      $order_status[] = $order_item_for_orders->status;
+    }
+
+    $order = Order::where('id', $order_item->order_id)->first();
+    if (!in_array('2', $order_status) && in_array('1', $order_status) && in_array('0', $order_status)) {
+    $order->status = 3;
+    $order->save();
+    }elseif(in_array('2', $order_status) && in_array('1', $order_status) && !in_array('0', $order_status)){
+      $order->status = 4;
+      $order->save();
+    }elseif(!in_array('2', $order_status) && in_array('1', $order_status) && !in_array('0', $order_status)){
+      $order->status = 1;
+      $order->save();
+    }elseif(in_array('2', $order_status) && !in_array('1', $order_status) && !in_array('0', $order_status)){
+      $order->status = 2;
+      $order->save();
+    }
+       
+
+
+
     //  echo "<pre>";print_r($order_item);die;
 
 

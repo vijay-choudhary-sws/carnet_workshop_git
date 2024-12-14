@@ -52,6 +52,7 @@ class ToolController extends Controller
 
     $stockHistory = new StockHistory;
     $stockHistory->label_id = $sparePartLabel->id;
+    $stockHistory->spare_part_id = $tool->id;
     $stockHistory->category = 3;
     $stockHistory->user_id = Auth::user()->id;
     $stockHistory->last_stock = 0;
@@ -82,6 +83,7 @@ class ToolController extends Controller
         ['title' => $request->name],
         ['title' => $request->name,'spare_part_type' => 3]
       );
+      $toolStock = Tool::find($request->id)->first('stock');
       $tool = Tool::find($request->id);
       if(!empty($tool)){
 
@@ -98,6 +100,18 @@ class ToolController extends Controller
         $tool->stock = $request->stock;
         $tool->description = $request->description;
         $tool->save();
+
+
+        $stockHistory = new StockHistory;
+        $stockHistory->label_id = $sparePartLabel->id;
+        $stockHistory->spare_part_id = $request->id;
+        $stockHistory->category = 3;
+        $stockHistory->user_id = Auth::user()->id;
+        $stockHistory->last_stock = $toolStock->stock;
+        $stockHistory->current_stock = $tool->stock;
+        $stockHistory->stock_type = 'addition';
+        $stockHistory->remarks = "Stock added by spare part vendor.";
+        $stockHistory->save();
         
         return redirect()->route('tool.list')->with('message', 'Tool Updated Successfully');
       }

@@ -56,6 +56,7 @@ class LubricantController extends Controller
 
     $stockHistory = new StockHistory;
     $stockHistory->label_id = $sparePartLabel->id;
+    $stockHistory->spare_part_id = $lubricant->id;
     $stockHistory->category = 4;
     $stockHistory->user_id = Auth::user()->id;
     $stockHistory->last_stock = 0;
@@ -87,6 +88,7 @@ class LubricantController extends Controller
         ['title' => $request->name],
         ['title' => $request->name,'spare_part_type' => 4]
       );
+      $lubricantStock = Lubricant::where('id',$request->id)->first('stock');
       $lubricant = Lubricant::find($request->id);
       if(!empty($lubricant)){
 
@@ -105,6 +107,17 @@ class LubricantController extends Controller
         $lubricant->stock = $request->stock;
         $lubricant->description = $request->description;
         $lubricant->save();
+
+        $stockHistory = new StockHistory;
+        $stockHistory->label_id = $sparePartLabel->id;
+        $stockHistory->spare_part_id = $lubricant->id;
+        $stockHistory->category = 4;
+        $stockHistory->user_id = Auth::user()->id;
+        $stockHistory->last_stock = $lubricantStock->stock;
+        $stockHistory->current_stock = $lubricant->stock;
+        $stockHistory->stock_type = 'addition';
+        $stockHistory->remarks = "Stock added by spare part vendor.";
+        $stockHistory->save();
         
         return redirect()->route('lubricant.list')->with('message', 'Lubricant Updated Successfully');
       }

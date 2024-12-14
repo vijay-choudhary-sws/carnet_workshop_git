@@ -897,6 +897,10 @@ Route::middleware('auth')->prefix('purchase-spare-part')->group(function () {
 	Route::post('get-item', [PurchaseSparePartController::class, 'getItem'])->name('purchase_spare_part.getItem');
 	Route::post('get-amount', [PurchaseSparePartController::class, 'getAmount'])->name('purchase_spare_part.getAmount');
 	Route::post('get-row', [PurchaseSparePartController::class, 'addRow'])->name('purchase_spare_part.addRow');
+	Route::get('Spare-part/create', [PurchaseSparePartController::class, 'create']) ->name('purchase_spare_part.create');
+	Route::post('get-row-model', [PurchaseSparePartController::class, 'addRowmodel'])->name('purchase_spare_part.addRowmodel');
+
+
 });
 
 Route::middleware('auth')->prefix('order')->group(function () {

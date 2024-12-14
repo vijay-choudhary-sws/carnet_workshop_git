@@ -20,6 +20,8 @@ class ProductStockcontroller extends Controller
   public function index()
   {
     $product_stocks = ProductStock::all();
+
+    // echo "<pre>";print_r($product_stocks[0]->label);die;
     return view('product_stock.list', compact('product_stocks'));
   } 
  

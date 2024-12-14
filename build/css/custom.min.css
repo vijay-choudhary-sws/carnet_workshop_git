@@ -7450,3 +7450,6 @@ button.submit2 {
     width: 104%;
     margin-left: -2%;
 }
+.custommodal-xl{
+    --bs-modal-width: 1100px !important; 
+}

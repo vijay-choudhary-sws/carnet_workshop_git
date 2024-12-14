@@ -49,10 +49,32 @@
                                             <td><a href="{{ route('order.view',$order->id) }}">{{ $order->total_amount }}</a></td> 
                                             <td><a href="{{ route('order.view',$order->id) }}">{{ $order->total_quantity }}</a></td> 
                                             <td><a href="{{ route('order.view',$order->id) }}">{{ $order->total_item }}</a></td> 
-                                             <td>
-                                                 @if($order->status == 0)
-                                                   Pending
-                                                 @endif
+                                             <td> 
+                                              @switch($order->status)
+                                                    @case(1)
+                                                      <p class="badge bg-success">Completed</p> 
+                                                    @break
+
+                                                    @case(0)
+                                                      <p class="badge bg-danger">Pending</p>  
+                                                    @break
+
+                                                    @case(2)
+                                                      <p class="badge bg-danger">Decline</p>   
+                                                        
+                                                    @break
+
+                                                    @case(3)
+                                                      <p class="badge bg-primary">Partial Pending</p>   
+                                                    @break
+
+                                                    @case(4).
+                                                      <p class="badge bg-primary">Partial Complete</p>   
+                                                    @break
+
+                                                    @default
+                                                @endswitch 
+                                                 
                                                 </td> 
                                                 <td> 
                                                     <a href="{{ route('order.view',$order->id) }}" class="btn btn-success">View Item</a>   

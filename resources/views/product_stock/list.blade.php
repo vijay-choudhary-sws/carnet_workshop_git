@@ -15,7 +15,7 @@
                     <nav>
                         <div class="nav toggle">
                             <a id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></a>
-                            <span class="titleup">{{ trans('message.Order') }} </span>
+                            <span class="titleup">{{ trans('message.Stock') }} </span>
                         </div>
                         @include('dashboard.profile')
                     </nav>
@@ -28,22 +28,39 @@
                         <div class="x_panel">
                             <table id="supplier" class="table jambo_table" style="width:100%">
                                 <thead>
-                                    <tr> 
+                                    <tr>  
                                         <th>Spare Part</th>
                                         <th>Category</th>
                                         <th>Stock</th>
-                                        <th>User</th>
                                         
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php $i = 1; ?>
                                     @foreach ($product_stocks as $product_stock)
-                                        <tr data-user-id="{{ $product_stock->id }}"> 
-                                            <td><a href="#">{{ $product_stock->label_id }}</a></td>
-                                            <td><a href="#">{{ $product_stock->category_id }}</a></td> 
-                                            <td><a href="#">{{ $product_stock->stock }}</a></td> 
-                                            <td><a href="#">{{ $product_stock->user_id }}</a></td> 
+                                        <tr data-user-id="{{ $product_stock->id }}">  
+                                            <td>{{ $product_stock->label->title }}</td>
+                                            <td>
+                                               @switch($product_stock->category_id)
+                                                    @case(1)
+                                                        Accessory
+                                                    @break
+
+                                                    @case(2)
+                                                        Parts
+                                                    @break
+
+                                                    @case(3)
+                                                        Tools
+                                                    @break
+
+                                                    @case(4)
+                                                        Lubricants
+                                                    @break
+
+                                                    @default
+                                                @endswitch </td> 
+                                            <td>{{ $product_stock->stock }}</td> 
                                              
                                         </tr>
                                         <?php $i++; ?>
