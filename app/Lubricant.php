@@ -14,7 +14,7 @@ class Lubricant extends Model
     protected $table = 'spare_parts';
     protected $dates = ['deleted_at'];
 
-    protected $append = ['name'];
+    protected $appends = ['name'];
 
     protected static function booted()
     {
