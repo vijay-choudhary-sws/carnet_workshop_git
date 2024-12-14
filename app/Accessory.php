@@ -13,7 +13,7 @@ class Accessory extends Model
 
     protected $table = 'spare_parts';
     protected $dates = ['deleted_at'];
-    protected $append = ['name'];
+    protected $appends = ['name'];
     protected static function booted()
     {
         static::addGlobalScope('sparePartType', function (Builder $builder) {
