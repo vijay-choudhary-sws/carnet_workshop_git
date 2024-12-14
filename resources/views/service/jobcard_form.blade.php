@@ -79,6 +79,10 @@
     body#app-layout.nav-md .top_nav .right_col {
     min-height: 3575px !important;
 }
+
+    span.select2-selection.select2-selection--single{
+        width: auto !important;
+    }
 </style>
 
 <!-- page content -->
@@ -763,6 +767,55 @@
                         @endif
                         <!-- ************* MOT Module Ending ************* -->
 
+                         <!-- ************* Spare Part Starting ************* -->
+                        <div class="row">
+                            <div class="col-md-3 col-lg-3 col-xl-3 col-xxl-3 col-sm-3 col-xs-3 ms-1">
+                                <h3>{{ trans('message.Spare Part') }}</h3>
+                            </div>
+                            <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 ps-0">
+                                <button type="button" data-bs-target="#responsive-modal-observation" data-bs-toggle="modal" class="btn btn-outline-secondary clickAddNewButton ms-0 mt-2"> + </button>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <table class="table table-bordered" id="spare-part-tabel">
+                                <thead>
+                                    <tr>
+                                        <th>Part Name</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Price</th>
+                                        <th>Total Amount</th>
+                                        <th>Discount</th>
+                                        <th>Final Amount</th>
+                                        <th>Assigned Mechanic</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td>
+                                            <div>
+                                                <select class="form-control select2" id="spare-parts-dropdown" onchange="addRow(this)">
+                                                    <option value="" selected disabled>--Select Spare Part -- </option>
+                                             
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        
+
+                         <!-- ************* Spare Part Ending ************* -->
+
 
                         <div class="row">
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -983,6 +1036,10 @@
 
 <script>
     $(document).ready(function() {
+       
+        $("#spare-parts").select2();
+
+        getLabel();
 
         $('.tbl_points, .check_submit').click(function() {
 
@@ -1266,6 +1323,115 @@
             $('#submitButton').prop('disabled', !pDateValue);
         });
     });
+
+    function addRow(e) {
+        // let isValid = true;
+
+        // $('select[name="category[]"]').each(function() {
+        //     let value = $(this).val();
+        //     if (!value) {
+        //         toastr.info('Category cannot be null.', "INFO");
+        //         isValid = false;
+        //         return false;
+        //     }
+        // });
+
+        // $('select[name="item[]"]').each(function() {
+        //     let value = $(this).val();
+        //     if (!value) {
+        //         toastr.info('Item cannot be null.', "INFO");
+        //         isValid = false;
+        //         return false;
+        //     }
+        // });
+
+        // $('select[name="quantity[]"]').each(function() {
+        //     let value = $(this).val();
+        //     if (!value) {
+        //         toastr.info('Qty cannot be null.', "INFO");
+        //         isValid = false;
+        //         return false;
+        //     }
+        // });
+
+        // if (!isValid) {
+        //     return;
+        // }
+
+        let row = $('#spare-part-tabel tbody tr').length + 1;
+
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('jobcard.spare_part.addRow') }}",
+            method: "post",
+            data: {
+                row: row,
+                id:$(e).val()
+            },
+            success: function(res) {
+                if (res.status == 1) {
+                    $('#spare-part-tabel tbody').append(res.html);
+                    $('#spare-parts-dropdown').val('');
+                    $('.select2').select2();
+                } else {
+                    toastr.info(res.msg, "INFO");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error: " + error);
+                console.error("Status: " + status);
+                console.error("Response: " + xhr.responseText);
+            }
+        });
+    }
+
+    function getLabel(){
+        $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            url: "{{ route('jobcard.stock.label') }}",
+            method: "post",
+            data: {},
+            success: function(res) {
+                if (res.status == 1) {
+                    $('#spare-parts-dropdown').html(res.html);
+                    $('.select2').select2();
+                } else {
+                    toastr.info(res.msg, "INFO");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error: " + error);
+                console.error("Status: " + status);
+                console.error("Response: " + xhr.responseText);
+            }
+        });
+    }
+
+    function getPrice(e){
+        let row = $(e).parents('tr').attr('data-row');
+
+        let qty = $('input[name="quantity[]"]').eq(row - 1).val();
+        let price = $('input[name="price[]"]').eq(row - 1).val();
+        let discount = $('input[name="discount[]"]').eq(row - 1).val();
+        
+        let totalAmount = parseInt(qty) * parseInt(price);
+        let finalAmount = totalAmount - parseInt(discount);
+        
+        $('input[name="total_amount[]"]').eq(row - 1).val(totalAmount);
+        $('input[name="final_amount[]"]').eq(row - 1).val(finalAmount);
+    }
+
+    function removeRow(e){
+        $(e).parents('tr').remove();
+        let i = 1;
+        $('#spare-part-tabel tbody tr').each(function(){
+            $(this).attr('data-row', i++);
+        });
+    }
 </script>
 
 <!-- Form field validation -->

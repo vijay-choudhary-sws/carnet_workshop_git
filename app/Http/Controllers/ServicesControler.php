@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\ProductStock;
 use DB;
-use Auth;
 use Mail;
 use App\User;
 use App\Sale;
@@ -20,11 +20,13 @@ use App\Holiday;
 use App\RepairCategory;
 use App\JobcardDetail;
 use App\Notes;
+use App\Stock;
 use App\tbl_service_images;
 use App\tbl_service_pros;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\tbl_service_observation_points;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 
@@ -1621,5 +1623,24 @@ class ServicesControler extends Controller
         $tbl_jobcard_details->save();
 
         return redirect('/service/frontendBook')->with('message', 'Service Booked Successfully');
+    }
+
+    public function stockLabel(Request $request){
+        $labels = ProductStock::get();
+
+        $html = view('jobcard.component.labels',compact('labels'))->render();
+        return response()->json(['status' => 1,'html'=> $html]);
+    }
+    public function addRow(Request $request){
+        // $labels = ProductStock::get();
+        $row = $request->row;
+        $stock = ProductStock::find($request->id);
+        $employee = User::where(['role'=> 'employee', 'soft_delete'=> 0])->get();
+
+
+        // echo "<pre>";print_r($employee->toArray());die;
+
+        $html = view('jobcard.component.add_row',compact('employee','row','stock'))->render();
+        return response()->json(['status' => 1,'html'=> $html]);
     }
 }

@@ -13,7 +13,7 @@
 
 // For patch
 
-use App\Http\Controllers\{AccessoryController, CategoryController, LubricantController, OrderController, ProductStockcontroller, PurchaseSparePartController, SparePartsController, ToolController, UnitController};
+use App\Http\Controllers\{AccessoryController, CategoryController, LubricantController, OrderController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, ToolController, UnitController};
 use Illuminate\Support\Facades\{Route, Auth, Artisan};
 
 Route::get('/updateDB', 'instaltionController@updateDB')->name('db_version');
@@ -301,6 +301,9 @@ Route::group(['prefix' => 'service'], function () {
 	Route::get('/customer_autocomplete_search', 'ServicesControler@get_customer_name');
 	Route::get('frontendBook', 'ServicesControler@frontendBook')->withoutMiddleware(['auth']);
 	Route::post('forntendAdd', 'ServicesControler@forntendAdd')->withoutMiddleware(['auth']);
+
+	Route::post('stock-label', [ServicesControler::class,'stockLabel'])->name('jobcard.stock.label');
+	Route::post('add-row', [ServicesControler::class,'addRow'])->name('jobcard.spare_part.addRow');
 });
 
 
