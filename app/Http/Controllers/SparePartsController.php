@@ -8,6 +8,7 @@ use App\SparePartLabel;
 use App\StockHistory;
 use App\Unit;
 use DB;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -59,6 +60,7 @@ class SparePartsController extends Controller
 
     $stockHistory = new StockHistory;
     $stockHistory->label_id = $sparePartLabel->id;
+    $stockHistory->spare_part_id = $sparePart->id;
     $stockHistory->category = 2;
     $stockHistory->user_id = Auth::user()->id;
     $stockHistory->last_stock = 0;
@@ -89,6 +91,8 @@ class SparePartsController extends Controller
         ['title' => $request->name],
         ['title' => $request->name,'spare_part_type' => 2]
       );
+      $sparePartStock = Part::where('id',$request->id)->first('stock');
+ 
       $sparePart = Part::find($request->id);
       if(!empty($sparePart)){
 
@@ -108,6 +112,19 @@ class SparePartsController extends Controller
         $sparePart->sp_type = $request->sp_type;
         $sparePart->description = $request->description;
         $sparePart->save();
+
+            
+        $stockHistory = new StockHistory;
+        $stockHistory->label_id = $sparePartLabel->id;
+        $stockHistory->spare_part_id = $sparePart->id;
+        $stockHistory->category = 2;
+        $stockHistory->user_id = Auth::user()->id;
+        $stockHistory->last_stock = $sparePartStock->stock;
+        $stockHistory->current_stock = $sparePart->stock;
+        $stockHistory->stock_type = 'addition';
+        $stockHistory->remarks = "Stock added by spare part vendor.";
+        $stockHistory->save();
+
         
         return redirect()->route('sparepart.list')->with('message', 'Spare Part Updated Successfully');
       }
@@ -133,6 +150,8 @@ class SparePartsController extends Controller
 
     return redirect()->route('sparepart.list')->with('message', 'Spare Part Deleted Successfully');
   }
+
+
 
 
 }

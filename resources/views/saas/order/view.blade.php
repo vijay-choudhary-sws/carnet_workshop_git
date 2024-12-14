@@ -46,7 +46,7 @@
                                     <?php $i = 1; ?>
                                     @foreach ($order_items as $order_item)
                                         <tr data-user-id="{{ $order_item->id }}">
-                                            <td>{{ $order_item->SpareParts->name }}</td>
+                                            <td>{{ @$order_item->SpareParts->name }}</td>
                                             <td>
                                                 @switch($order_item->category)
                                                     @case(1)

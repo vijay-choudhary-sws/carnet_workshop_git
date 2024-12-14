@@ -26,10 +26,18 @@
                                     @endcan
                                 </span>
                             @else
-                                <a id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></a><span
+                                <button type="button" id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></button><span
                                     class="titleup">{{ trans('message.Purchase') }}
                                 </span>
                             @endif
+                        </div>
+
+                             <div class="nav toggle">
+                           @can('salespart_add')
+                                        <a href="#"  onclick=addForm(this);return;false; id="" class="addbotton">
+                                            <img src="{{ URL::asset('public/img/icons/plus Button.png') }}" class="mb-2">
+                                        </a>
+                                    @endcan
                         </div>
                         @include('dashboard.profile')
                     </nav>
@@ -71,9 +79,31 @@
                                                     href="{{ route('order.view', $order->id) }}">{{ $order->total_item }}</a>
                                             </td>
                                             <td>
-                                                @if ($order->status == 0)
-                                                    Pending
-                                                @endif
+                                                @switch($order->status)
+                                                    @case(1)
+                                                      <p class="badge bg-success">Completed</p> 
+                                                    @break
+
+                                                    @case(0)
+                                                      <p class="badge bg-danger">Pending</p>  
+                                                    @break
+
+                                                    @case(2)
+                                                      <p class="badge bg-danger">Decline</p>   
+                                                        
+                                                    @break
+
+                                                    @case(3)
+                                                      <p class="badge bg-primary">Partial Pending</p>   
+                                                    @break
+
+                                                    @case(4).
+                                                      <p class="badge bg-primary">Partial Complete</p>   
+                                                    @break
+
+                                                    @default
+                                                @endswitch 
+                                                 
                                             </td>
                                             <td>
                                                 <a href="{{ route('purchase_spare_part.view', $order->id) }}"
@@ -96,6 +126,10 @@
     </div>
     <!-- /page content -->
 
+    <!-- Scripts starting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
     <!-- Scripts starting -->
     <script src="{{ URL::asset('vendors/jquery/dist/jquery.min.js') }}"></script>
@@ -164,6 +198,284 @@
 
             });
         });
+
+
+        function addForm(e) { 
+    var contentUrl = "{{route('purchase_spare_part.create')}}";
+    $.ajax({
+        type: "GET",
+        url: contentUrl,
+        success: function(data) {
+            $(".modal-body-data").html(data);
+            $("#bs-example-modal-xl").modal("show");
+        },
+        error: function() {
+            alert("Failed to load content.");
+        }
+    });
+}
+
+
+
+
+
+
+
+        $(document).ready(function() {
+
+            $('.select2').select2();
+
+            $('#purchase-spare-part-Form').on('submit', function(e) {
+                e.preventDefault();
+
+                let form = $(this);
+                let url = form.attr('action');
+                let formData = form.serialize();
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+
+                        toastr.clear();
+
+                        if (response.status === 'success') {
+                            toastr.success(response.message, 'Success');
+                            window.location.replace('{{ route('purchase_spare_part.list') }}');
+                        }
+                    },
+                    error: function(xhr) {
+
+                        toastr.clear();
+
+                        let errorMessages = '';
+                        let errors = xhr.responseJSON.errors;
+                        for (let field in errors) {
+                            if (errors.hasOwnProperty(field)) {
+                                let messages = errors[field];
+                                messages.forEach(function(message) {
+                                    errorMessages += message +
+                                        '<br>';
+                                });
+                            }
+                        }
+                        toastr.error(errorMessages, 'Validation Errors');
+                    }
+                });
+            });
+        });
+
+        function getItem(e) {
+            let cateId = $(e).val();
+            if (!cateId) {
+                toastr.info("Please select a valid category.", 'INFO')
+                return;
+            }
+            let row = $(e).parents('tr').attr('data-row');
+            if (!row) {
+                console.error("Row attribute is missing in the parent <tr>.");
+                return;
+            }
+
+            let itemId = [];
+            $('select[name="item[]"]').each(function() {
+                let value = parseFloat($(this).val());
+                if (!isNaN(value)) {
+                    itemId.push(value);
+                }
+            });
+
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('purchase_spare_part.getItem') }}",
+                method: "post",
+                data: {
+                    cat_id: cateId,
+                    item_id: itemId
+                },
+                success: function(res) {
+                    if (res.status == 1) {
+                        $('select[name="item[]"]').eq(row - 1).html(res.html);
+                    } else {
+                        toastr.info(res.msg, "INFO");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error: " + error);
+                    console.error("Status: " + status);
+                    console.error("Response: " + xhr.responseText);
+                }
+            });
+        }
+
+        function getStock(e) {
+            let stockId = $(e).val();
+            if (!stockId) {
+                toastr.info("Please select a valid item.", "INFO");
+                return;
+            }
+            let row = $(e).parents('tr').attr('data-row');
+            if (!row) {
+                console.error("Row attribute is missing in the parent <tr>.");
+                return;
+            }
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('purchase_spare_part.getAmount') }}",
+                method: "post",
+                data: {
+                    stock_id: stockId,
+                    row_id: row,
+                },
+                success: function(res) {
+                    if (res.status == 1) {
+                        $('input[name="quantity[]"]').eq(row - 1).attr('max', res.stock).val('1');
+                        $('input[name="price[]"]').eq(row - 1).val(res.price);
+                        $('input[name="total_price[]"]').eq(row - 1).val(res.price);
+                        totalAmount();
+                    } else {
+                        toastr.info(res.msg, "INFO");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    {{-- console.error("Error: " + error);
+                    console.error("Status: " + status);
+                    console.error("Response: " + xhr.responseText); --}}
+                }
+            });
+        }
+
+        function checkMax(e) { 
+            let value = parseInt($(e).val(), 10);
+            let maxValue = parseInt($(e).attr('max'), 10);
+            if (value < 0) {
+                $(e).val(0);
+            } else if (value > maxValue) {
+                $(e).val(maxValue);
+            }
+            getPrice(e);
+        }
+
+        function getPrice(e) {
+
+            let qty = parseInt($(e).val(), 10);
+
+            if (isNaN(qty) || qty < 0) {
+                toastr.info("Please enter a valid quantity.", "INFO");
+                return;
+            }
+
+            let row = $(e).parents('tr').attr('data-row');
+            if (!row) {
+                console.error("Row attribute is missing in the parent <tr>.");
+                return;
+            }
+
+            let price = parseFloat($('input[name="price[]"]').eq(row - 1).val());
+
+            if (isNaN(price) || price < 0) {
+                toastr.info("Price is invalid.", "INFO");
+                return;
+            }
+
+            let totalPrice = price * qty;
+            name = "total_price[]"
+            $('input[name="total_price[]"]').eq(row - 1).val(totalPrice);
+
+            totalAmount();
+        }
+
+        function totalAmount() {
+            let totalAmount = 0;
+            $('input[name="total_price[]"]').each(function() {
+                let value = parseFloat($(this).val());
+                if (!isNaN(value)) {
+                    totalAmount += value;
+                }
+            });
+
+            $('#totalAmount').val(totalAmount);
+        }
+
+        function addRowmodel() {
+
+            let isValid = true;
+
+            $('select[name="category[]"]').each(function() {
+                let value = $(this).val();
+                if (!value) {
+                    toastr.info('Category cannot be null.', "INFO");
+                    isValid = false;
+                    return false;
+                }
+            });
+
+            $('select[name="item[]"]').each(function() {
+                let value = $(this).val();
+                if (!value) {
+                    toastr.info('Item cannot be null.', "INFO");
+                    isValid = false;
+                    return false;
+                }
+            });
+
+            $('select[name="quantity[]"]').each(function() {
+                let value = $(this).val();
+                if (!value) {
+                    toastr.info('Qty cannot be null.', "INFO");
+                    isValid = false;
+                    return false;
+                }
+            });
+
+            if (!isValid) {
+                return;
+            }
+
+            let row = $('tbody tr').length + 1;
+
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('purchase_spare_part.addRowmodel') }}",
+                method: "post",
+                data: {
+                    row: row
+                },
+                success: function(res) {
+                    if (res.status == 1) {
+                        $('table tbody').append(res.html);
+                        $('.select2').select2();
+                    } else {
+                        toastr.info(res.msg, "INFO");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error: " + error);
+                    console.error("Status: " + status);
+                    console.error("Response: " + xhr.responseText);
+                }
+            });
+        }
+
+        function deleteRow(e) {
+            $(e).parents('tr').remove();
+            let $i = 1;
+            $('tbody tr').each(function() {
+                $(this).attr('data-row', $i++);
+            });
+            totalAmount();
+        }
+
+        
+
+
     </script>
 
 @endsection

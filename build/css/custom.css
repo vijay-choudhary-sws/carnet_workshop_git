@@ -4249,3 +4249,6 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
     background-color: #ffff !important;
 }
 /** /bootstrap-datetimepicker **/
+.modal-xl.custommodal-xl{
+    --bs-modal-width: 1100px !important; 
+}

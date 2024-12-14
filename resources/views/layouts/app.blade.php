@@ -833,6 +833,16 @@ $currentRoute = str_replace($baseUrl, "", $currentUrl);
       <!-- top navigation -->
       <div class="top_nav position-relative">
 
+ <div class="modal fade" id="bs-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl custommodal-xl">
+            <div class="modal-content modal-body-data">
+               
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
         <!-- /top navigation -->
         @yield('content')
         <footer class="footerforallpage bottom-0 bg-white text-center" id="footerforid">

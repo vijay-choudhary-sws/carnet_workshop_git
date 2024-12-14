@@ -53,6 +53,7 @@ class AccessoryController extends Controller
 
     $stockHistory = new StockHistory;
     $stockHistory->label_id = $sparePartLabel->id;
+    $stockHistory->spare_part_id = $accessory->id;
     $stockHistory->category = 1;
     $stockHistory->user_id = Auth::user()->id;
     $stockHistory->last_stock = 0;
@@ -83,6 +84,7 @@ class AccessoryController extends Controller
         ['title' => $request->name],
         ['title' => $request->name,'spare_part_type' => 1]
       );
+      $accessoryStock = Accessory::find($request->id)->first('stock');
       $accessory = Accessory::find($request->id);
       if(!empty($accessory)){
 
@@ -102,6 +104,17 @@ class AccessoryController extends Controller
         $accessory->save();
         
         
+        $stockHistory = new StockHistory;
+        $stockHistory->label_id = $sparePartLabel->id;
+        $stockHistory->spare_part_id = $accessory->id;
+        $stockHistory->category = 1;
+        $stockHistory->user_id = Auth::user()->id;
+        $stockHistory->last_stock = $accessoryStock->stock;
+        $stockHistory->current_stock = $accessory->stock;
+        $stockHistory->stock_type = 'addition';
+        $stockHistory->remarks = "Stock added by spare part vendor.";
+        $stockHistory->save();
+
         return redirect()->route('accessory.list')->with('message', 'Accessory Updated Successfully');
       }
       return redirect()->back()->with('message','Error! Something went wrong.');

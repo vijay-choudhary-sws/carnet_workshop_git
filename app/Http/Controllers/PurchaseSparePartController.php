@@ -9,6 +9,7 @@ use App\SparePart;
 use App\SparePartLabel;
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,6 +48,8 @@ class PurchaseSparePartController extends Controller
 		$items = SparePart::where(['spare_part_type' => $request->cat_id])->whereNotIn('id', $itemIds)->get();
 		if (count($items) > 0) {
 			$html = view('purchase_spare_part.component.item', compact('items'))->render();
+
+			
 			return response()->json(['status' => 1, 'html' => $html]);
 		}
 		return response()->json(['status' => 0, 'msg' => 'Item not found.']);
@@ -106,4 +109,18 @@ class PurchaseSparePartController extends Controller
 
 		return response()->json(['status' => 'success']);
 	}
+
+	public function addRowmodel(Request $request)
+	{
+		$html = view('purchase_spare_part.component.add_row_model', ['row' => $request->row])->render();
+		return response()->json(['status' => 1, 'html' => $html]);
+	}
+	public function create(): View
+	{    
+		return view('purchase_spare_part.create');
+	}
+
+
+	
+  
 }

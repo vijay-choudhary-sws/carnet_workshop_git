@@ -17,6 +17,11 @@ class ProductStock extends Model
         'user_id',
     ];
     
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+ 
     protected $appends = ['title','category'];
     protected $hidden = ['label'];
 
@@ -24,6 +29,7 @@ class ProductStock extends Model
     {
         return $this->belongsTo(SparePartLabel::class,'label_id');
     }
+   
     public function getTitleAttribute()
     {
         return $this->label ? $this->label->title : null;
