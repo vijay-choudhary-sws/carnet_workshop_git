@@ -847,6 +847,7 @@ class JobCardcontroller extends Controller
 
 		/*get washbay data*/
 		$washbay_data = Washbay::where([['customer_id', '=', $services->customer_id], ['jobcard_no', '=', $services->job_no]])->first();
+		$jobCardSparePart = JobCardSparePart::where([['jobcard_no', '=', $services->job_no]])->get();
 		$currentUser = User::where([['soft_delete', 0], ['id', '=', Auth::User()->id]])->orderBy('id', 'DESC')->first();
 		// $adminCurrentBranch = BranchSetting::where('id', '=', 1)->first();
 		$names = null;
@@ -865,7 +866,7 @@ class JobCardcontroller extends Controller
 		}
 
 		//dd($names, $tbl_checkout_categories);
-		return view('jobcard.view', compact('viewid', 'services', 'tbl_observation_points', 'tbl_observation_service', 'tbl_service_observation_points', 'vehicale', 'sales', 'product', 's_id', 'job', 'pros', 'pros2', 'tbl_checkout_categories', 'first', 'vehicalemodel', 'tbl_points', 's_date', 'color', 'service_data', 'tax', 'logo', 'obser_id', 'data', 'fetch_mot_test_status', 'employees', 'washbay_data'));
+		return view('jobcard.view', compact('viewid', 'services', 'tbl_observation_points', 'tbl_observation_service', 'tbl_service_observation_points', 'vehicale', 'sales', 'product', 's_id', 'job', 'pros', 'pros2', 'tbl_checkout_categories', 'first', 'vehicalemodel', 'tbl_points', 's_date', 'color', 'service_data', 'tax', 'logo', 'obser_id', 'data', 'fetch_mot_test_status', 'employees', 'washbay_data','jobCardSparePart'));
 	}
 
 	//get points
@@ -1320,12 +1321,14 @@ class JobCardcontroller extends Controller
 		$service_charge = DB::table('tbl_services')->where('id', '=', $serviceid)->first();
 		$charge = $service_charge->charge + $service_charge->mot_charge;
 		$wash_charge = DB::table('washbays')->where('jobcard_no', $job_no)->first();
+		$sparePart = JobCardSparePart::where('jobcard_no', $job_no)->sum('final_amount');
 		if ($wash_charge !== null) {
 			$wash_price = $wash_charge->price;
 		} else {
 			$wash_price = 0;
 		}
-		$total_amount = $service_pro + $othr_charges + $charge + $wash_price;
+		// echo "<pre>"; print_r($sparePart);die;
+		$total_amount = $service_pro + $othr_charges + $charge + $wash_price + $sparePart;
 		// dd($tbl_services);
 		$html = view('jobcard.createinvoicemodel')->with(compact('tbl_services', 'type', 'total_amount', 'customer_job', 'invoice_for', 'code', 'tax', 'tbl_sales', 'codepay', 'total_rto', 'tbl_payments', 'branchDatas'))->render();
 

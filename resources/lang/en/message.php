@@ -2481,6 +2481,7 @@ return [
 	"Purchase Spare Parts" => "Purchase Spare Parts",
 
 	"Stock" => "Stock",
+	"Spare Part Charges" => "Spare Part Charges",
 
 ];
 // English en

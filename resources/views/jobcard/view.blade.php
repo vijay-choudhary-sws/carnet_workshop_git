@@ -570,6 +570,43 @@
                                         </table>
                                     </div>
                                 </div>
+                                @if (count($jobCardSparePart) > 0)
+                                <div class="col-md-10 col-lg-10 col-xl-10 col-xxl-10 col-sm-10 col-xs-10">
+                                    <h2 class="fw-bold mt-0">{{ trans('message.Spare Part Charges') }}
+                                        {{-- <button type="button" id="add_new_product" class="btn btn-outline-secondary mt-0 ms-1" url="{!! url('/jobcard/addproducts') !!}"> + </button> --}}
+                                    </h2>
+                                </div>
+                                <div class="col-md-12 col-xs-12 col-sm-12">
+                                    <div class="table-responsive ms-0">
+                                        <table class="table table-bordered addtaxtype" id="tab_products_detail" align="center">
+                                            <thead>
+                                                <tr>
+                                                    <th class="">{{ trans('message.Name') }}</th>
+                                                    <th class="">{{ trans('message.Price') }}
+                                                        (<?php echo getCurrencySymbols(); ?>)
+                                                    </th>
+                                                    <th>{{ trans('message.Action') }}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                               
+                                                    @foreach ($jobCardSparePart as $item)
+                                                    <tr>
+                                                        <td>
+                                                            <input type="text" class="form-control" value="{{ $item->product_stock_name }}" readonly>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="spare_part" class="form-control" id="spare_part" value="{{ $item->price }}" readonly>
+                                                        </td>
+                                                        <td></td>
+                                                    </tr>
+                                                    @endforeach
+                                               
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                @endif
 
                                 <!-- model in observation Point -->
                                 <div class="col-md-12">
