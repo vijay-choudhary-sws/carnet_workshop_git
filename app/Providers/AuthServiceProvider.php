@@ -137,6 +137,24 @@ class AuthServiceProvider extends ServiceProvider
         });
 
 
+           //For stock_history Module Policy (Define by Mukesh)
+           Gate::define('stock_history_view', function ($user) {
+            return $user->hasAccess(['stock_history_view']);
+        });
+        Gate::define('stock_history_add', function ($user) {
+            return $user->hasAccess(['stock_history_add']);
+        });
+        Gate::define('stock_history_edit', function ($user) {
+            return $user->hasAccess(['stock_history_edit']);
+        });
+        Gate::define('stock_history_delete', function ($user) {
+            return $user->hasAccess(['stock_history_delete']);
+        });
+        Gate::define('stock_history_owndata', function ($user) {
+            return $user->hasAccess(['stock_history_owndata']);
+        });
+
+
         //For Dashboard Module Policy (Define by Mukesh)
         Gate::define('dashboard_view', function ($user) {
             return $user->hasAccess(['dashboard_view']);

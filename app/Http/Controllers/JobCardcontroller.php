@@ -37,13 +37,14 @@ use Illuminate\Support\Facades\View;
 class JobCardcontroller extends Controller
 {
 	public function __construct()
-	{
+	{ 
 		$this->middleware('auth');
 	}
 
 	//jobcard list
 	public function index(Request $request)
-	{
+	{ 
+		
 		$currentUser = User::where([['soft_delete', 0], ['id', '=', Auth::User()->id]])->orderBy('id', 'DESC')->first();
 		// $adminCurrentBranch = BranchSetting::where('id', '=', 1)->first();
 
@@ -166,6 +167,8 @@ class JobCardcontroller extends Controller
 				$service->next_date = $tbl_jobcard_details->next_date;
 			}
 		}
+
+
 
 		return view('jobcard.list', compact('services', 'available'));
 	}

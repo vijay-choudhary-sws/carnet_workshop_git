@@ -12,6 +12,7 @@
         }
     }
 </style>
+
 <!-- page content -->
 <div class="right_col" role="main">
     <div id="myModal" class="modal fade" role="dialog">
@@ -51,6 +52,7 @@
         </div>
         @include('success_message.message')
         <div class="row">
+       
         @if(!empty($services) && count($services) > 0)
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel table_up_div">
