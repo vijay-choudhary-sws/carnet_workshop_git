@@ -35,7 +35,7 @@ class ServicesControler extends Controller
 {
     //get tables and compact
     public function __construct()
-    { 
+    {
         $this->middleware('auth');
     }
 
@@ -107,8 +107,7 @@ class ServicesControler extends Controller
 
     //service add form
     public function index()
-    { 
-        // echo "<pre>";print_r(env('APP_URL'));die;
+    {
         $last_order = DB::table('tbl_services')->latest()->where('sales_id', '=', null)->get()->first();
 
         if (!empty($last_order)) {

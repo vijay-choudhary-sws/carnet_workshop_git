@@ -2479,10 +2479,9 @@ return [
 	"Order Item" => "Order Item",
 	"Purchase Order" => "Purchase Order",
 	"Purchase Spare Parts" => "Purchase Spare Parts",
+
 	"Stock" => "Stock",
 	"Spare Part Charges" => "Spare Part Charges",
-	"Stock History" => "Stock History",
-	"Job Card" => "Job Card",
 
 ];
 // English en
