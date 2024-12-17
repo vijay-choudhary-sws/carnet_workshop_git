@@ -1,5 +1,5 @@
 <?php
-// use App\Http\Livewire\JobCard; 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,8 +13,8 @@
 
 // For patch
 
-use App\Http\Controllers\{AccessoryController, CategoryController, LubricantController, OrderController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, ToolController, UnitController,StockHistoryController};
-use Illuminate\Support\Facades\{Route,Auth, Artisan};
+use App\Http\Controllers\{AccessoryController, CategoryController, LubricantController, OrderController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, ToolController, UnitController};
+use Illuminate\Support\Facades\{Route, Auth, Artisan};
 
 Route::get('/updateDB', 'instaltionController@updateDB')->name('db_version');
 Route::get('/Update_version', 'instaltionController@Update_version');
@@ -25,7 +25,6 @@ Auth::routes();
 // 	return view('Installer.index');
 // })->name('installation_form');
 
-
 Route::get('/installation_form', function () {
 	if (!file_exists('installed.txt')) {
 		return view('Installer.index');
@@ -35,12 +34,6 @@ Route::get('/installation_form', function () {
 })->name('installation_form');
 
 //instaltion
-
-// Route::get('/job-card', JobCard::class)->name('job-card');
-
-
-
-
 Route::post('/installation', ['as' => '/instaltion', 'uses' => 'instaltionController@index']);
 
 // password
@@ -923,14 +916,6 @@ Route::group(['prefix' => 'stock'], function () {
 	Route::get('list/view/{id}', [ProductStockcontroller::class, 'view'])->name('stock.view'); 
 	Route::post('list/accept', [ProductStockcontroller::class, 'accept'])->name('stock.accept'); 
 });
-
-
-Route::group(['prefix' => 'stock_history'], function () {
-	Route::get('list', [StockHistoryController::class, 'index'])->name('stock_history.list'); 
-	Route::get('list/view/{id}', [StockHistoryController::class, 'view'])->name('stock_history.view'); 
-	Route::post('list/accept', [StockHistoryController::class, 'accept'])->name('stock_history.accept'); 
-});
-
 //Notes Module
 Route::group(['prefix' => 'notes'], function () {
 	Route::get('/add', 'NotesController@index');

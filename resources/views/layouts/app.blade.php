@@ -331,7 +331,6 @@ use Illuminate\Support\Str;
 </style>
 
 <head>
-
   <meta content="text/html; charset=UTF-8">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -428,7 +427,6 @@ use Illuminate\Support\Str;
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.3/css/bootstrap-colorpicker.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.3/js/bootstrap-colorpicker.min.js"></script>
 
-@livewireStyles
 </head>
 <?php
 $langcode = getLangCode();
@@ -491,8 +489,6 @@ $currentRoute = str_replace($baseUrl, "", $currentUrl);
                       @can('stock_view')
                       <a href="{!! url('/stoke/list') !!}">{{ trans('message.Stock') }}</a>
                       @endcan
-
-             
                     </div>
                   </div>
                 </li>
@@ -794,15 +790,6 @@ $currentRoute = str_replace($baseUrl, "", $currentUrl);
                 </li>
                 @endcan
 
-    
-                {{-- @can('stock') --}}
-                <li>
-                  <a href="{{ route('stock_history.list') }}">
-                    <i class="fa-solid fa-oil-can margin-right-10px"></i>{{ trans('Stock History') }}
-                  </a>
-                </li>
-                {{-- @endcan --}}
-
 
                 @php
                 $inventoryRoutes = ['/setting/general_setting/list','/setting/timezone/list','/setting/accessrights/show','/setting/hours/list','/setting/stripe/list','/branch_setting/list'];
@@ -1064,10 +1051,6 @@ $currentRoute = str_replace($baseUrl, "", $currentUrl);
     });
   </script>
 
-
-<script src="{{ URL::asset('public/vendor/livewire/livewire.js') }}" data-turbo-eval="false" data-turbolinks-eval="false"></script>
-
-@livewireScripts
 </body>
 
 </html>
