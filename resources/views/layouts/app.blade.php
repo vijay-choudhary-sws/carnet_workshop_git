@@ -790,6 +790,14 @@ $currentRoute = str_replace($baseUrl, "", $currentUrl);
                 </li>
                 @endcan
 
+                @can('stock')
+                <li>
+                  <a href="{{ route('stock_history.list') }}">
+                    <i class="fa-solid fa-oil-can margin-right-10px"></i>{{ trans('Stock History') }}
+                  </a>
+                </li>
+                @endcan
+
 
                 @php
                 $inventoryRoutes = ['/setting/general_setting/list','/setting/timezone/list','/setting/accessrights/show','/setting/hours/list','/setting/stripe/list','/branch_setting/list'];

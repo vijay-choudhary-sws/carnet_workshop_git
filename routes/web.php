@@ -13,7 +13,7 @@
 
 // For patch
 
-use App\Http\Controllers\{AccessoryController, CategoryController, LubricantController, OrderController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, ToolController, UnitController};
+use App\Http\Controllers\{AccessoryController, CategoryController, LubricantController, OrderController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, StockHistoryController, ToolController, UnitController};
 use Illuminate\Support\Facades\{Route, Auth, Artisan};
 
 Route::get('/updateDB', 'instaltionController@updateDB')->name('db_version');
@@ -915,6 +915,12 @@ Route::group(['prefix' => 'stock'], function () {
 	Route::get('list', [ProductStockcontroller::class, 'index'])->name('stock.list'); 
 	Route::get('list/view/{id}', [ProductStockcontroller::class, 'view'])->name('stock.view'); 
 	Route::post('list/accept', [ProductStockcontroller::class, 'accept'])->name('stock.accept'); 
+});
+
+Route::group(['prefix' => 'stock_history'], function () {
+	Route::get('list', [StockHistoryController::class, 'index'])->name('stock_history.list'); 
+	Route::get('list/view/{id}', [StockHistoryController::class, 'view'])->name('stock_history.view'); 
+	Route::post('list/accept', [StockHistoryController::class, 'accept'])->name('stock_history.accept'); 
 });
 //Notes Module
 Route::group(['prefix' => 'notes'], function () {
