@@ -616,6 +616,25 @@ $currentRoute = str_replace($baseUrl, "", $currentUrl);
                 </li>
                 @endcanany
 
+                @canany(['jobcard_view', 'gatepass_view'])
+                @php
+                $inventoryRoutes = ['/jobcard/list','/gatepass/list','/gatepass/add'];
+                @endphp
+                <li class="{{ in_array($currentRoute, $inventoryRoutes) || Str::startsWith($currentRoute, '/jobcard/') || Str::startsWith($currentRoute, '/gatepass/') ? 'active' : '' }}">
+                  <div class="dropdown w-100">
+                    <a href="#"><i class="fa-solid fa-credit-card margin-right-10px"></i>{{ trans('message.Job Card') }}<span class="fa fa-chevron-right dropdown-right-icon icon"></span></a>
+                    <div class="dropdown-content dropdown-content-jobcard">
+                      @can('jobcard_view')
+                      <a href="{{ route('newjobcard.list') }}">{{ trans('message.Job Card') }}</a>
+                      @endcan
+                      @can('gatepass_view')
+                      <a href="{!! url('/gatepass/list') !!}">{{ trans('message.Gate Pass') }}</a>
+                      @endcan
+                    </div>
+                  </div>
+                </li>
+                @endcanany
+
                 @canany(['taxrate_view', 'paymentmethod_view', 'income_view', 'expense_view'])
                 @php
                 $inventoryRoutes = ['/taxrates/list','/payment/list','/income/list','/expense/list','/taxrates/add','/payment/add','/income/add','/income/month_income','/expense/add','/expense/month_expense'];

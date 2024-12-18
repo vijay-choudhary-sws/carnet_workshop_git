@@ -768,50 +768,6 @@
                         <!-- ************* MOT Module Ending ************* -->
 
                          <!-- ************* Spare Part Starting ************* -->
-                        <div class="row">
-                            <div class="col-md-3 col-lg-3 col-xl-3 col-xxl-3 col-sm-3 col-xs-3 ms-1">
-                                <h3>{{ trans('message.Spare Part') }}</h3>
-                            </div>
-                            <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 ps-0">
-                                <button type="button" class="btn btn-outline-secondary clickAddNewButton ms-0 mt-2" onclick=addForm(this);return;false;> + </button>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <table class="table table-bordered" id="spare-part-tabel">
-                                <thead>
-                                    <tr>
-                                        <th>Part Name</th>
-                                        <th>Quantity</th>
-                                        <th>Unit Price</th>
-                                        <th>Total Amount</th>
-                                        <th>Discount</th>
-                                        <th>Final Amount</th>
-                                        <th>Assigned Mechanic</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td>
-                                            <div>
-                                                <select class="form-control select2" id="spare-parts-dropdown" onchange="addJobCardRow(this)">
-                                                    <option value="" selected disabled>--Select Spare Part -- </option>
-                                             
-                                                </select>
-                                            </div>
-                                        </td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
                         
 
                          <!-- ************* Spare Part Ending ************* -->

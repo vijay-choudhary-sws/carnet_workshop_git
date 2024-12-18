@@ -3763,3 +3763,12 @@ if (!function_exists('uploadFile')) {
 		return false;
 	}
 }
+
+if (!function_exists('generateHashJobCardNumber')) {
+	function generateHashJobCardNumber($userId) {
+		$timestamp = microtime(true);
+		$random = mt_rand();
+		$hash = strtoupper(substr(sha1($userId . $timestamp . $random), 0, 10));
+		return "JCN-{$hash}";
+	}
+}

@@ -922,6 +922,11 @@ Route::group(['prefix' => 'stock_history'], function () {
 	Route::get('list/view/{id}', [StockHistoryController::class, 'view'])->name('stock_history.view'); 
 	Route::post('list/accept', [StockHistoryController::class, 'accept'])->name('stock_history.accept'); 
 });
+
+Route::middleware('auth')->prefix('job-card')->group(function () {
+	Route::get('list', [App\Http\Controllers\JobCard\JobCardController::class, 'index'])->name('newjobcard.list'); 
+	Route::get('add', [App\Http\Controllers\JobCard\JobCardController::class, 'add'])->name('newjobcard.add'); 
+});
 //Notes Module
 Route::group(['prefix' => 'notes'], function () {
 	Route::get('/add', 'NotesController@index');

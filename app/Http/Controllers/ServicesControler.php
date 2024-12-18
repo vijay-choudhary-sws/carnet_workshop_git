@@ -21,6 +21,7 @@ use App\RepairCategory;
 use App\JobcardDetail;
 use App\JobCardSparePart;
 use App\Notes;
+use App\SparePartLabel;
 use App\Stock;
 use App\tbl_service_images;
 use App\tbl_service_pros;
@@ -266,8 +267,8 @@ class ServicesControler extends Controller
         $vehical->vehicletype_id = $vehical_type;
         $vehical->chassisno = $chasicno;
         $vehical->vehiclebrand_id = $vehicabrand;
-        $vehical->modelyear  = $modelyear;
-        $vehical->fuel_id  = $fueltype;
+        $vehical->modelyear = $modelyear;
+        $vehical->fuel_id = $fueltype;
         $vehical->modelname = $modelname;
         $vehical->price = $price;
         $vehical->odometerreading = $odometerreading;
@@ -367,11 +368,11 @@ class ServicesControler extends Controller
             $num = "$value";
             $n = explode("/", $num);
             $isSelected = ($n[3] == $selectedVId) ? 'selected' : '';
-?>
+            ?>
             <option value="<?php echo $n[3]; ?>" class="modelnms" <?php echo $isSelected; ?>>
                 <?php echo $value; ?>
             </option>
-        <?php
+            <?php
         }
     }
 
@@ -531,13 +532,13 @@ class ServicesControler extends Controller
             //echo "You have not checked MoT Module";
         }
 
-        if(count($jobcard_item_id) > 0){
-            $stockData = ProductStock::whereIn('id',$jobcard_item_id)->get();
+        if (count($jobcard_item_id) > 0) {
+            $stockData = ProductStock::whereIn('id', $jobcard_item_id)->get();
             foreach ($jobcard_item_id as $itemKey => $itemValue) {
                 $jobCardSparePart = new JobCardSparePart;
                 $jobCardSparePart->jobcard_no = $job_no;
                 $jobCardSparePart->product_stock_id = $itemValue;
-                $jobCardSparePart->product_stock_name = $stockData->where('id',$itemValue)->first()->title;
+                $jobCardSparePart->product_stock_name = $stockData->where('id', $itemValue)->first()->title;
                 $jobCardSparePart->quantity = $jobcard_quantity[$itemKey];
                 $jobCardSparePart->price = $jobcard_price[$itemKey];
                 $jobCardSparePart->total_amount = $jobcard_total_amount[$itemKey];
@@ -587,32 +588,32 @@ class ServicesControler extends Controller
                     });
 
                     /* $actual_link = $_SERVER['HTTP_HOST'];
-					$startip = '0.0.0.0';
-					$endip = '255.255.255.255';
+                    $startip = '0.0.0.0';
+                    $endip = '255.255.255.255';
 
-					$data = array(
-						'email' => $email,
-						'mail_sub1' => $mail_sub,
-						'email_content1' => $email_content,
-						'emailsend' => $mail_send_from,
-					);
+                    $data = array(
+                        'email' => $email,
+                        'mail_sub1' => $mail_sub,
+                        'email_content1' => $email_content,
+                        'emailsend' => $mail_send_from,
+                    );
 
-					if (($actual_link == 'localhost' || $actual_link == 'localhost:8080') || ($actual_link >= $startip && $actual_link <= $endip)) {
-						//local format email
+                    if (($actual_link == 'localhost' || $actual_link == 'localhost:8080') || ($actual_link >= $startip && $actual_link <= $endip)) {
+                        //local format email
 
-						$data1 = Mail::send('customer.customermail', $data, function ($message) use ($data) {
+                        $data1 = Mail::send('customer.customermail', $data, function ($message) use ($data) {
 
-							$message->from($data['emailsend'], 'noreply');
+                            $message->from($data['emailsend'], 'noreply');
 
-							$message->to($data['email'])->subject($data['mail_sub1']);
-						});
-					} else {
-						//live format email
-						$headers = 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-						$headers .= 'From:' . $mail_send_from . "\r\n";
+                            $message->to($data['email'])->subject($data['mail_sub1']);
+                        });
+                    } else {
+                        //live format email
+                        $headers = 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+                        $headers .= 'From:' . $mail_send_from . "\r\n";
 
-						$data = mail($email, $mail_sub, $email_content, $headers);
-					}*/
+                        $data = mail($email, $mail_sub, $email_content, $headers);
+                    }*/
 
                     // Store email log entry
                     $emailLog = new EmailLog();
@@ -1300,7 +1301,8 @@ class ServicesControler extends Controller
         ?>
         <tr id="image_id_<?php echo $idi; ?>">
             <td>
-                <input type="file" id="tax_<?php echo $idi; ?>" name="image[]" class="form-control dropify tax" data-max-file-size="5M">
+                <input type="file" id="tax_<?php echo $idi; ?>" name="image[]" class="form-control dropify tax"
+                    data-max-file-size="5M">
                 <div class="dropify-preview">
                     <span class="dropify-render"></span>
                     <div class="dropify-infos">
@@ -1318,7 +1320,7 @@ class ServicesControler extends Controller
             </td>
         </tr>
         <script>
-            $(document).ready(function() {
+            $(document).ready(function () {
                 // Basic
                 $('.dropify').dropify();
 
@@ -1335,21 +1337,21 @@ class ServicesControler extends Controller
                 // Used events
                 var drEvent = $('#input-file-events').dropify();
 
-                drEvent.on('dropify.beforeClear', function(event, element) {
+                drEvent.on('dropify.beforeClear', function (event, element) {
                     return confirm("Do you really want to delete \"" + element.file.name + "\" ?");
                 });
 
-                drEvent.on('dropify.afterClear', function(event, element) {
+                drEvent.on('dropify.afterClear', function (event, element) {
                     alert('File deleted');
                 });
 
-                drEvent.on('dropify.errors', function(event, element) {
+                drEvent.on('dropify.errors', function (event, element) {
                     console.log('Has Errors');
                 });
 
                 var drDestroy = $('#input-file-to-destroy').dropify();
                 drDestroy = drDestroy.data('dropify')
-                $('#toggleDropify').on('click', function(e) {
+                $('#toggleDropify').on('click', function (e) {
                     e.preventDefault();
                     if (drDestroy.isDropified()) {
                         drDestroy.destroy();
@@ -1359,7 +1361,7 @@ class ServicesControler extends Controller
                 })
             });
         </script>
-<?php
+        <?php
     }
 
     //delete images
@@ -1526,7 +1528,7 @@ class ServicesControler extends Controller
 
             $role_user_table = new Role_user;
             $role_user_table->user_id = $currentUserId;
-            $role_user_table->role_id  = $getRoleId->id;
+            $role_user_table->role_id = $getRoleId->id;
             $role_user_table->save();
         }
 
@@ -1568,30 +1570,30 @@ class ServicesControler extends Controller
                         });
 
                         /* $actual_link = $_SERVER['HTTP_HOST'];
-						$startip = '0.0.0.0';
-						$endip = '255.255.255.255';
-						$data = array(
-							'email' => $email,
-							'mail_sub1' => $mail_sub,
-							'email_content1' => $email_content,
-							'emailsend' => $mail_send_from,
-						);
+                        $startip = '0.0.0.0';
+                        $endip = '255.255.255.255';
+                        $data = array(
+                            'email' => $email,
+                            'mail_sub1' => $mail_sub,
+                            'email_content1' => $email_content,
+                            'emailsend' => $mail_send_from,
+                        );
 
-						if (($actual_link == 'localhost' || $actual_link == 'localhost:8080') || ($actual_link >= $startip && $actual_link <= $endip)) {
-							//local format email
+                        if (($actual_link == 'localhost' || $actual_link == 'localhost:8080') || ($actual_link >= $startip && $actual_link <= $endip)) {
+                            //local format email
 
-							$data1 = Mail::send('customer.customermail', $data, function ($message) use ($data) {
+                            $data1 = Mail::send('customer.customermail', $data, function ($message) use ($data) {
 
-								$message->from($data['emailsend'], 'noreply');
-								$message->to($data['email'])->subject($data['mail_sub1']);
-							});
-						} else {
-							//Live format email
-							$headers = 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-							$headers .= 'From:' . $mail_send_from . "\r\n";
+                                $message->from($data['emailsend'], 'noreply');
+                                $message->to($data['email'])->subject($data['mail_sub1']);
+                            });
+                        } else {
+                            //Live format email
+                            $headers = 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+                            $headers .= 'From:' . $mail_send_from . "\r\n";
 
-							$data = mail($email, $mail_sub, $email_content, $headers);
-						}*/
+                            $data = mail($email, $mail_sub, $email_content, $headers);
+                        }*/
 
                         // Store email log entry
                         $emailLog = new EmailLog();
@@ -1652,22 +1654,70 @@ class ServicesControler extends Controller
         return redirect('/service/frontendBook')->with('message', 'Service Booked Successfully');
     }
 
-    public function stockLabel(Request $request){
-        $labels = ProductStock::get();
+    public function stockLabel(Request $request)
+    {
+        $labels = SparePartLabel::with('productStocks')->get();
 
-        $html = view('jobcard.component.labels',compact('labels'))->render();
-        return response()->json(['status' => 1,'html'=> $html]);
+        $mergedData = [];
+
+        foreach ($labels as $label) {
+            if ($label->productStocks->isNotEmpty()) {
+                
+                foreach ($label->productStocks as $productStock) {
+                    $mergedData[$label->spare_part_type][] = [
+                        'label_id' => $label->id,
+                        'label_name' => $label->title,
+                        'cat_type' => $label->spare_part_type,
+                        'product_stock_id' => $productStock->id,
+                        'stock' => $productStock->stock, 
+                        'price' => $productStock->price,       
+                    ];
+                }
+            } else {
+
+                $mergedData[$label->spare_part_type][] = [
+                    'label_id' => $label->id,
+                    'label_name' => $label->title,
+                    'cat_type' => $label->spare_part_type,
+                    'product_stock_id' => null,
+                    'stock' => 0,
+                    'price' => 0,
+                ];
+            }
+        }
+
+        // echo "<pre>";print_r($mergedData);die;
+
+        $cat = 'Accessory';
+        $labels = $mergedData[1] ?? [];
+        $accessory = view('jobcard.component.labels', compact('labels', 'cat'))->render();
+
+        $cat = 'Spare Part';
+        $labels = $mergedData[2] ?? [];
+        $spare = view('jobcard.component.labels', compact('labels', 'cat'))->render();
+
+        $cat = 'Tool';
+        $labels = $mergedData[3] ?? [];
+        $tool = view('jobcard.component.labels', compact('labels', 'cat'))->render();
+
+        $cat = 'Lubricant';
+        $labels = $mergedData[4] ?? [];
+        $lube = view('jobcard.component.labels', compact('labels', 'cat'))->render();
+
+        return response()->json(['status' => 1, 'accessory' => $accessory, 'spare' => $spare, 'tool' => $tool, 'lube' => $lube]);
     }
-    public function addRow(Request $request){
+    public function addRow(Request $request)
+    {
         // $labels = ProductStock::get();
         $row = $request->row;
         $stock = ProductStock::find($request->id);
-        $employee = User::where(['role'=> 'employee', 'soft_delete'=> 0])->get();
+
+        $employee = User::where(['role' => 'employee', 'soft_delete' => 0])->get();
 
 
         // echo "<pre>";print_r($employee->toArray());die;
 
-        $html = view('jobcard.component.add_row',compact('employee','row','stock'))->render();
-        return response()->json(['status' => 1,'html'=> $html]);
+        $html = view('jobcard.component.add_row', compact('employee', 'row', 'stock'))->render();
+        return response()->json(['status' => 1, 'html' => $html]);
     }
 }

@@ -77,11 +77,11 @@
                                         <select name="Customername" id="cust_id" class="form-control select_vhi select_customer_auto_search form-select" cus_url="{!! url('service/get_vehi_name') !!}?v_id={{ request('v_id') }}" required>
                                             <option value="">{{ trans('message.Select Customer') }}</option>
                                             @if (!empty($customer))
-                                            @foreach ($customer as $customers)
-                                            <option value="{{ $customers->id }}" {{ request()->input('c_id') == $customers->id ? 'selected' : '' }}>
-                                                {{ getCustomerName($customers->id) }}
-                                            </option>
-                                            @endforeach
+                                                @foreach ($customer as $customers)
+                                                    <option value="{{ $customers->id }}" {{ request()->input('c_id') == $customers->id ? 'selected' : '' }}>
+                                                        {{ getCustomerName($customers->id) }}
+                                                    </option>
+                                                @endforeach
                                             @endif
                                         </select>
                                     </div>
