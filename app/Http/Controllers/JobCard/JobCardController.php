@@ -11,9 +11,11 @@ use App\NewJobCard;
 use App\User;  
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View as IlluminateViewView;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+
 class JobCardController extends Controller
 {
     protected $route;
@@ -37,48 +39,26 @@ class JobCardController extends Controller
         $customers = User::where([['role', 'Customer'], ['soft_delete', 0]])->get();
         $country = DB::table('tbl_countries')->get()->toArray();
         $jobCardsDentMark = JobCardsDentMark::where('jobcard_number','10022111')->first();
-        
-        // echo "<pre>";print_r($jobCardsDentMark);die;
+
         return view('new_jobcard.add',compact('customers','country','jobCardsDentMark'));
     }
-    public function store(AccessoryRequest $request)
+    public function store(Request $request)
     {
 
-        $sparePartLabel = SparePartLabel::firstOrCreate(
-            ['title' => $request->name],
-            ['title' => $request->name, 'spare_part_type' => 1]
-        );
+        echo "<pre>";print_r($request->all());die;
+        $this->validate($request, [
+            'jobcard_number' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+            'discount' => 'required|integer|min:0',
+            'final_amount' => 'required|numeric|min:0',
+            'advance' => 'required|numeric|min:0',
+            'balance_amount' => 'required|numeric|min:0',
+            'km_reading' => 'required|integer|min:0',
+            'fual_level' => 'required|integer|min:0',
+            'supervisor' => 'required|integer|min:0',
+        ]);
 
-        $accessory = new Accessory;
-        $accessory->user_id = Auth::user()->id;
-        $accessory->spare_part_type = 1;
-        $accessory->label_id = $sparePartLabel->id;
-
-        if (!empty($request->image)) {
-            $accessory->image = uploadFile($request->image, '/uploads/accessory/') ?? '';
-        }
-
-        $accessory->unit_id = $request->unit_id;
-        $accessory->brand = $request->brand ?? '';
-        $accessory->suitable_for = $request->suitable_for ?? '';
-        $accessory->price = $request->price;
-        $accessory->discount = $request->discount ?? 0;
-        $accessory->stock = $request->stock;
-        $accessory->description = $request->description ?? '';
-        $accessory->save();
-
-        $stockHistory = new StockHistory;
-        $stockHistory->label_id = $sparePartLabel->id;
-        $stockHistory->spare_part_id = $accessory->id;
-        $stockHistory->category = 1;
-        $stockHistory->user_id = Auth::user()->id;
-        $stockHistory->last_stock = 0;
-        $stockHistory->current_stock = $accessory->stock;
-        $stockHistory->stock_type = 'addition';
-        $stockHistory->remarks = "Stock added by spare part vendor.";
-        $stockHistory->save();
-
-        return redirect()->route('accessory.list')->with('message', 'Accessory Added Successfully');
+        return response()->json(['status' => 1]);
     }
 
     public function edit($id)
