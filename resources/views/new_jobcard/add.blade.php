@@ -160,7 +160,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="d-flex justify-content-between">
-                                                    <a href="#"
+                                                    <a href="javascript:void(0)" onclick=customerVoice(this);return;false;
                                                         class="text-center p-2 position-relative d-flex flex-column justify-content-between">
                                                         <img src="{{ asset('public/assets/jobcard_img/customer_voice2.jpg') }}"
                                                             alt="image" width="80">
@@ -168,15 +168,15 @@
                                                         <p class="position-absolute list-count rounded-circle bg-primary text-white"
                                                             style="width: 10px !important;height:10px !important;">0</p>
                                                     </a>
-                                                    <a href="#"
+                                                    <a href="javascript:void(0)" onclick=addDentMark(this);return;false;
                                                         class="text-center p-2 position-relative d-flex flex-column justify-content-between">
                                                         <img src="{{ asset('public/assets/jobcard_img/dent.jpg') }}"
                                                             alt="image" width="80">
                                                         <p class="my-2">Dent Marks</p>
                                                         <p class="position-absolute list-count rounded-circle bg-primary text-white"
-                                                            style="width: 10px !important;height:10px !important;">0</p>
+                                                            style="width: 10px !important;height:10px !important;">@if(!empty($jobCardsDentMark)) {{$jobCardsDentMark->count()}} @else 0 @endif </p>
                                                     </a>
-                                                    <a href="#"
+                                                    <a href="javascript:void(0)" onclick=addPhoto(this);return;false;
                                                         class="text-center p-2 position-relative d-flex flex-column justify-content-between">
                                                         <img src="{{ asset('public/assets/jobcard_img/photo.jpg') }}"
                                                             alt="image" width="80">
@@ -192,7 +192,7 @@
                                                         <p class="position-absolute list-count rounded-circle bg-primary text-white"
                                                             style="width: 10px !important;height:10px !important;">0</p>
                                                     </a>
-                                                    <a href="#"
+                                                    <a href="javascript:void(0)" onclick=workNotes(this);return;false;
                                                         class="text-center p-2 position-relative d-flex flex-column justify-content-between">
                                                         <img src="{{ asset('public/assets/jobcard_img/work_note.jpg') }}"
                                                             alt="image" width="80">
@@ -1663,5 +1663,74 @@
             select2function('tools-dropdown');
             select2function('accessory-dropdown');
         }
+
+
+        function addDentMark(e) {
+    var contentUrl = "{{route('newjobcard.addDentMark')}}";
+    $.ajax({
+        type: "GET",
+        url: contentUrl,
+        success: function(data) {  
+            $(".modal-body-data").html(data);
+            $("#bs-example-modal-lg").modal("show");
+        },
+        error: function() {
+            alert("Failed to load content.");
+        }
+    });
+}
+
+
+
+        function customerVoice(e) {
+    var contentUrl = "{{route('newjobcard.customerVoice')}}";
+    $.ajax({
+        type: "GET",
+        url: contentUrl,
+        success: function(data) {  
+            $(".modal-body-data").html(data);
+            $("#bs-example-modal-xl").modal("show");
+        },
+        error: function() {
+            alert("Failed to load content.");
+        }
+    });
+}
+
+        function workNotes(e) {
+    var contentUrl = "{{route('newjobcard.workNotes')}}";
+    $.ajax({
+        type: "GET",
+        url: contentUrl,
+        success: function(data) {  
+            $(".modal-body-data").html(data);
+            $("#bs-example-modal-xl").modal("show");
+        },
+        error: function() {
+            alert("Failed to load content.");
+        }
+    });
+}
+
+
+
+
+        function addPhoto(e) {
+    var contentUrl = "{{route('newjobcard.addphoto')}}";
+    $.ajax({
+        type: "GET",
+        url: contentUrl,
+        success: function(data) {  
+            $(".modal-body-data").html(data);
+            $("#bs-example-modal-xl").modal("show");
+        },
+        error: function() {
+            alert("Failed to load content.");
+        }
+    });
+}
+
+
+ 
     </script>
 @endsection

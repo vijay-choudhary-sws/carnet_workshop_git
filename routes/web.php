@@ -926,6 +926,24 @@ Route::group(['prefix' => 'stock_history'], function () {
 Route::middleware('auth')->prefix('job-card')->group(function () {
 	Route::get('list', [App\Http\Controllers\JobCard\JobCardController::class, 'index'])->name('newjobcard.list'); 
 	Route::get('add', [App\Http\Controllers\JobCard\JobCardController::class, 'add'])->name('newjobcard.add'); 
+	Route::get('add-dent-mark', [App\Http\Controllers\JobCard\JobCardController::class, 'addDentMark'])->name('newjobcard.addDentMark'); 
+	Route::post('save-marked-image', [App\Http\Controllers\JobCard\JobCardController::class, 'saveMarkedImage'])->name('saveMarkedImage');
+	Route::get('add-customer-voice', [App\Http\Controllers\JobCard\JobCardController::class, 'customerVoice'])->name('newjobcard.customerVoice');
+	Route::post('save-customer-voice', [App\Http\Controllers\JobCard\JobCardController::class, 'saveCustomerVoice'])->name('newjobcard.saveCustomerVoice');
+
+	Route::get('add-work-notes', [App\Http\Controllers\JobCard\JobCardController::class, 'workNotes'])->name('newjobcard.workNotes');
+	Route::post('save-work-notes', [App\Http\Controllers\JobCard\JobCardController::class, 'saveworkNotes'])->name('newjobcard.saveworkNotes');
+
+	Route::get('add-photo', [App\Http\Controllers\JobCard\JobCardController::class, 'addPhoto'])->name('newjobcard.addphoto');
+
+	Route::post('save-job-card-image', [App\Http\Controllers\JobCard\JobCardController::class, 'imageupload'])->name('newjobcard.imageupload');
+
+	
+	Route::post('multi-image-delete', [App\Http\Controllers\JobCard\JobCardController::class, 'multiimagedelete'])->name('newjobcard.multiimagedelete');
+
+
+	Route::post('save-image-form', [App\Http\Controllers\JobCard\JobCardController::class, 'saveimageform'])->name('newjobcard.saveimageform');
+
 });
 //Notes Module
 Route::group(['prefix' => 'notes'], function () {

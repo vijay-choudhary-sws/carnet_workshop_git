@@ -328,6 +328,74 @@ use Illuminate\Support\Str;
       padding-left: 8px;
     }
   }
+   
+    button {
+      padding: 10px 15px;
+      cursor: pointer;
+      border: none;
+      background-color: #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    button.active {
+      background-color: #007bff;
+      color: white;
+    }
+    .canvas-container {
+      position: relative;
+      display: inline-block;
+    }
+    canvas {
+      border: 1px solid #bbb;
+      position: absolute;
+      top: 0;
+      left: 0;
+      cursor: crosshair;
+    }
+    #backgroundCanvas {
+      z-index: 1; /* Base layer for the car image */
+    }
+    #overlayCanvas {
+      z-index: 2; /* Top layer for marking */
+    }
+
+#dentBtn.active {
+  background-color: yellow;  
+  color: white;
+}
+
+#scratchBtn.active {
+  background-color: green;  
+  color: white;
+}
+
+#breakBtn.active {
+  background-color: red;  
+  color: white;
+}
+modal-content.modal-body-data.modelHeaderwidth {
+    width: 342px !important;
+    border-radius: 8px 8px 0px 0px !important;
+}
+
+    .modal-dialog.modal-lg.custommodal-lg {
+    margin-top: 77px;
+    float: inline-end;
+}
+
+.controls button {
+    margin: 3px;
+    border-radius: 8px;
+}
+
+.controls {
+    margin: 9px;
+}
+
+textarea#w3review {
+    width: 100%;
+}
 </style>
 
 <head>
@@ -859,6 +927,18 @@ $currentRoute = str_replace($baseUrl, "", $currentUrl);
 
       <!-- top navigation -->
       <div class="top_nav position-relative">
+
+
+ <div class="modal fade" id="bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg custommodal-lg">
+            <div class="modal-content modal-body-data modelHeaderwidth" style="width: 320px !important;border-radius: 8px 8px 0px 0px !important;">
+               
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
 
  <div class="modal fade" id="bs-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
         aria-hidden="true">
