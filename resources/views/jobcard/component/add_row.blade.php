@@ -1,13 +1,13 @@
 <tr data-row="{{$row}}">
     <td>
-        <span>{!! $stock->title.'<small>(Current Qty. '.$stock->stock.')</small>' !!}</span>
-        <input type="hidden" class="form-control" name="jobcard_item_id[]" value="{{$stock->id}}">
+        <span>{!! $mergedData['label_name'].'<small>(Current stock : <b>'.$mergedData['stock'].'</b>)</small>' !!}</span>
+        <input type="hidden" class="form-control" name="jobcard_item_id[]" value="{{$mergedData['label_id']}}">
     </td>
-    <td><input type="number" class="form-control" name="jobcard_quantity[]" value="0" min="1" max="" step="1" oninput="getJobCardPrice(this)"></td>
-    <td><input type="number" class="form-control" name="jobcard_price[]" value="0" min="1" step="1" oninput="getJobCardPrice(this)"></td>
-    <td><input type="number" class="form-control bg-light" name="jobcard_total_amount[]" readonly value="0" min="1"  step="1"></td>
+    <td><input type="number" class="form-control" name="jobcard_quantity[]" value="1" min="1" max="" step="1" oninput="getJobCardPrice(this)"></td>
+    <td><input type="number" class="form-control" name="jobcard_price[]" value="{{ $mergedData['price'] }}" min="1" step="1" oninput="getJobCardPrice(this)"></td>
+    <td><input type="text" class="form-control bg-light" name="jobcard_total_amount[]" readonly value="{{ $mergedData['price'] }}" min="1"  step="1"></td>
     <td><input type="number" class="form-control" name="jobcard_discount[]" value="0" min="0"  step="1" oninput="getJobCardPrice(this)"></td>
-    <td><input type="number" class="form-control" name="jobcard_final_amount[]" value="0" min="1"  step="1" readonly></td>
+    <td><input type="text" class="form-control bg-light" name="jobcard_final_amount[]" value="{{ $mergedData['price'] }}" min="1"  step="1" readonly></td>
     <td>
         <select name="employee[]" class="select2">
             @foreach ($employee as $item)

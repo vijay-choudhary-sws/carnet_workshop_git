@@ -74,7 +74,7 @@
             color: #6A1B9A !important;
         }
     </style>
-    <div class="right_col" role="main">
+    <div class="right_col " role="main">
         <div class="">
             <div class="page-title">
                 <div class="nav_menu">
@@ -86,6 +86,17 @@
                                     {{ trans('message.JobCard') }}</span></a>
                         </div>
                         @include('dashboard.profile')
+                        <div class="ulprofile">
+                            <div class="input-group mt-2">
+                                <span class="input-group-text">JobCard No.</span>
+                                <input type="text" form="jobcard-form" id="jobcard_number" name="jobcard_number"
+                                    class="form-control bg-light" value="{{ generateHashJobCardNumber(time()) }}" readonly
+                                    placeholder="Job Card Number" aria-label="Job Card Number">
+                                <span class="input-group-text">Date</span>
+                                <input type="date" class="form-control bg-light" value="{{ now()->format('Y-m-d') }}"
+                                    readonly placeholder="Date" aria-label="Date">
+                            </div>
+                        </div>
                     </nav>
                 </div>
             </div>
@@ -96,7 +107,9 @@
                     <div class="x_content">
                         <div class="x_panel">
                             <br />
-                            <form action="">
+                            <form id="jobcard-form" action="{{ route('newjobcard.store') }}" method="POST"
+                                onsubmit="event.preventDefault();submitJobcard(this);">
+                                @csrf
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="card h-100">
@@ -144,11 +157,11 @@
                                                     <div class="col-4">
                                                         <label for="fual level" class="form-label">Fual Level</label>
                                                         <input type="range" class="form-range" id="fual level"
-                                                            min="0" max="100">
+                                                            name="fual_level" min="0" max="100">
                                                     </div>
                                                     <div class="col-4">
                                                         <div class="form-floating">
-                                                            <select class="form-select" id="supervisor"
+                                                            <select class="form-select" id="supervisor" name="supervisor"
                                                                 aria-label="Floating label select example">
                                                                 <option selected>Open this select menu</option>
                                                                 <option value="1">One</option>
@@ -208,21 +221,23 @@
                                 <div class="row mt-4">
                                     <div class="col-2">
                                         <div class="card">
-                                            <div class="card-body p-0">
+                                            <div class="card-body p-0" id="spare-part-table-counter">
                                                 <a href="javascript:void(0)"
                                                     class="d-flex justify-content-between green-variant px-1 py-2 rounded-top text-white"
                                                     onclick="viewTable(this);" target-table="spare-table">
-                                                    <p><b>Spare(0)</b></p>
-                                                    <p class="text-end">
-                                                        <b>₹100.00</b>
-                                                        <small class="d-block">₹0.00</small>
+                                                    <p class="m-0"><b>Spare(<span class="tr-count">0</span>)</b></p>
+                                                    <p class="text-end m-0">
+                                                        <b class="">₹<span class="total-count">0.00</span></b>
+                                                        <small class="d-block ">₹<span
+                                                                class="discount-count">0.00</span></small>
                                                     </p>
                                                 </a>
                                                 <div class="d-flex justify-content-between p-2 ps-0">
                                                     <div class="fs-3 p-1 green-variant rounded mx-1 px-2"><i
                                                             class="fa fa-user text-white"></i></div>
                                                     <div class="text-end">
-                                                        <p class="m-0">Total: ₹100.00</p>
+                                                        <p class="m-0 ">Total: ₹<span
+                                                                class="final-total-count">0.00</span></p>
                                                         <div class="d-flex">
                                                             discount
                                                             <input type="number" class="w-100">
@@ -234,21 +249,23 @@
                                     </div>
                                     <div class="col-2">
                                         <div class="card">
-                                            <div class="card-body p-0">
+                                            <div class="card-body p-0" id="lubes-table-counter">
                                                 <a href="javascript:void(0)"
                                                     class="d-flex justify-content-between blue-variant px-1 py-2 rounded-top text-white"
                                                     onclick="viewTable(this);" target-table="lubes-table">
-                                                    <p><b>Lubes(0)</b></p>
-                                                    <p class="text-end">
-                                                        <b>₹100.00</b>
-                                                        <small class="d-block">₹0.00</small>
+                                                    <p class="m-0"><b>Lubes(<span class="tr-count">0</span>)</b></p>
+                                                    <p class="text-end m-0">
+                                                        <b class="">₹<span class="total-count">0.00</span></b>
+                                                        <small class="d-block ">₹<span
+                                                                class="discount-count">0.00</span></small>
                                                     </p>
                                                 </a>
                                                 <div class="d-flex justify-content-between p-2 ps-0">
                                                     <div class="fs-3 p-1 blue-variant rounded mx-1 px-2"><i
                                                             class="fa fa-user text-white"></i></div>
                                                     <div class="text-end">
-                                                        <p class="m-0">Total: ₹100.00</p>
+                                                        <p class="m-0 ">Total: ₹<span
+                                                                class="final-total-count">0.00</span></p>
                                                         <div class="d-flex">
                                                             discount
                                                             <input type="number" class="w-100">
@@ -260,21 +277,23 @@
                                     </div>
                                     <div class="col-2">
                                         <div class="card">
-                                            <div class="card-body p-0">
+                                            <div class="card-body p-0" id="tools-table-counter">
                                                 <a href="javascript:void(0)"
                                                     class="d-flex justify-content-between orange-variant px-1 py-2 rounded-top text-white"
                                                     onclick="viewTable(this);" target-table="tools-table">
-                                                    <p><b>Tool(0)</b></p>
-                                                    <p class="text-end">
-                                                        <b>₹100.00</b>
-                                                        <small class="d-block">₹0.00</small>
+                                                    <p class="m-0"><b>Tool(<span class="tr-count">0</span>)</b></p>
+                                                    <p class="text-end m-0">
+                                                        <b class="">₹<span class="total-count">0.00</span></b>
+                                                        <small class="d-block ">₹<span
+                                                                class="discount-count">0.00</span></small>
                                                     </p>
                                                 </a>
                                                 <div class="d-flex justify-content-between p-2 ps-0">
                                                     <div class="fs-3 p-1 orange-variant rounded mx-1 px-2"><i
                                                             class="fa fa-user text-white"></i></div>
                                                     <div class="text-end">
-                                                        <p class="m-0">Total: ₹100.00</p>
+                                                        <p class="m-0 ">Total: ₹<span
+                                                                class="final-total-count">0.00</span></p>
                                                         <div class="d-flex">
                                                             discount
                                                             <input type="number" class="w-100">
@@ -286,21 +305,24 @@
                                     </div>
                                     <div class="col-2">
                                         <div class="card">
-                                            <div class="card-body p-0">
+                                            <div class="card-body p-0" id="accessory-table-counter">
                                                 <a href="javascript:void(0)"
                                                     class="d-flex justify-content-between purple-variant px-1 py-2 rounded-top text-white"
                                                     onclick="viewTable(this);" target-table="accessory-table">
-                                                    <p><b>Accessory(0)</b></p>
-                                                    <p class="text-end">
-                                                        <b>₹100.00</b>
-                                                        <small class="d-block">₹0.00</small>
+                                                    <p class="m-0"><b>Accessory(<span class="tr-count">0</span>)</b>
+                                                    </p>
+                                                    <p class="text-end m-0">
+                                                        <b class="">₹<span class="total-count">0.00</span></b>
+                                                        <small class="d-block ">₹<span
+                                                                class="discount-count">0.00</span></small>
                                                     </p>
                                                 </a>
                                                 <div class="d-flex justify-content-between p-2 ps-0">
                                                     <div class="fs-3 p-1 purple-variant rounded mx-1 px-2"><i
                                                             class="fa fa-user text-white"></i></div>
                                                     <div class="text-end">
-                                                        <p class="m-0">Total: ₹100.00</p>
+                                                        <p class="m-0 ">Total: ₹<span
+                                                                class="final-total-count">0.00</span></p>
                                                         <div class="d-flex">
                                                             discount
                                                             <input type="number" class="w-100">
@@ -312,20 +334,22 @@
                                     </div>
                                     <div class="col-2">
                                         <div class="card">
-                                            <div class="card-body p-0">
+                                            <div class="card-body p-0" id="total-counter">
                                                 <a href="javascript:void(0)"
                                                     class="d-flex justify-content-between grey-variant px-1 py-2 rounded-top text-white">
-                                                    <p><b>Total(0)</b></p>
-                                                    <p class="text-end">
-                                                        <b>₹100.00</b>
-                                                        <small class="d-block">₹0.00</small>
+                                                    <p class="m-0"><b>Total(<span class="tr-count">0</span>)</b></p>
+                                                    <p class="text-end m-0">
+                                                        <b class="">₹<span class="total-count">0.00</span></b>
+                                                        <small class="d-block ">₹<span
+                                                                class="discount-count">0.00</span></small>
                                                     </p>
                                                 </a>
                                                 <div class="d-flex justify-content-between p-2 ps-0">
                                                     <div class="fs-3 p-1 grey-variant rounded mx-1 px-2"><i
                                                             class="fa fa-user text-white"></i></div>
                                                     <div class="text-end">
-                                                        <p class="m-0">Total: ₹100.00</p>
+                                                        <p class="m-0 ">Total: ₹<span
+                                                                class="final-total-count">0.00</span></p>
                                                         <div class="d-flex">
                                                             discount
                                                             <input type="number" class="w-100">
@@ -357,7 +381,7 @@
                                                 <td>
                                                     <div class="d-flex">
                                                         <select class="form-control select2" id="spare-parts-dropdown"
-                                                            onchange="addJobCardRow(this)"
+                                                            onchange="addJobCardRow(this,'spare-part-table')"
                                                             style="min-width: 300px !important;">
                                                             <option value="" selected disabled>--Select Spare Part --
                                                             </option>
@@ -399,7 +423,7 @@
                                                 <td>
                                                     <div class="d-flex">
                                                         <select class="form-control select2" id="lubes-dropdown"
-                                                            onchange="addJobCardRow(this)"
+                                                            onchange="addJobCardRow(this,'lubes-table')"
                                                             style="min-width: 300px !important;">
                                                             <option value="" selected disabled>--Select Spare Part --
                                                             </option>
@@ -440,7 +464,7 @@
                                                 <td>
                                                     <div class="d-flex">
                                                         <select class="form-control select2" id="tools-dropdown"
-                                                            onchange="addJobCardRow(this)"
+                                                            onchange="addJobCardRow(this,'tools-table')"
                                                             style="min-width: 300px !important;">
                                                             <option value="" selected disabled>--Select Spare Part --
                                                             </option>
@@ -481,7 +505,7 @@
                                                 <td>
                                                     <div class="d-flex">
                                                         <select class="form-control select2" id="accessory-dropdown"
-                                                            onchange="addJobCardRow(this)"
+                                                            onchange="addJobCardRow(this,'accessory-table')"
                                                             style="min-width: 300px !important;">
                                                             <option value="" selected disabled>--Select Spare Part --
                                                             </option>
@@ -501,6 +525,90 @@
                                             </tr>
                                         </tfoot>
                                     </table>
+                                </div>
+                                <hr class="my-4">
+                                <div class="row ">
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h5>JobCard Details</h5>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="mb-3">
+                                                            <label for="cost-estimate" class="form-label">Cost Estimate</label>
+                                                            <input type="text" id="cost-estimate" name="cost-estimate"
+                                                                value="0" placeholder="Cost Estimate"
+                                                                class="form-control rounded">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="mb-3">
+                                                            <label for="delivery_date" class="form-label">Delivery Date</label>
+                                                            <input type="date" id="delivery_date" name="delivery_date"
+                                                            value="{{ now()->format('Y-m-d') }}" placeholder="Delivery Date"
+                                                                class="form-control rounded">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="mb-3">
+                                                            <label for="delivery_time" class="form-label">Delivery Time</label>
+                                                            <input type="time" id="delivery_time" name="delivery_time"
+                                                            value="{{ now()->format('m:i') }}" placeholder="Delivery Time"
+                                                                class="form-control rounded">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card  h-100">
+                                            <div class="card-body ">
+                                                <h5>Billing Details</h5>
+                                                <div class="mb-3">
+                                                    <label for="total-amount" class="form-label">Total Amount</label>
+                                                    <input type="text" id="total-amount" name="total-amount"
+                                                        value="0" placeholder="Total Amount"
+                                                        class="form-control w-50 bg-secondary text-white rounded" readonly>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="mb-3">
+                                                            <label for="final-amount" class="form-label">Payable
+                                                                Amount</label>
+                                                            <input type="text" id="final-amount" name="final-amount"
+                                                                value="0" placeholder="Payable Amount"
+                                                                class="form-control bg-secondary text-white rounded"
+                                                                readonly>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="mb-3">
+                                                            <label for="advance" class="form-label">Advance</label>
+                                                            <input type="text" id="advance" name="advance"
+                                                                value="0" placeholder="Advance"
+                                                                class="form-control rounded" oninput="totalCounter()">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="mb-3">
+                                                            <label for="pending-amount" class="form-label">Pending
+                                                                Amount</label>
+                                                            <input type="text" id="pending-amount"
+                                                                name="pending-amount" value="0"
+                                                                placeholder="Pending Amount"
+                                                                class="form-control bg-secondary text-white rounded"
+                                                                readonly>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-5 text-end">
+                                    <button type="submit" class="btn btn-success">Create Job Card</button>
                                 </div>
 
                             </form>
@@ -807,52 +915,52 @@
             });
 
             $('.select_country').change(function() {
-            countryid = $(this).val();
-            var url = $(this).attr('countryurl');
-            $.ajax({
-                type: 'GET',
-                url: url,
-                data: {
-                    countryid: countryid
-                },
-                success: function(response) {
-                    $('.state_of_country').html(response);
-                }
+                countryid = $(this).val();
+                var url = $(this).attr('countryurl');
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    data: {
+                        countryid: countryid
+                    },
+                    success: function(response) {
+                        $('.state_of_country').html(response);
+                    }
+                });
             });
-        });
 
 
-        $('body').on('change', '.state_of_country', function() {
-            stateid = $(this).val();
+            $('body').on('change', '.state_of_country', function() {
+                stateid = $(this).val();
 
-            var url = $(this).attr('stateurl');
-            $.ajax({
-                type: 'GET',
-                url: url,
-                data: {
-                    stateid: stateid
-                },
-                success: function(response) {
-                    $('.city_of_state').html(response);
-                }
+                var url = $(this).attr('stateurl');
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    data: {
+                        stateid: stateid
+                    },
+                    success: function(response) {
+                        $('.city_of_state').html(response);
+                    }
+                });
             });
-        });
 
-         /*For image preview at selected image*/
-         function readUrl(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
+            /*For image preview at selected image*/
+            function readUrl(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
 
-                reader.onload = function(e) {
-                    $('#imagePreview').attr('src', e.target.result);
+                    reader.onload = function(e) {
+                        $('#imagePreview').attr('src', e.target.result);
+                    }
+                    reader.readAsDataURL(input.files[0]);
                 }
-                reader.readAsDataURL(input.files[0]);
             }
-        }
-        $("#image").change(function() {
-            readUrl(this);
-            $("#imagePreview").css("display", "block");
-        });
+            $("#image").change(function() {
+                readUrl(this);
+                $("#imagePreview").css("display", "block");
+            });
 
             $("#formcustomer").on('submit', (function(event) {
 
@@ -1275,6 +1383,46 @@
 
         });
 
+        function submitJobcard(e) {
+
+            let url = $(e).attr('action');
+            let formData = $(e).serialize();
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.status === 1) {
+                        toastr.success('Validation Passed and Data Submitted Successfully!');
+                    }
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        const errors = xhr.responseJSON.errors;
+
+                        let errorMessage = '<ul>';
+                        for (const field in errors) {
+                            if (errors.hasOwnProperty(field)) {
+                                errorMessage +=
+                                    `<li>${errors[field][0]}</li>`;
+                            }
+                        }
+                        errorMessage += '</ul>';
+
+                        toastr.error(errorMessage, 'Validation Errors', {
+                            timeOut: 5000,
+                            closeButton: true,
+                            progressBar: true,
+                            escapeHtml: false,
+                        });
+                    } else {
+                        toastr.error('An unexpected error occurred. Please try again.');
+                    }
+                }
+            });
+        }
+
         function select2function(id) {
             $('#' + id).select2({
                 escapeMarkup: function(markup) {
@@ -1346,9 +1494,9 @@
             });
         }
 
-        function addJobCardRow(e) {
+        function addJobCardRow(e, id) {
 
-            let row = $('#spare-part-table tbody tr').length + 1;
+            let row = $('#' + id + ' tbody tr').length + 1;
 
             $.ajax({
                 headers: {
@@ -1358,13 +1506,15 @@
                 method: "post",
                 data: {
                     row: row,
-                    id: $(e).val()
+                    id: $(e).val(),
+                    price: $(e).find('option:selected').attr('data-price')
                 },
                 success: function(res) {
                     if (res.status == 1) {
-                        $('#spare-part-table tbody').append(res.html);
-                        $('#spare-parts-dropdown').val('');
-                        $('.select2').select2();
+                        $('#' + id + ' tbody').append(res.html);
+                        $(e).val('');
+                        select2function($(e).attr('id'));
+                        tableCounter($(e).parents('table').attr('id'));
                     } else {
                         toastr.info(res.msg, "INFO");
                     }
@@ -1410,24 +1560,92 @@
 
         function getJobCardPrice(e) {
             let row = $(e).parents('tr').attr('data-row');
+            const table = $(e).parents('table');
 
-            let qty = $('input[name="jobcard_quantity[]"]').eq(row - 1).val();
-            let price = $('input[name="jobcard_price[]"]').eq(row - 1).val();
-            let discount = $('input[name="jobcard_discount[]"]').eq(row - 1).val();
+            let qty = table.find('input[name="jobcard_quantity[]"]').eq(row - 1).val();
+            let price = table.find('input[name="jobcard_price[]"]').eq(row - 1).val();
+            let discount = table.find('input[name="jobcard_discount[]"]').eq(row - 1).val();
 
             let totalAmount = parseInt(qty) * parseInt(price);
-            let finalAmount = totalAmount - parseInt(discount);
+            let finalAmount = totalAmount - (parseInt(discount) || 0);
 
-            $('input[name="jobcard_total_amount[]"]').eq(row - 1).val(totalAmount);
-            $('input[name="jobcard_final_amount[]"]').eq(row - 1).val(finalAmount);
+            table.find('input[name="jobcard_total_amount[]"]').eq(row - 1).val(totalAmount);
+            table.find('input[name="jobcard_final_amount[]"]').eq(row - 1).val(finalAmount);
+
+            tableCounter(table.attr('id'));
         }
 
         function removeJobCardRow(e) {
+            const table = $(e).parents('table');
             $(e).parents('tr').remove();
+
             let i = 1;
-            $('#spare-part-table tbody tr').each(function() {
+            $('#' + table.attr('id') + ' tbody tr').each(function() {
                 $(this).attr('data-row', i++);
             });
+
+            tableCounter(table.attr('id'));
+        }
+
+        function tableCounter(id) {
+            let trcount = 0;
+            let total = 0;
+            let discount = 0;
+            let finalTotal = 0;
+
+            $('#' + id + ' tbody input[name="jobcard_total_amount[]"]').each(function() {
+                total += parseFloat($(this).val()) || 0;
+                trcount++;
+            });
+
+            $('#' + id + ' tbody input[name="jobcard_discount[]"]').each(function() {
+                discount += parseFloat($(this).val()) || 0;
+            });
+
+            $('#' + id + ' tbody input[name="jobcard_final_amount[]"]').each(function() {
+                finalTotal += parseFloat($(this).val()) || 0;
+            });
+
+            $('#' + id + '-counter span.tr-count').text(trcount);
+            $('#' + id + '-counter span.total-count').text(total);
+            $('#' + id + '-counter span.discount-count').text(discount);
+            $('#' + id + '-counter span.final-total-count').text(finalTotal);
+
+            totalCounter();
+        }
+
+        function totalCounter() {
+            let trcount = 0;
+            let total = 0;
+            let discount = 0;
+            let finalTotal = 0;
+
+            $('input[name="jobcard_total_amount[]"]').each(function() {
+                total += parseFloat($(this).val()) || 0;
+                trcount++;
+            });
+
+            $('input[name="jobcard_discount[]"]').each(function() {
+                discount += parseFloat($(this).val()) || 0;
+            });
+
+            $('input[name="jobcard_final_amount[]"]').each(function() {
+                finalTotal += parseFloat($(this).val()) || 0;
+            });
+
+            $('#total-counter span.tr-count').text(trcount);
+            $('#total-counter span.total-count').text(total);
+            $('#total-counter span.discount-count').text(discount);
+            $('#total-counter span.final-total-count').text(finalTotal);
+
+            $('#cost-estimate').val(total);
+            $('#total-amount').val(total);
+            $('#final-amount').val(finalTotal);
+
+            let pendingAmount = parseFloat(finalTotal) - parseFloat($('#advance').val());
+
+            $('#pending-amount').val(pendingAmount);
+
         }
 
         function addForm(e) {

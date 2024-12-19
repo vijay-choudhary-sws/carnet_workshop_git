@@ -222,7 +222,7 @@ class ServicesControler extends Controller
 
             $role_user_table = new Role_user;
             $role_user_table->user_id = $currentUserId;
-            $role_user_table->role_id  = $getRoleId->id;
+            $role_user_table->role_id = $getRoleId->id;
             $role_user_table->save();
         }
 
@@ -1662,15 +1662,15 @@ class ServicesControler extends Controller
 
         foreach ($labels as $label) {
             if ($label->productStocks->isNotEmpty()) {
-                
+
                 foreach ($label->productStocks as $productStock) {
                     $mergedData[$label->spare_part_type][] = [
                         'label_id' => $label->id,
                         'label_name' => $label->title,
                         'cat_type' => $label->spare_part_type,
                         'product_stock_id' => $productStock->id,
-                        'stock' => $productStock->stock, 
-                        'price' => $productStock->price,       
+                        'stock' => $productStock->stock,
+                        'price' => $productStock->price,
                     ];
                 }
             } else {
@@ -1708,16 +1708,43 @@ class ServicesControler extends Controller
     }
     public function addRow(Request $request)
     {
-        // $labels = ProductStock::get();
         $row = $request->row;
-        $stock = ProductStock::find($request->id);
+        $price = $request->price;
+        $labels = SparePartLabel::with([
+            'productStocks' => function ($qry) use ($price) {
+                $qry->where('price', $price);
+            }
+        ])->find($request->id);
+
+        $mergedData = [];
+
+
+        if ($labels->productStocks->isNotEmpty()) {
+            $mergedData = [
+                'label_id' => $labels->id,
+                'label_name' => $labels->title,
+                'cat_type' => $labels->spare_part_type,
+                'product_stock_id' => $labels->productStocks->first()->id,
+                'stock' => $labels->productStocks->first()->stock,
+                'price' => $labels->productStocks->first()->price,
+            ];
+        } else {
+            $mergedData = [
+                'label_id' => $labels->id,
+                'label_name' => $labels->title,
+                'cat_type' => $labels->spare_part_type,
+                'product_stock_id' => null,
+                'stock' => 0,
+                'price' => 0,
+            ];
+        }
 
         $employee = User::where(['role' => 'employee', 'soft_delete' => 0])->get();
 
 
-        // echo "<pre>";print_r($employee->toArray());die;
+        // echo "<pre>";print_r($stock->toArray());die;
 
-        $html = view('jobcard.component.add_row', compact('employee', 'row', 'stock'))->render();
+        $html = view('jobcard.component.add_row', compact('employee', 'row', 'mergedData'))->render();
         return response()->json(['status' => 1, 'html' => $html]);
     }
 }

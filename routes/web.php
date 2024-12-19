@@ -926,6 +926,7 @@ Route::group(['prefix' => 'stock_history'], function () {
 Route::middleware('auth')->prefix('job-card')->group(function () {
 	Route::get('list', [App\Http\Controllers\JobCard\JobCardController::class, 'index'])->name('newjobcard.list'); 
 	Route::get('add', [App\Http\Controllers\JobCard\JobCardController::class, 'add'])->name('newjobcard.add'); 
+	Route::post('store', [App\Http\Controllers\JobCard\JobCardController::class, 'store'])->name('newjobcard.store'); 
 });
 //Notes Module
 Route::group(['prefix' => 'notes'], function () {
