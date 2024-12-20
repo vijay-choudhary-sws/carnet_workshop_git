@@ -48,16 +48,15 @@ class JobCardController extends Controller
         $jobCardscustomervoice = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 1)->get();
         $jobCardsworknote = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 0)->get();
         $jobCardsaccessary = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 2)->get();
-        $jobCardsImage = JobCardImage::where('job_card_number', 'JCN-BB4659B837')->get();
 
+        $jobCardsImage = JobCardImage::where('job_card_number', 'JCN-BB4659B837')->first('image_id'); 
          //vehicle add
         $vehical_type = DB::table('tbl_vehicle_types')->where('soft_delete', '=', 0)->get()->toArray();
         $vehical_brand = DB::table('tbl_vehicle_brands')->where('soft_delete', '=', 0)->get()->toArray();
         $fuel_type = DB::table('tbl_fuel_types')->where('soft_delete', '=', 0)->get()->toArray();
         $color = DB::table('tbl_colors')->where('soft_delete', '=', 0)->get()->toArray();
         $model_name = DB::table('tbl_model_names')->where('soft_delete', '=', 0)->get()->toArray();
-
-
+      
         return view('new_jobcard.add', compact('country', 'jobCardsDentMark', 'jobCardscustomervoice', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage','vehical_type','vehical_brand','fuel_type','color','model_name'));
     }
     public function store(Request $request)
@@ -146,10 +145,22 @@ class JobCardController extends Controller
     {
         $jobcard = NewJobCard::with('jobCardSpareParts')->find($id);
         $employee = User::where(['role' => 'employee', 'soft_delete' => 0])->get();
-        $country = DB::table('tbl_countries')->get()->toArray();
-        $jobCardsDentMark = JobCardsDentMark::where('jobcard_number', '10022111')->first();
+        $country = DB::table('tbl_countries')->get()->toArray(); 
 
-        return view('new_jobcard.edit', compact('jobcard', 'employee', 'country', 'jobCardsDentMark'));
+        $jobCardsDentMark = JobCardsDentMark::where('jobcard_number', 'JCN-BB4659B837')->first();
+        $jobCardscustomervoice = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 1)->get();
+        $jobCardsworknote = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 0)->get();
+        $jobCardsaccessary = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 2)->get();
+        $jobCardsImage = JobCardImage::where('job_card_number', 'JCN-BB4659B837')->first('image_id'); 
+      
+         //vehicle add
+        $vehical_type = DB::table('tbl_vehicle_types')->where('soft_delete', '=', 0)->get()->toArray();
+        $vehical_brand = DB::table('tbl_vehicle_brands')->where('soft_delete', '=', 0)->get()->toArray();
+        $fuel_type = DB::table('tbl_fuel_types')->where('soft_delete', '=', 0)->get()->toArray();
+        $color = DB::table('tbl_colors')->where('soft_delete', '=', 0)->get()->toArray();
+        $model_name = DB::table('tbl_model_names')->where('soft_delete', '=', 0)->get()->toArray();
+      
+        return view('new_jobcard.edit', compact('jobcard', 'employee', 'country', 'jobCardsDentMark', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage','jobCardscustomervoice','vehical_type','vehical_brand','fuel_type','color','model_name'));
     }
 
     public function update(Request $request)
@@ -312,7 +323,8 @@ class JobCardController extends Controller
         // Return the saved data as JSON
         return response()->json([
             'message' => 'Image saved successfully',
-            'image_path' => $carImage->image_path
+            'image_path' => $carImage->image_path,
+            'jobCardsDentMark' => $jobCardsDentMark->count(),
         ]);
     }
 
@@ -395,9 +407,15 @@ class JobCardController extends Controller
                 'is_customer_voice' => 1,
             ]);
         }
+
+    $cardinspiration = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 1)->get()->count();
+ 
+
         return response()->json([
             'success' => 1,
-            'message' => "Customer Voice Added Successfully."
+            'message' => "Customer Voice Added Successfully.",
+            'message' => "Customer Voice Added Successfully.",
+            'cardinspiration' => $cardinspiration,
         ]);
     }
 
@@ -451,6 +469,7 @@ class JobCardController extends Controller
             JobCardsInspection::create([
                 // 'jobcard_number' => $request->jobcard_numbers,    
                 'jobcard_number' => 'JCN-BB4659B837',
+                'jobcard_number' => 'JCN-BB4659B837',
                 'customer_voice' => $work_note,
                 'is_customer_voice' => 0,
             ]);
@@ -461,7 +480,7 @@ class JobCardController extends Controller
         return response()->json([
             'success' => 1,
             'message' => "Work Notes Added Successfully",
-            'countworknotes' => $countworknotes
+            'workNoteCount' => $countworknotes
         ]);
     }
 
@@ -473,66 +492,107 @@ class JobCardController extends Controller
         $title = 'Add Photo';
         $jobcard_numbers = $jobcard_number;
 
+        $jobCardImage = JobCardImage::where('job_card_number', 'JCN-BB4659B837')->first();
 
-        return view('new_jobcard.addPhoto', compact('title', 'jobcard_numbers'));
+ 
+        $files = Image::whereIn('id', explode(',',@$jobCardImage->image_id))->get();
+        $view = view('new_jobcard.outlet_imagesmultiple', ['files' => $files, 'route' => $this->route])->render();
+         
+ 
+
+        return view('new_jobcard.addPhoto', compact('title', 'jobcard_numbers','view','jobCardImage'));
     }
 
-    public function imageupload(Request $request)
-    {
-        $type = $request->type;
-        $path = $type . '_path';
-        $name = $type . '_name';
-        $file_name = $request->$name;
-        $file_path = '/uploads/gumasta/';
-        $file = $request->file('gumasta_images');
-        $movedFile = $file_data = $file_ids = $files = array();
-        if (!empty($file)) {
-
-            $destinationPath = public_path() . '/' . $file_path;
-            foreach ($file as $value) {
-                $ext = $value->getClientOriginalExtension();
-                $file_name = time() . rand(1, 2000) . "." . $value->getClientOriginalExtension();
-                $value->move($destinationPath, $file_name);
-                $movedFile[] = $file_name;
-            }
-            $view = array();
-            foreach ($movedFile as $values) {
-                $file_data = Image::create([
-                    'path' => $values,
-                ]);
-
-                // echo "<pre>";print_r($file_data);die;
-
-                $file_ids[] = $file_data->id;
-                //    $view = url('/uploads/gumasta/'.$values); 
-            }
-
-
-            $oldids = implode(',', $file_ids);
-
-            $oldIdarr = explode(',', $oldids);
-            $allids = array_filter(array_merge($file_ids, $oldIdarr));
-            $files = Image::whereIn('id', $allids)->get();
-            $view = view('new_jobcard.outlet_imagesmultiple', ['files' => $files, 'route' => $this->route])->render();
-            return response()->json(['status' => 1, 'message' => 'Image uploded Successfully', 'file_id' => implode(',', $file_ids), 'file_path' => $view]);
-        } else {
-
-            return response()->json(['status' => 0, 'msg' => 'File type not allowed']);
-        }
+    public function imageUpload(Request $request)
+{
+    if (!$request->has('type') || !$request->hasFile('gumasta_images')) {
+        return response()->json(['status' => 0, 'msg' => 'File type not allowed']);
     }
 
+    $type = $request->type;
+    $filePath = '/uploads/gumasta/';
+    $files = $request->file('gumasta_images');
+    $movedFiles = [];
+    $fileIds = [];
 
-    public function saveimageform(Request $request)
-    {
-        $data = JobCardImage::create([
-            'job_card_number' => 'JCN-BB4659B837',
-            'image_id' => $request->images_id,
-        ]);
-        return response()->json([
-            'success' => 1,
-            'message' => "Photos Added Successfully"
-        ]);
+    $destinationPath = public_path($filePath);
+
+    // Move files and save their paths
+    foreach ($files as $file) {
+        $fileName = time() . rand(1, 2000) . '.' . $file->getClientOriginalExtension();
+        $file->move($destinationPath, $fileName);
+        $movedFiles[] = $fileName;
     }
+
+    // Store file data in the database and collect IDs
+    foreach ($movedFiles as $fileName) {
+        $fileData = Image::create(['path' => $fileName]);
+        $fileIds[] = $fileData->id;
+    }
+
+    // Handle existing image IDs if `main_id` is provided
+    if ($request->main_id) {
+        $jobCardImage = JobCardImage::find($request->main_id);
+        $existingIds = $jobCardImage ? explode(',', $jobCardImage->image_id) : [];
+        $fileIds = array_unique(array_merge($fileIds, $existingIds));
+
+        // Update the JobCardImage with the new list of image IDs
+        $jobCardImage->update(['image_id' => implode(',', $fileIds)]);
+    }
+
+    // Fetch all images for rendering
+    $files = Image::whereIn('id', $fileIds)->get();
+    $view = view('new_jobcard.outlet_imagesmultiple', ['files' => $files, 'route' => $this->route])->render();
+
+    return response()->json([
+        'status' => 1,
+        'message' => 'Image uploaded successfully',
+        'file_id' => implode(',', $fileIds),
+        'file_path' => $view,
+    ]);
+}
+
+public function multiimagedelete(Request $request)
+{
+   
+    $id = $request->id;
+    $ids = explode(',', $request->ids); 
+    $ids = array_values(array_diff($ids, array($id))); 
+
+    return response()->json([
+        'success' => 1,
+        'message' => "Photos Deleted Successfully",
+        'ids'=>$ids
+    ]);
+
+
+}
+ 
+
+
+public function saveimageform(Request $request)
+{
+    // echo "<pre>";print_r($request->all());die;
+    if($request->main_id){
+        $jobCard = JobCardImage::find($request->main_id);
+        $jobCard->image_id = $request->images_id;
+        $jobCard->save(); 
+    }else{
+    $data = JobCardImage::create([
+        'job_card_number' => 'JCN-BB4659B837',
+        'image_id' => $request->images_id,
+    ]);
+}
+
+return response()->json([
+    'success' => 1,
+    'message' => "Photos Added Successfully",
+    'imageId' => count(explode(',',$request->images_id)),
+]);
+}
+
+
+
 
 
 
@@ -590,10 +650,13 @@ class JobCardController extends Controller
             ]);
         }
 
+       $accessaryCount = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 2)->count();
+
 
         return response()->json([
             'success' => 1,
-            'message' => "Accessories Added Successfully"
+            'message' => "Accessories Added Successfully",
+            "accessaryCount" => $accessaryCount,
         ]);
     }
 
