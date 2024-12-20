@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+
     <style>
         .list-count {
             width: 10px !important;
@@ -187,7 +188,7 @@
                                                         <img src="{{ asset('public/assets/jobcard_img/customer_voice2.jpg') }}"
                                                             alt="image" width="80">
                                                         <p class="my-2">Costomer voice</p>
-                                                        <p class="position-absolute list-count rounded-circle bg-primary text-white"
+                                                        <p class="position-absolute list-count rounded-circle bg-primary text-white  customerVoiceCount"
                                                             style="width: 10px !important;height:10px !important;">
                                                             @if (!empty($jobCardscustomervoice))
                                                                 {{ $jobCardscustomervoice->count() }}
@@ -215,10 +216,10 @@
                                                         <img src="{{ asset('public/assets/jobcard_img/photo.jpg') }}"
                                                             alt="image" width="80">
                                                         <p class="my-2">Photos</p>
-                                                        <p class="position-absolute list-count rounded-circle bg-primary text-white"
+                                                        <p class="position-absolute list-count rounded-circle bg-primary text-white jobcardImage"
                                                             style="width: 10px !important;height:10px !important;">
                                                             @if (!empty($jobCardsImage))
-                                                                {{ $jobCardsImage->count() }}
+                                                                {{ count(explode(',',$jobCardsImage)) }}
                                                             @else
                                                                 0
                                                             @endif
@@ -229,7 +230,7 @@
                                                         <img src="{{ asset('public/assets/jobcard_img/accessory.jpg') }}"
                                                             alt="image" width="80">
                                                         <p class="my-2">Accessories</p>
-                                                        <p class="position-absolute list-count rounded-circle bg-primary text-white"
+                                                        <p class="accessaryCount position-absolute list-count rounded-circle bg-primary text-white"
                                                             style="width: 10px !important;height:10px !important;">
                                                             @if (!empty($jobCardsaccessary))
                                                                 {{ $jobCardsaccessary->count() }}
@@ -243,7 +244,7 @@
                                                         <img src="{{ asset('public/assets/jobcard_img/work_note.jpg') }}"
                                                             alt="image" width="80">
                                                         <p class="my-2">Work Note</p>
-                                                        <p class="position-absolute list-count rounded-circle bg-primary text-white worknotecount"
+                                                        <p class="workNoteCount position-absolute list-count rounded-circle bg-primary text-white worknotecount"
                                                             style="width: 10px !important;height:10px !important;">
                                                             @if (!empty($jobCardsworknote))
                                                                 {{ $jobCardsworknote->count() }}
@@ -2303,8 +2304,7 @@
                     $(".modal-body-data").html(data);
                     $("#bs-example-modal-xl").modal("show");
                 },
-                error: function(xhr, status, error) {
-                    // Use a Toastr notification for better UX
+                error: function(xhr, status, error) { 
                     toastr.error("Failed to load content: " + error);
                 }
             });
@@ -2322,6 +2322,7 @@
                 success: function(data) {
 
                     if (data.success == 1) {
+                        $('.jobcardImage').html(data.imageId)
                         toastr.success(data.message, 'Success');
                         $("#bs-example-modal-xl").modal("hide");
                         dataTable.draw(false);
@@ -2390,5 +2391,119 @@
                 return;
             }
         }
+
+
+        
+
+
+
+    function form_submit_customer_view(e) { 
+$(e).find('.st_loader').show();
+$.ajax({
+    url: $(e).attr('action')
+    , method: "POST"
+    , dataType: "json"
+    , data: $(e).serialize()
+    , success: function(data) {
+
+        if (data.success == 1) {
+            // alert(data.cardinspiration)
+            $('.customerVoiceCount').html(data.cardinspiration)
+            toastr.success(data.message, 'Success');
+            $("#bs-example-modal-xl").modal("hide");
+            dataTable.draw(false); 
+          
+
+        } else if (data.success == 0) {
+            toastr.error(data.message, 'Error');
+            $(e).find('.st_loader').hide();
+        }
+    }
+    , error: function(data) {
+        if (typeof data.responseJSON.status !== 'undefined') {
+            toastr.error(data.responseJSON.error, 'Error');
+        } else {
+            $.each(data.responseJSON.errors, function(key, value) {
+                toastr.error(value, 'Error');
+            });
+        }
+        $(e).find('.st_loader').hide();
+    }
+});
+} 
+
+
+
+function form_submit_accessary(e) {
+
+$(e).find('.st_loader').show();
+$.ajax({
+   url: $(e).attr('action'),
+   method: "POST",
+   dataType: "json",
+   data: $(e).serialize(),
+   success: function(data) {
+
+      if (data.success == 1) {
+    $('.accessaryCount').html(data.accessaryCount);
+         toastr.success(data.message, 'Success'); 
+      $("#bs-example-modal-xl").modal("hide");
+         dataTable.draw(false); 
+
+      }else if (data.success == 0) {
+         toastr.error(data.message, 'Error');
+         $(e).find('.st_loader').hide(); 
+      }
+   },
+   error: function(data) { 
+      if (typeof data.responseJSON.status !== 'undefined') {
+         toastr.error(data.responseJSON.error, 'Error');
+      } else {
+         $.each(data.responseJSON.errors, function(key, value) {
+            toastr.error(value, 'Error');
+         });
+      }
+      $(e).find('.st_loader').hide();
+   }
+});
+}
+
+
+function form_submit_work_note(e) {
+
+$(e).find('.st_loader').show();
+$.ajax({
+   url: $(e).attr('action'),
+   method: "POST",
+   dataType: "json",
+   data: $(e).serialize(),
+   success: function(data) {
+
+      if (data.success == 1) {
+    $('.workNoteCount').html(data.workNoteCount)
+         toastr.success(data.message, 'Success'); 
+      $("#bs-example-modal-xl").modal("hide");
+         dataTable.draw(false); 
+         $('.worknotecount').html(data.countworknotes);
+
+      }else if (data.success == 0) {
+         toastr.error(data.message, 'Error');
+         $(e).find('.st_loader').hide(); 
+      }
+   },
+   error: function(data) {
+      if (typeof data.responseJSON.status !== 'undefined') {
+         toastr.error(data.responseJSON.error, 'Error');
+      } else {
+         $.each(data.responseJSON.errors, function(key, value) {
+            toastr.error(value, 'Error');
+         });
+      }
+      $(e).find('.st_loader').hide();
+   }
+});
+}
+
+
     </script>
 @endsection

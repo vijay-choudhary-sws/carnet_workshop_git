@@ -3,7 +3,7 @@
     <h4 class="modal-title" id="myLargeModalLabel">{{$title}}</h4>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
-<form id="add_product" action="{{ route('newjobcard.saveCustomerVoice') }}" onsubmit="form_submit(this);return false;" method="POST" enctype="multipart/form-data" autocomplete="on">
+<form id="add_product" action="{{ route('newjobcard.saveCustomerVoice') }}" onsubmit="form_submit_customer_view(this);return false;" method="POST" enctype="multipart/form-data" autocomplete="on">
     @csrf
     <input type="hidden" name="jobcard_numbers" class="jobcard_numbers" value="{{ $jobcard_numbers }}">
     <div class="container-fluid">
@@ -55,43 +55,6 @@
     </div>
 </form>
 <script>
-
-
-
-
-    function form_submit(e) {
-
-        $(e).find('.st_loader').show();
-        $.ajax({
-            url: $(e).attr('action')
-            , method: "POST"
-            , dataType: "json"
-            , data: $(e).serialize()
-            , success: function(data) {
-
-                if (data.success == 1) {
-                    toastr.success(data.message, 'Success');
-                    $("#bs-example-modal-xl").modal("hide");
-                    dataTable.draw(false);
-
-                } else if (data.success == 0) {
-                    toastr.error(data.message, 'Error');
-                    $(e).find('.st_loader').hide();
-                }
-            }
-            , error: function(data) {
-                if (typeof data.responseJSON.status !== 'undefined') {
-                    toastr.error(data.responseJSON.error, 'Error');
-                } else {
-                    $.each(data.responseJSON.errors, function(key, value) {
-                        toastr.error(value, 'Error');
-                    });
-                }
-                $(e).find('.st_loader').hide();
-            }
-        });
-    }
-
 
     function addNewField(e) {
         var contentUrl = "{{route('newjobcard.addField')}}";

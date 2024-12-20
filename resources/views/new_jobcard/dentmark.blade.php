@@ -183,10 +183,9 @@
         })
         .then(response => response.json())
         .then(data => {
-            toastr.success(data.message, 'Success');
-           
+            toastr.success(data.message, 'Success'); 
             $("#bs-example-modal-lg").removeClass("show").attr("aria-hidden", "true").hide();
- $(".modal-backdrop").remove();
+            $(".modal-backdrop").remove();
         })
         .catch(error => {
             console.error('Error:', error);
