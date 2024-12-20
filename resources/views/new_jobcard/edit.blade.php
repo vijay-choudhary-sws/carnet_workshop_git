@@ -86,17 +86,18 @@
                         <div class="nav toggle">
                             <a id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></a>
                             <a href="{{ route('newjobcard.list') }}" id=""><span class="titleup"><img
-                                        src="{{ URL::asset('public/supplier/Back Arrow.png') }}" class="back-arrow">Edit JobCard</span></a>
+                                        src="{{ URL::asset('public/supplier/Back Arrow.png') }}" class="back-arrow">Edit
+                                    JobCard</span></a>
                         </div>
                         @include('dashboard.profile')
                         <div class="ulprofile">
                             <div class="input-group mt-2">
                                 <span class="input-group-text">JobCard No.</span>
                                 <input type="text" form="jobcard-form" id="jobcard_number" name="jobcard_number"
-                                    class="form-control bg-light" value="{{ $jobcard->jobcard_number ?? ''}}" readonly
+                                    class="form-control bg-light" value="{{ $jobcard->jobcard_number ?? '' }}" readonly
                                     placeholder="Job Card Number" aria-label="Job Card Number">
                                 <span class="input-group-text">Date</span>
-                                <input type="date" class="form-control bg-light" value="{{ $jobcard->entry_date ?? ''}}"
+                                <input type="date" class="form-control bg-light" value="{{ \carbon\carbon::parse($jobcard->entry_date)->format('Y-m-d') ?? '' }}"
                                     readonly placeholder="Date" aria-label="Date">
                             </div>
                         </div>
@@ -128,7 +129,8 @@
                                                     <select name="customer_name" id="customer-dropdown"
                                                         class="form-control select2" style="width: 75%;"
                                                         onchange="getVehicle(this)">
-                                                        <option value="{{ $jobcard->customer_id }}" selected>{{ $jobcard->customer_name ?? ''}}</option>
+                                                        <option value="{{ $jobcard->customer_id }}" selected>
+                                                            {{ $jobcard->customer_name ?? '' }}</option>
                                                     </select>
                                                     <button type="button" data-bs-toggle="modal" data-bs-target="#myModal"
                                                         class="btn btn-outline-secondary input-group-text fl margin-left-0">{{ trans('+') }}</button>
@@ -136,8 +138,10 @@
 
                                                 <label for="vehicle-id" class="form-label">Vehical Name</label>
                                                 <div class="input-group mb-3">
-                                                    <select name="vehicle_id" id="vehicle-id" class="form-control select2" style="width: 75% !important;">
-                                                        <option value="{{ $jobcard->vehicle_id }}" selected>{{ $jobcard->vehical_number ?? ''}}</option>
+                                                    <select name="vehicle_id" id="vehicle-id" class="form-control select2"
+                                                        style="width: 75% !important;">
+                                                        <option value="{{ $jobcard->vehicle_id }}" selected>
+                                                            {{ $jobcard->vehical_number ?? '' }}</option>
                                                     </select>
                                                     <button type="button" data-bs-toggle="modal"
                                                         data-bs-target="#vehiclemymodel"
@@ -160,14 +164,16 @@
                                                     <div class="col-4">
                                                         <div class="form-floating mb-3">
                                                             <input type="number" name="km_reading" class="form-control"
-                                                                id="km_reading" value="{{ $jobcard->km_runing }}" min="1">
+                                                                id="km_reading" value="{{ $jobcard->km_runing }}"
+                                                                min="1">
                                                             <label for="km_reading">KM Reading</label>
                                                         </div>
                                                     </div>
                                                     <div class="col-4">
                                                         <label for="fual level" class="form-label">Fual Level</label>
                                                         <input type="range" class="form-range" id="fual level"
-                                                            name="fual_level" min="0" max="100" value="{{ $jobcard->fual_level }}">
+                                                            name="fual_level" min="0" max="100"
+                                                            value="{{ $jobcard->fual_level }}">
                                                     </div>
                                                     <div class="col-4">
                                                         <div class="form-floating">
@@ -397,25 +403,45 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($jobcard->jobCardSpareParts->where('category',2) as $sparePartItem)
-                                                <tr data-row="{{$loop->iteration}}">
+                                            @foreach ($jobcard->jobCardSpareParts->where('category', 2) as $sparePartItem)
+                                                <tr data-row="{{ $loop->iteration }}">
                                                     <td>
                                                         <span>{{ $sparePartItem->stock_label_name }}</span>
-                                                        <input type="hidden" class="form-control" name="jobcard_item_id[]" value="{{ $sparePartItem->stock_label_id }}">
+                                                        <input type="hidden" class="form-control"
+                                                            name="jobcard_item_id[]"
+                                                            value="{{ $sparePartItem->stock_label_id }}">
                                                     </td>
-                                                    <td><input type="number" class="form-control" name="jobcard_quantity[]" value="{{ $sparePartItem->quantity }}" min="1" max="" step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="number" class="form-control" name="jobcard_price[]" value="{{ $sparePartItem->price }}" min="1" step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="text" class="form-control bg-light" name="jobcard_total_amount[]" readonly value="{{ $sparePartItem->total_amount }}" min="1"  step="1"></td>
-                                                    <td><input type="number" class="form-control" name="jobcard_discount[]" value="{{ $sparePartItem->discount }}" min="0"  step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="text" class="form-control bg-light" name="jobcard_final_amount[]" value="{{ $sparePartItem->final_amount }}" min="1"  step="1" readonly></td>
+                                                    <td><input type="number" class="form-control"
+                                                            name="jobcard_quantity[]"
+                                                            value="{{ $sparePartItem->quantity }}" min="1"
+                                                            max="" step="1"
+                                                            oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_price[]"
+                                                            value="{{ $sparePartItem->price }}" min="1"
+                                                            step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light"
+                                                            name="jobcard_total_amount[]" readonly
+                                                            value="{{ $sparePartItem->total_amount }}" min="1"
+                                                            step="1"></td>
+                                                    <td><input type="number" class="form-control"
+                                                            name="jobcard_discount[]"
+                                                            value="{{ $sparePartItem->discount }}" min="0"
+                                                            step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light"
+                                                            name="jobcard_final_amount[]"
+                                                            value="{{ $sparePartItem->final_amount }}" min="1"
+                                                            step="1" readonly></td>
                                                     <td>
                                                         <select name="employee[]" class="select2">
                                                             @foreach ($employee as $item)
-                                                                <option value="{{$item->id}}" @checked($sparePartItem->machanic_id)>{{$item->display_name}}</option>
+                                                                <option value="{{ $item->id }}"
+                                                                    @checked($sparePartItem->machanic_id)>{{ $item->display_name }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                     </td>
-                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white" onclick="removeJobCardRow(this)">Remove</button></td>
+                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white"
+                                                            onclick="removeJobCardRow(this)">Remove</button></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -461,25 +487,45 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($jobcard->jobCardSpareParts->where('category',4) as $sparePartItem)
-                                                <tr data-row="{{$loop->iteration}}">
+                                            @foreach ($jobcard->jobCardSpareParts->where('category', 4) as $sparePartItem)
+                                                <tr data-row="{{ $loop->iteration }}">
                                                     <td>
                                                         <span>{{ $sparePartItem->stock_label_name }}</span>
-                                                        <input type="hidden" class="form-control" name="jobcard_item_id[]" value="{{ $sparePartItem->stock_label_id }}">
+                                                        <input type="hidden" class="form-control"
+                                                            name="jobcard_item_id[]"
+                                                            value="{{ $sparePartItem->stock_label_id }}">
                                                     </td>
-                                                    <td><input type="number" class="form-control" name="jobcard_quantity[]" value="{{ $sparePartItem->quantity }}" min="1" max="" step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="number" class="form-control" name="jobcard_price[]" value="{{ $sparePartItem->price }}" min="1" step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="text" class="form-control bg-light" name="jobcard_total_amount[]" readonly value="{{ $sparePartItem->total_amount }}" min="1"  step="1"></td>
-                                                    <td><input type="number" class="form-control" name="jobcard_discount[]" value="{{ $sparePartItem->discount }}" min="0"  step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="text" class="form-control bg-light" name="jobcard_final_amount[]" value="{{ $sparePartItem->final_amount }}" min="1"  step="1" readonly></td>
+                                                    <td><input type="number" class="form-control"
+                                                            name="jobcard_quantity[]"
+                                                            value="{{ $sparePartItem->quantity }}" min="1"
+                                                            max="" step="1"
+                                                            oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_price[]"
+                                                            value="{{ $sparePartItem->price }}" min="1"
+                                                            step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light"
+                                                            name="jobcard_total_amount[]" readonly
+                                                            value="{{ $sparePartItem->total_amount }}" min="1"
+                                                            step="1"></td>
+                                                    <td><input type="number" class="form-control"
+                                                            name="jobcard_discount[]"
+                                                            value="{{ $sparePartItem->discount }}" min="0"
+                                                            step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light"
+                                                            name="jobcard_final_amount[]"
+                                                            value="{{ $sparePartItem->final_amount }}" min="1"
+                                                            step="1" readonly></td>
                                                     <td>
                                                         <select name="employee[]" class="select2">
                                                             @foreach ($employee as $item)
-                                                                <option value="{{$item->id}}" @checked($sparePartItem->machanic_id)>{{$item->display_name}}</option>
+                                                                <option value="{{ $item->id }}"
+                                                                    @checked($sparePartItem->machanic_id)>{{ $item->display_name }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                     </td>
-                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white" onclick="removeJobCardRow(this)">Remove</button></td>
+                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white"
+                                                            onclick="removeJobCardRow(this)">Remove</button></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -524,25 +570,45 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($jobcard->jobCardSpareParts->where('category',3) as $sparePartItem)
-                                                <tr data-row="{{$loop->iteration}}">
+                                            @foreach ($jobcard->jobCardSpareParts->where('category', 3) as $sparePartItem)
+                                                <tr data-row="{{ $loop->iteration }}">
                                                     <td>
                                                         <span>{{ $sparePartItem->stock_label_name }}</span>
-                                                        <input type="hidden" class="form-control" name="jobcard_item_id[]" value="{{ $sparePartItem->stock_label_id }}">
+                                                        <input type="hidden" class="form-control"
+                                                            name="jobcard_item_id[]"
+                                                            value="{{ $sparePartItem->stock_label_id }}">
                                                     </td>
-                                                    <td><input type="number" class="form-control" name="jobcard_quantity[]" value="{{ $sparePartItem->quantity }}" min="1" max="" step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="number" class="form-control" name="jobcard_price[]" value="{{ $sparePartItem->price }}" min="1" step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="text" class="form-control bg-light" name="jobcard_total_amount[]" readonly value="{{ $sparePartItem->total_amount }}" min="1"  step="1"></td>
-                                                    <td><input type="number" class="form-control" name="jobcard_discount[]" value="{{ $sparePartItem->discount }}" min="0"  step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="text" class="form-control bg-light" name="jobcard_final_amount[]" value="{{ $sparePartItem->final_amount }}" min="1"  step="1" readonly></td>
+                                                    <td><input type="number" class="form-control"
+                                                            name="jobcard_quantity[]"
+                                                            value="{{ $sparePartItem->quantity }}" min="1"
+                                                            max="" step="1"
+                                                            oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_price[]"
+                                                            value="{{ $sparePartItem->price }}" min="1"
+                                                            step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light"
+                                                            name="jobcard_total_amount[]" readonly
+                                                            value="{{ $sparePartItem->total_amount }}" min="1"
+                                                            step="1"></td>
+                                                    <td><input type="number" class="form-control"
+                                                            name="jobcard_discount[]"
+                                                            value="{{ $sparePartItem->discount }}" min="0"
+                                                            step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light"
+                                                            name="jobcard_final_amount[]"
+                                                            value="{{ $sparePartItem->final_amount }}" min="1"
+                                                            step="1" readonly></td>
                                                     <td>
                                                         <select name="employee[]" class="select2">
                                                             @foreach ($employee as $item)
-                                                                <option value="{{$item->id}}" @checked($sparePartItem->machanic_id)>{{$item->display_name}}</option>
+                                                                <option value="{{ $item->id }}"
+                                                                    @checked($sparePartItem->machanic_id)>{{ $item->display_name }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                     </td>
-                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white" onclick="removeJobCardRow(this)">Remove</button></td>
+                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white"
+                                                            onclick="removeJobCardRow(this)">Remove</button></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -587,25 +653,45 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($jobcard->jobCardSpareParts->where('category',1) as $sparePartItem)
-                                                <tr data-row="{{$loop->iteration}}">
+                                            @foreach ($jobcard->jobCardSpareParts->where('category', 1) as $sparePartItem)
+                                                <tr data-row="{{ $loop->iteration }}">
                                                     <td>
                                                         <span>{{ $sparePartItem->stock_label_name }}</span>
-                                                        <input type="hidden" class="form-control" name="jobcard_item_id[]" value="{{ $sparePartItem->stock_label_id }}">
+                                                        <input type="hidden" class="form-control"
+                                                            name="jobcard_item_id[]"
+                                                            value="{{ $sparePartItem->stock_label_id }}">
                                                     </td>
-                                                    <td><input type="number" class="form-control" name="jobcard_quantity[]" value="{{ $sparePartItem->quantity }}" min="1" max="" step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="number" class="form-control" name="jobcard_price[]" value="{{ $sparePartItem->price }}" min="1" step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="text" class="form-control bg-light" name="jobcard_total_amount[]" readonly value="{{ $sparePartItem->total_amount }}" min="1"  step="1"></td>
-                                                    <td><input type="number" class="form-control" name="jobcard_discount[]" value="{{ $sparePartItem->discount }}" min="0"  step="1" oninput="getJobCardPrice(this)"></td>
-                                                    <td><input type="text" class="form-control bg-light" name="jobcard_final_amount[]" value="{{ $sparePartItem->final_amount }}" min="1"  step="1" readonly></td>
+                                                    <td><input type="number" class="form-control"
+                                                            name="jobcard_quantity[]"
+                                                            value="{{ $sparePartItem->quantity }}" min="1"
+                                                            max="" step="1"
+                                                            oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_price[]"
+                                                            value="{{ $sparePartItem->price }}" min="1"
+                                                            step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light"
+                                                            name="jobcard_total_amount[]" readonly
+                                                            value="{{ $sparePartItem->total_amount }}" min="1"
+                                                            step="1"></td>
+                                                    <td><input type="number" class="form-control"
+                                                            name="jobcard_discount[]"
+                                                            value="{{ $sparePartItem->discount }}" min="0"
+                                                            step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light"
+                                                            name="jobcard_final_amount[]"
+                                                            value="{{ $sparePartItem->final_amount }}" min="1"
+                                                            step="1" readonly></td>
                                                     <td>
                                                         <select name="employee[]" class="select2">
                                                             @foreach ($employee as $item)
-                                                                <option value="{{$item->id}}" @checked($sparePartItem->machanic_id)>{{$item->display_name}}</option>
+                                                                <option value="{{ $item->id }}"
+                                                                    @checked($sparePartItem->machanic_id)>{{ $item->display_name }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                     </td>
-                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white" onclick="removeJobCardRow(this)">Remove</button></td>
+                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white"
+                                                            onclick="removeJobCardRow(this)">Remove</button></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -682,7 +768,8 @@
                                                     <input type="text" id="total-amount" name="total_amount"
                                                         value="0" placeholder="Total Amount"
                                                         class="form-control w-50 bg-secondary text-white rounded" readonly>
-                                                    <input type="hidden" name="total_discount" id="total-discount" value="0">
+                                                    <input type="hidden" name="total_discount" id="total-discount"
+                                                        value="0">
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-4">
@@ -699,7 +786,7 @@
                                                         <div class="mb-3">
                                                             <label for="advance" class="form-label">Advance</label>
                                                             <input type="text" id="advance" name="advance"
-                                                                value="{{$jobcard->advance}}" placeholder="Advance"
+                                                                value="{{ $jobcard->advance }}" placeholder="Advance"
                                                                 class="form-control rounded" oninput="totalCounter()">
                                                         </div>
                                                     </div>
@@ -721,7 +808,8 @@
                                 </div>
 
                                 <div class="mt-5 text-end">
-                                    <button type="submit" class="btn btn-success" onclick="qtyCheck()">Update Job Card</button>
+                                    <button type="submit" class="btn btn-success" onclick="qtyCheck()">Update Job
+                                        Card</button>
                                 </div>
 
                             </form>
@@ -732,551 +820,7 @@
         </div>
     </div>
 
-    <!--customer add model -->
-    <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel1">{{ trans('message.Customer Details') }}</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="x_content">
-                        <form id="formcustomer" method="POST" name="formcustomer" enctype="multipart/form-data"
-                            data-parsley-validate class="form-horizontal form-label-left input_mask">
-
-                            <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-12 col-sm-12 col-xs-12 space">
-                                <h4><b>{{ trans('message.PERSONAL INFORMATION') }}</b></h4>
-                                <p class="col-md-12 col-lg-12 col-xl-12 col-xxl-12 col-sm-12 col-xs-12 ln_solid"></p>
-                            </div>
-                            <div class="row mt-3">
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="first-name">{{ trans('message.First Name') }} <label
-                                            class="color-danger">*</label> </label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <input type="text" id="firstname" name="firstname" class="form-control"
-                                            value="{{ old('firstname') }}"
-                                            placeholder="{{ trans('message.Enter First Name') }}" maxlength="25"
-                                            required />
-                                        <span class="color-danger" id="errorlfirstname"></span>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback {{ $errors->has('lastname') ? ' has-error' : '' }}">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="last-name">{{ trans('message.Last Name') }} <label
-                                            class="color-danger">*</label></label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <input type="text" id="lastname" name="lastname"
-                                            placeholder="{{ trans('message.Enter Last Name') }}"
-                                            value="{{ old('lastname') }}" maxlength="25" class="form-control" required>
-                                        <span class="color-danger" id="errorllastname"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4">
-                                        {{ trans('message.Gender') }}
-                                        <label class="color-danger"></label></label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8 gender">
-                                        <input type="radio" class="gender" name="gender"
-                                            value="0">{{ trans('message.Male') }}
-                                        <input type="radio" class="gender" name="gender" value="1">
-                                        {{ trans('message.Female') }}
-
-                                    </div>
-                                </div>
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback {{ $errors->has('mobile') ? ' has-error' : '' }}">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="mobile">{{ trans('message.Mobile No') }}. <label
-                                            class="color-danger">*</label></label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <input type="text" id="mobile" name="mobile"
-                                            placeholder="{{ trans('message.Enter Mobile No') }}"
-                                            value="{{ old('mobile') }}" class="form-control" maxlength="16"
-                                            minlength="6" required>
-                                        <span class="color-danger" id="errorlmobile"></span>
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="row mt-3">
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback {{ $errors->has('email') ? ' has-error' : '' }}">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="Email">{{ trans('message.Email') }} <label
-                                            class="color-danger">*</label></label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <input type="text" id="email" name="email"
-                                            placeholder="{{ trans('message.Enter Email') }}" value="{{ old('email') }}"
-                                            class="form-control" maxlength="50" required>
-                                        <span class="color-danger" id="errorlemail"></span>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback {{ $errors->has('password') ? ' has-error' : '' }}">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="Password">{{ trans('message.Password') }} <label
-                                            class="color-danger">*</label></label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <input type="password" id="password" name="password"
-                                            placeholder="{{ trans('message.Enter Password') }}"
-                                            class="form-control col-md-7 col-xs-12" maxlength="20" required>
-                                        <span class="color-danger" id="errorlpassword"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback {{ $errors->has('password_confirmation') ? ' has-error' : '' }}">
-                                    <label
-                                        class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4 currency p-0 ps-2 px-5"
-                                        for="Password">{{ trans('message.Confirm Password') }}
-                                        <label class="color-danger">*</label></label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <input type="password" id="password_confirmation" name="password_confirmation"
-                                            placeholder="{{ trans('message.Enter Confirm Password') }}"
-                                            class="form-control col-md-7 col-xs-12" maxlength="20" required>
-                                        <span class="color-danger" id="errorlpassword_confirmation"></span>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group {{ $errors->has('dob') ? ' has-error' : '' }}">
-                                    <label
-                                        class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4">{{ trans('message.Date of Birth') }}</label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8 date ">
-                                        <input type="text" id="datepicker" autocomplete="off"
-                                            class="form-control datepickercustmore" placeholder="<?php echo getDatepicker(); ?>"
-                                            name="dob" value="{{ old('dob') }}" onkeypress="return false;" />
-                                    </div>
-                                    <span class="color-danger" id="errorldatepicker"></span>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback {{ $errors->has('displayname') ? ' has-error' : '' }} ">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="display-name">{{ trans('message.Display Name') }}</label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <input type="text" id="displayname" name="displayname"
-                                            placeholder="{{ trans('message.Enter Display Name') }}"
-                                            value="{{ old('displayname') }}" class="form-control" maxlength="25">
-                                        <span class="color-danger" id="errorldisplayname"></span>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback {{ $errors->has('company_name') ? ' has-error' : '' }} ">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4 p-0"
-                                        for="display-name">{{ trans('message.Company Name') }}</label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <input type="text" id="company_name" name="company_name"
-                                            placeholder="{{ trans('message.Enter Company Name') }}"
-                                            value="{{ old('company_name') }}" class="form-control" maxlength="25">
-                                        <span class="color-danger" id="errorlcompanyName"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback {{ $errors->has('landlineno') ? ' has-error' : '' }}">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="landline-no">{{ trans('message.Landline No') }}. </label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <input type="text" id="landlineno" name="landlineno"
-                                            placeholder="{{ trans('message.Enter LandLine No') }}"
-                                            value="{{ old('landlineno') }}" class="form-control">
-                                        <span class="color-danger" id="errorllandlineno"></span>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="image">
-                                        {{ trans('message.Image') }} </label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <input type="file" id="image" name="image" value="{{ old('image') }}"
-                                            class="form-control chooseImage">
-
-                                        <img src="{{ url('public/customer/avtar.png') }}" id="imagePreview"
-                                            alt="User Image" class="datatable_img mt-2" style="width: 52px;">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-12 col-sm-12 col-xs-12 space">
-                                <h4><b>{{ trans('message.ADDRESS') }}</b></h4>
-                                <p class="col-md-12 col-lg-12 col-xl-12 col-xxl-12 col-sm-12 col-xs-12 ln_solid"></p>
-                            </div>
-                            <div class="row mt-3">
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="Country">{{ trans('message.Country') }} <label
-                                            class="color-danger">*</label></label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <select class="form-control select_country form-select" id="country_id"
-                                            name="country_id" countryurl="{!! url('/getstatefromcountry') !!}" required>
-                                            <option value="">{{ trans('message.Select Country') }}</option>
-                                            @foreach ($country as $countrys)
-                                                <option value="{{ $countrys->id }}">{{ $countrys->name }}</option>
-                                            @endforeach
-                                        </select>
-                                        <span class="color-danger" id="errorlcountry_id"></span>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="State ">{{ trans('message.State') }} </label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <select class="form-control state_of_country form-select" id="state_id"
-                                            name="state_id" stateurl="{!! url('/getcityfromstate') !!}">
-                                            <option value="">{{ trans('message.Select State') }}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="Town/City">{{ trans('message.Town/City') }}</label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <select class="form-control city_of_state form-select" id="city"
-                                            name="city">
-                                            <option value="">{{ trans('message.Select City') }}</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 form-group has-feedback">
-                                    <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                        for="Address">{{ trans('message.Address') }} <label
-                                            class="color-danger">*</label></label>
-                                    <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                        <textarea class="form-control" id="address" name="address" maxlength="100" required>{{ old('address') }}</textarea>
-                                        <span class="color-danger" id="errorladdress"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                            <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                <div class="col-md-12 col-sm-12 col-xs-12 text-center">
-                                    <!-- <a class="btn btn-primary cancelcustomer" data-bs-dismiss="modal">{{ trans('message.CANCEL') }}</a> -->
-                                    <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 my-1 mx-0">
-                                        <button type="submit"
-                                            class="btn btn-success addcustomer">{{ trans('message.SUBMIT') }}</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary btn-sm mx-1"
-                        data-bs-dismiss="modal">{{ trans('message.Close') }}</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="vehiclemymodel" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel">{{ trans('message.Vehicle Details') }}</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                @include('success_message.message')
-                <div class="modal-body">
-                    <form action="" method="post" enctype="multipart/form-data" class="form-horizontal upperform"
-                        id="add_vehi">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="customer_id" value="" class="hidden_customer_id">
-                        <div class="row">
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Vehicle Type') }} <label
-                                        class="color-danger">*</label></label>
-                                <div class="col-md-12 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                    <select class="form-control select_vehicaltype form-select" id="vehical_id1"
-                                        name="vehical_id" vehicalurl="{!! url('/vehicle/vehicaltypefrombrand') !!}" required>
-                                        <option value="">{{ trans('message.Select Vehicle Type') }}</option>
-                                        @if (!empty($vehical_type))
-                                            @foreach ($vehical_type as $vehical_types)
-                                                <option value="{{ $vehical_types->id }}">
-                                                    {{ $vehical_types->vehicle_type }}
-                                                </option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                    <span class="color-danger" id="errorlvehical_id1"></span>
-                                </div>
-                                <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 addremove">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm showmodal ms-1"
-                                        data-show-modal="responsive-modal">
-                                        +
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Number Plate') }} <label
-                                        class="text-danger">*</label></label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" id="number_plate" name="number_plate"
-                                        value="{{ old('number_plate') }}"
-                                        placeholder="{{ trans('message.Enter Number Plate') }}" maxlength="30"
-                                        class="form-control" required>
-                                    <span class="color-danger" id="npe"></span>
-                                    @if ($errors->has('price'))
-                                        <span class="help-block">
-                                            <strong>{{ $errors->first('price') }}</strong>
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="row mt-2">
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Vehicle Brand') }}<label
-                                        class="color-danger">*</label></label>
-                                <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                    <select class="form-control select_vehicalbrand form-select" id="vehicabrand1"
-                                        name="vehicabrand" url="{!! url('/vehicle/vehicalmodelfrombrand') !!}">
-                                        <option value="">{{ trans('message.Select Brand') }}</option>
-                                    </select>
-                                    <span class="color-danger">
-                                        <strong id="errorlvehicabrand1"></strong>
-                                    </span>
-                                </div>
-                                <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 addremove">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm showmodal ms-1"
-                                        data-show-modal="responsive-modal-brand">
-                                        +
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Chasic No') }}</label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" name="chasicno" id="chasicno1" value="{{ old('chasicno') }}"
-                                        placeholder="{{ trans('message.Enter ChasicNo') }}" maxlength="30"
-                                        class="form-control">
-                                    <span class="color-danger" id="errorlchasicno1"></span>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="row mt-2">
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="last-name">{{ trans('message.Model Name') }} <label
-                                        class="color-danger">*</label></label>
-                                <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                    <select class="form-control model_addname form-select" id="modelname1"
-                                        name="modelname" required>
-                                        <option value="">{{ trans('message.Select Model') }}</option>
-                                    </select>
-                                    <span class="color-danger" id="errorlmodelname1"></span>
-                                </div>
-                                <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 addremove">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm showmodal ms-1"
-                                        data-show-modal="responsive-modal-vehi-model">
-                                        +
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Model Years') }}</label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8 input-groups date">
-                                    <input type="text" name="modelyear" id="modelyear1"
-                                        class="form-control myDatepicker2" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-2">
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Fuel Type') }}<label
-                                        class="color-danger">*</label></label>
-                                <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                    <select class="form-control select_fueltype form-select" id="fueltype1"
-                                        name="fueltype">
-                                        <option value="">{{ trans('message.Select fuel type') }} </option>
-                                        @if (!empty($fuel_type))
-                                            @foreach ($fuel_type as $fuel_types)
-                                                <option value="{{ $fuel_types->id }}">{{ $fuel_types->fuel_type }}
-                                                </option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                    <span class="color-danger" id="fuel1"></span>
-                                </div>
-                                <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 addremove">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm showmodal ms-1"
-                                        data-show-modal="responsive-modal-fuel">
-                                        +
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.No of Grear') }}</label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" name="gearno" id="gearno1" value="{{ old('gearno') }}"
-                                        placeholder="{{ trans('message.Enter No of Gear') }}" maxlength="5"
-                                        class="form-control">
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                        <div class="row mt-2">
-                            <div
-                                class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 {{ $errors->has('odometerreading') ? ' has-error' : '' }}">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Odometer Reading') }} </label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" name="odometerreading" id="odometerreading1"
-                                        value="{{ old('odometerreading') }}"
-                                        placeholder="{{ trans('message.Enter Odometer Reading') }}" maxlength="20"
-                                        class="form-control">
-                                </div>
-                            </div>
-
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="last-name">{{ trans('message.Date Of Manufacturing') }} </label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8 date">
-                                    <input type="text" name="dom" id="dom1" class="form-control datepicker1"
-                                        placeholder="<?php echo getDatepicker(); ?>" onkeypress="return false;" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mt-2">
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Gear Box') }}</label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" name="gearbox" id="gearbox1" value="{{ old('gearbox') }}"
-                                        placeholder="{{ trans('message.Enter Grear Box') }}" maxlength="30"
-                                        class="form-control">
-                                </div>
-                            </div>
-
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="last-name">{{ trans('message.Gear Box No') }}</label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" name="gearboxno" id="gearboxno1"
-                                        value="{{ old('gearboxno') }}"
-                                        placeholder="{{ trans('message.Enter Gearbox No') }}" maxlength="30"
-                                        class="form-control">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mt-2">
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Engine No') }}</label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" name="engineno" id="engineno1" value="{{ old('engineno') }}"
-                                        placeholder="{{ trans('message.Enter Engine No') }}" maxlength="30"
-                                        class="form-control">
-                                    <span class="color-danger" id="errorlengineno1"></span>
-                                </div>
-                            </div>
-
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="last-name">{{ trans('message.Engine Size') }}</label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" name="enginesize" id="enginesize1"
-                                        value="{{ old('enginesize') }}"
-                                        placeholder="{{ trans('message.Enter Engine Size') }}" maxlength="30"
-                                        class="form-control">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mt-2">
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Key No') }} </label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" name="keyno" id="keyno1" value="{{ old('keyno') }}"
-                                        placeholder="{{ trans('message.Enter Key No') }}" maxlength="30"
-                                        class="form-control">
-                                </div>
-                            </div>
-
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Engine') }} </label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" name="engine" id="engine1" value="{{ old('engine') }}"
-                                        placeholder="{{ trans('message.Enter Engine') }}" maxlength="30"
-                                        class="form-control">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mt-2">
-
-                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
-                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
-                                    for="first-name">{{ trans('message.Chasic No') }}</label>
-                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
-                                    <input type="text" name="chasicno" id="chasicno1" value="{{ old('chasicno') }}"
-                                        placeholder="{{ trans('message.Enter ChasicNo') }}" maxlength="30"
-                                        class="form-control">
-                                    <span class="color-danger" id="errorlchasicno1"></span>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="row mt-2">
-                            <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-12 col-sm-12 col-xs-12 text-center">
-                                <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 my-1 mx-0">
-                                    <button type="button"
-                                        class="btn btn-success addvehicleservice">{{ trans('message.SUBMIT') }}</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary vhc_close btn-sm mx-1"
-                        data-bs-dismiss="modal">{{ trans('message.Close') }}</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('new_jobcard.includes.model')
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -1392,425 +936,104 @@
                 $("#imagePreview").css("display", "block");
             });
 
-            $("#formcustomer").on('submit', (function(event) {
+            /*vehical Type from brand*/
+            $('.select_vehicaltype').change(function() {
+                vehical_id = $(this).val();
+                var url = $(this).attr('vehicalurl');
+                sessionStorage.setItem('selectedType', vehical_id);
 
-                function define_variable() {
-                    return {
-                        firstname: $("#firstname").val(),
-                        lastname: $("#lastname").val(),
-                        displayname: $("#displayname").val(),
-                        company_name: $("#company_name").val(),
-                        email: $("#email").val(),
-                        password: $("#password").val(),
-                        password_confirmation: $("#password_confirmation").val(),
-                        mobile: $("#mobile").val(),
-                        landlineno: $("#landlineno").val(),
-                        image: $("#image").val(),
-                        country_id: $("#country_id option:selected").val(),
-                        state_id: $("#state_id option:selected").val(),
-                        city: $("#city option:selected").val(),
-                        address: $("#address").val(),
-                        name_pattern: /^[a-zA-Z\u0621-\u064A\u00C0-\u017F\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u2E80-\u2FD5\u3190-\u319f\u3400-\u4DBF\u4E00-\u9FCC\uF900-\uFAAD\u0900-\u097F\s]+$/,
-                        name_pattern2: /^[a-zA-Z\u0621-\u064A\u00C0-\u017F\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u2E80-\u2FD5\u3190-\u319f\u3400-\u4DBF\u4E00-\u9FCC\uF900-\uFAAD\u0900-\u097F\s]*$/,
-                        company_patt: /^[a-zA-Z0-9\u0621-\u064A\u00C0-\u017F\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u2E80-\u2FD5\u3190-\u319f\u3400-\u4DBF\u4E00-\u9FCC\uF900-\uFAAD\u0900-\u097F\s]*$/,
-                        lenghtLimit: /^[0-9]{6,16}$/,
-                        mobile_pattern: /^[- +()]*[0-9][- +()0-9]*$/,
-                        email_pattern: /^([a-zA-Z0-9_\.\-\+\'])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/
-                    };
-                }
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    data: {
+                        vehical_id: vehical_id
+                    },
+                    success: function(response) {
+                        $('.select_vehicalbrand').html(response);
 
+                        $('.select_vehicalbrand').trigger('change');
+                    }
+                });
+            });
+
+            /*vehical Model from brand*/
+            $('.select_vehicalbrand').change(function() {
+                id = $(this).val();
+                var url = $(this).attr('url');
+                sessionStorage.setItem('selectedBrand', id);
+
+                $('.vehical_id').val(id).trigger('change');
+
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
+                        $('.model_addname').html(response);
+                    }
+                });
+            });
+
+            Array.from(document.getElementsByClassName('showmodal')).forEach((e) => {
+                e.addEventListener('click', function(element) {
+                    element.preventDefault();
+                    if (e.hasAttribute('data-show-modal')) {
+                        showModal(e.getAttribute('data-show-modal'));
+                    }
+                });
+            });
+
+            // Show modal dialog
+            function showModal(modal) {
+                const mid = document.getElementById(modal);
+                let myModal = new bootstrap.Modal(mid);
+                myModal.show();
+            }
+
+            $("#formcustomer").on('submit', function(event) {
                 event.preventDefault();
-                var call_var_customeradd = define_variable();
-                var errro_msg = [];
-                //first name
-                if (call_var_customeradd.firstname == "") {
-                    var msg = "{{ trans('message.First name is required.') }}";
-                    $('#errorlfirstname').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlfirstname').html("");
-                    errro_msg = [];
-                }
+                $.ajax({
+                    type: 'post',
+                    url: '{!! url('service/customeradd') !!}',
+                    data: new FormData(this),
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
+                    },
+                    contentType: false,
+                    cache: false,
+                    processData: false,
 
-                if (!call_var_customeradd.name_pattern.test(call_var_customeradd.firstname)) {
-                    var msg = "{{ trans('message.First name is only alphabets and space.') }}";
-                    $("#firstname").val("");
-                    $('#errorlfirstname').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlfirstname').html("");
-                    errro_msg = [];
-                }
+                    success: function(data) {
+                        var firstname = $('#firstname').val('');
+                        var lastname = $('#lastname').val('');
+                        var displayname = $('#displayname').val('');
+                        var gender = $(".gender:checked").val('');
+                        var dob = $("#datepicker").val('');
+                        var email = $("#email").val('');
+                        var password = $("#password").val('');
+                        var mobile = $("#mobile").val('');
+                        var landlineno = $("#landlineno").val('');
+                        var image = $("#image").val('');
+                        var country_id = $("#country_id option:selected").val('');
+                        var state_id = $("#state_id option:selected").val('');
+                        var city = $("#city option:selected").val('');
+                        var address = $("#address").val('');
+                        var company_name = $("#company_name").val('');
+                        $(".addcustomermsg").removeClass("hide");
 
-                if (!call_var_customeradd.firstname.replace(/\s/g, '').length) {
+                        $('.hidden_customer_id').val(data['customerId']);
+                        $('#myModal').modal('toggle');
+                        toastr.success("Customer Addes Successfully.", "Success");
 
-                    var msg = "{{ trans('message.Only blank space not allowed') }}";
-                    $("#firstname").val("");
-                    $('#errorlfirstname').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlfirstname').html("");
-                    errro_msg = [];
-                }
-
-                if (!call_var_customeradd.name_pattern2.test(call_var_customeradd.firstname)) {
-                    var msg = "{{ trans('message.At first position only alphabets are allowed.') }}";
-                    $("#firstname").val("");
-                    $('#errorlfirstname').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlfirstname').html("");
-                    errro_msg = [];
-                }
-
-                //last name
-                if (call_var_customeradd.lastname == "") {
-                    var msg = "{{ trans('message.Last name is required.') }}";
-                    $('#errorllastname').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorllastname').html("");
-                    errro_msg = [];
-                }
-                if (!call_var_customeradd.name_pattern.test(call_var_customeradd.lastname)) {
-                    var msg = "{{ trans('message.Last name is only alphabets and space.') }}";
-                    $('#errorllastname').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorllastname').html("");
-                    errro_msg = [];
-                }
-
-                if (!call_var_customeradd.lastname.replace(/\s/g, '').length) {
-
-                    var msg = "{{ trans('message.Only blank space not allowed') }}";
-                    $("#lastname").val("");
-                    $('#errorllastname').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorllastname').html("");
-                    errro_msg = [];
-                }
-
-                if (!call_var_customeradd.name_pattern2.test(call_var_customeradd.lastname)) {
-                    var msg = "{{ trans('message.At first position only alphabets are allowed.') }}";
-                    $('#errorllastname').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorllastname').html("");
-                    errro_msg = [];
-                }
-                //Display name
-                if (call_var_customeradd.displayname != "") {
-
-                    if (!call_var_customeradd.name_pattern.test(call_var_customeradd.displayname)) {
-                        var msg = "{{ trans('message.Display name is only alphabets and space.') }}";
-                        $("#displayname").val("");
-                        $('#errorldisplayname').html(msg);
-                        errro_msg.push(msg);
-                        return false;
-                    } else if (!call_var_customeradd.displayname.replace(/\s/g, '').length) {
-
-                        var msg = "{{ trans('message.Only blank space not allowed') }}";
-                        $("#displayname").val("");
-                        $('#errorldisplayname').html(msg);
-                        errro_msg.push(msg);
-                        return false;
-                    } else if (!call_var_customeradd.name_pattern2.test(call_var_customeradd
-                            .displayname)) {
-                        var msg =
-                            "{{ trans('message.At first position only alphabets are allowed.') }}";
-                        $("#displayname").val("");
-                        $('#errorldisplayname').html(msg);
-                        errro_msg.push(msg);
-                        return false;
-                    } else {
-                        $('#errorldisplayname').html("");
-                        errro_msg = [];
+                    },
+                    error: function(e) {
+                        alert(msg100 + " " + e.responseText);
+                        console.log(e);
                     }
-                } else {
-                    $('#errorldisplayname').html("");
-                    errro_msg = [];
-                }
-
-                //Company name
-                if (call_var_customeradd.company_name != "") {
-
-                    if (!call_var_customeradd.company_name.replace(/\s/g, '').length) {
-
-                        var msg = "{{ trans('message.Only blank space not allowed') }}";
-                        $("#company_name").val("");
-                        $('#errorlcompanyName').html(msg);
-                        errro_msg.push(msg);
-                        return false;
-                    } else if (!call_var_customeradd.company_patt.test(call_var_customeradd
-                            .company_name)) {
-                        var msg =
-                            "{{ trans('message.Only alphanumeric, space, dot, @, _, and - are allowed.') }}";
-                        $("#company_name").val("");
-                        $('#errorlcompanyName').html(msg);
-                        errro_msg.push(msg);
-                        return false;
-                    } else if (!call_var_customeradd.name_pattern2.test(call_var_customeradd
-                            .company_name)) {
-                        var msg =
-                            "{{ trans('message.At first position only alphabets are allowed.') }}";
-                        $("#company_name").val("");
-                        $('#errorlcompanyName').html(msg);
-                        errro_msg.push(msg);
-                        return false;
-                    } else {
-                        $('#errorlcompanyName').html("");
-                        errro_msg = [];
-                    }
-                } else {
-                    $('#errorlcompanyName').html("");
-                    errro_msg = [];
-                }
-                //Email 
-                if (call_var_customeradd.email == "") {
-                    var msg = "{{ trans('message.Email is required.') }}";
-                    $('#errorlemail').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlemail').html("");
-                    errro_msg = [];
-                }
-
-                if (!call_var_customeradd.email.replace(/\s/g, '').length) {
-
-                    var msg = "{{ trans('message.Only blank space not allowed') }}";
-                    $("#email").val("");
-                    $('#errorlemail').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlfirstname').html("");
-                    errro_msg = [];
-                }
-
-                if (!call_var_customeradd.email_pattern.test(call_var_customeradd.email)) {
-                    var msg =
-                        "{{ trans('message.Please enter a valid email address. Like : sales@mojoomla.com') }}";
-                    $('#errorlemail').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlemail').html("");
-                    errro_msg = [];
-                }
-
-                //Password 
-                if (call_var_customeradd.password == "") {
-                    var msg = "{{ trans('message.Password is required.') }}";
-                    $('#errorlpassword').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlpassword').html("");
-                    errro_msg = [];
-                }
-                //Confirm Password 
-                if (call_var_customeradd.password_confirmation == "") {
-                    var msg = "{{ trans('message.Confirm password is required.') }}";
-                    $('#errorlpassword_confirmation').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlpassword_confirmation').html("");
-                    errro_msg = [];
-                }
-
-                //same Password and password_confirmation  
-                if (call_var_customeradd.password != call_var_customeradd.password_confirmation) {
-                    var msg = "{{ trans('message.Password and Confirm Password does not match.') }}";
-                    $('#errorlpassword_confirmation').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlpassword').html("");
-                    errro_msg = [];
-                }
-
-                //Mobile number 
-                if (call_var_customeradd.mobile == "") {
-                    var msg = "{{ trans('message.Contact number is required.') }}";
-                    $('#errorlmobile').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlmobile').html("");
-                    errro_msg = [];
-                }
-                if (!call_var_customeradd.mobile_pattern.test(call_var_customeradd.mobile)) {
-                    var msg =
-                        "{{ trans('message.Contact number must be number, plus, minus and space only.') }}";
-                    $("#mobile").val("");
-                    $('#errorlmobile').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlmobile').html("");
-                    errro_msg = [];
-                }
-
-                if (!call_var_customeradd.mobile.replace(/\s/g, '').length) {
-
-                    var msg = "{{ trans('message.Only blank space not allowed') }}";
-                    $("#mobile").val("");
-                    $('#errorlmobile').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlmobile').html("");
-                    errro_msg = [];
-                }
-
-                //LandLine number
-                if (call_var_customeradd.landlineno != "") {
-                    if (!call_var_customeradd.mobile_pattern.test(call_var_customeradd.landlineno)) {
-                        var msg =
-                            "{{ trans('message.Landline number must be number, plus, minus and space only.') }}";
-                        $("#landlineno").val("");
-                        $('#errorllandlineno').html(msg);
-                        errro_msg.push(msg);
-                        return false;
-                    } else if (!call_var_customeradd.lenghtLimit.test(call_var_customeradd
-                            .landlineno)) {
-                        var msg =
-                            "{{ trans('message.Landline number between 6 to 16 digits only') }}";
-                        $("#landlineno").val("");
-                        $('#errorllandlineno').html(msg);
-                        errro_msg.push(msg);
-                        return false;
-                    } else if (!call_var_customeradd.landlineno.replace(/\s/g, '').length) {
-
-                        var msg = "{{ trans('message.Only blank space not allowed') }}";
-                        $("#landlineno").val("");
-                        $('#errorllandlineno').html(msg);
-                        errro_msg.push(msg);
-                        return false;
-                    } else {
-                        $('#errorllandlineno').html("");
-                        errro_msg = [];
-                    }
-                } else {
-                    $('#errorllandlineno').html("");
-                    errro_msg = [];
-                }
-
-                //Country 
-                if (call_var_customeradd.country_id == "") {
-                    var msg = "{{ trans('message.Country field is required.') }}";
-                    $('#errorlcountry_id').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorlcountry_id').html("");
-                    errro_msg = [];
-                }
-                //Address 
-                if (call_var_customeradd.address == "") {
-                    var msg = "{{ trans('message.Address field is required.') }}";
-                    $('#errorladdress').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorladdress').html("");
-                    errro_msg = [];
-                }
-
-                if (!call_var_customeradd.address.replace(/\s/g, '').length) {
-
-                    var msg = "{{ trans('message.Only blank space not allowed') }}";
-                    $("#address").val("");
-                    $('#errorladdress').html(msg);
-                    errro_msg.push(msg);
-                    return false;
-                } else {
-                    $('#errorladdress').html("");
-                    errro_msg = [];
-                }
-
-                if (errro_msg == "") {
-                    var firstname = $('#firstname').val();
-                    var lastname = $('#lastname').val();
-                    var displayname = $('#displayname').val();
-                    var company_name = $('#company_name').val();
-                    var gender = $(".gender:checked").val();
-                    var dob = $("#datepicker").val();
-                    var email = $("#email").val();
-                    var password = $("#password").val();
-                    var mobile = $("#mobile").val();
-                    var landlineno = $("#landlineno").val();
-                    var image = $("#image").val();
-                    var country_id = $("#country_id option:selected").val();
-                    var state_id = $("#state_id option:selected").val();
-                    var city = $("#city option:selected").val();
-                    var address = $("#address").val();
-
-                    $.ajax({
-                        type: 'POST',
-                        url: '{!! url('service/customeradd') !!}',
-                        data: new FormData(this),
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
-                        },
-                        contentType: false,
-                        cache: false,
-                        processData: false,
-
-                        success: function(data) {
-                            $('.select_vhi').append('<option selected value=' + data[
-                                    'customerId'] +
-                                '>' + data[
-                                    'customer_fullname'] + '</option>');
-
-                            $('#customer_name').append('<option selected value=' + data[
-                                    'customerId'] +
-                                '>' + data[
-                                    'customer_fullname'] + '</option>');
-
-                            var firstname = $('#firstname').val('');
-                            var lastname = $('#lastname').val('');
-                            var displayname = $('#displayname').val('');
-                            var gender = $(".gender:checked").val('');
-                            var dob = $("#datepicker").val('');
-                            var email = $("#email").val('');
-                            var password = $("#password").val('');
-                            var mobile = $("#mobile").val('');
-                            var landlineno = $("#landlineno").val('');
-                            var image = $("#image").val('');
-                            var country_id = $("#country_id option:selected").val('');
-                            var state_id = $("#state_id option:selected").val('');
-                            var city = $("#city option:selected").val('');
-                            var address = $("#address").val('');
-                            var company_name = $("#company_name").val('');
-                            $(".addcustomermsg").removeClass("hide");
-
-                            $('.hidden_customer_id').val(data['customerId']);
-
-                            // modal close after add data
-                            $('#myModal').modal('toggle');
-                            $('.select2').select2();
-
-                        },
-                        error: function(e) {
-                            alert(msg100 + " " + e.responseText);
-                            console.log(e);
-                        }
-                    });
-                }
-            }));
+                });
+            });
 
         });
 
@@ -2404,6 +1627,7 @@
                 success: function(res) {
                     if (res.status == 1) {
                         $('#vehicle-id').html(res.html);
+                        $('.hidden_customer_id').val($(e).val());
                         $('#vehicle-id').select2();
                     } else {
                         toastr.info(res.msg, "INFO");
@@ -2419,22 +1643,22 @@
             });
         }
 
-        function qtyCheck(){
+        function qtyCheck() {
             let qtyCheck = false;
             $('input[name="jobcard_quantity[]"]').each(function() {
-                if($(this).val() == 0 || $(this).val() == null || $(this).val() == ''){
-                    qtyCheck = true; 
+                if ($(this).val() == 0 || $(this).val() == null || $(this).val() == '') {
+                    qtyCheck = true;
                 }
             });
 
             $('input[name="jobcard_price[]"]').each(function() {
-                if($(this).val() == 0 || $(this).val() == null || $(this).val() == ''){
-                    qtyCheck = true; 
+                if ($(this).val() == 0 || $(this).val() == null || $(this).val() == '') {
+                    qtyCheck = true;
                 }
             });
 
-            if(qtyCheck){
-                toastr.info("Please check Item QTY or price. Value must me equal to or more than 1.","INFO");
+            if (qtyCheck) {
+                toastr.info("Please check Item QTY or price. Value must me equal to or more than 1.", "INFO");
                 return;
             }
         }

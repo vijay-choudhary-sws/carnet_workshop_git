@@ -1955,7 +1955,7 @@
             // AJAX request to check number plate uniqueness
             $.ajax({
                 type: 'GET',
-                url: '{!! url(' / vehicle / check - number - plate - unique ') !!}',
+                url: '{!! url("vehicle/check-number-plate-unique") !!}',
                 data: {
                     numberPlate: call_var_vehicleadd.np
                 },
@@ -2003,7 +2003,7 @@
 
                     $.ajax({
                         type: 'get',
-                        url: '{!! url(' / service / vehicleadd ') !!}',
+                        url: '{!! url("service/vehicleadd") !!}',
                         data: {
                             vehical_id1: vehical_id1,
                             chasicno1: chasicno1,
@@ -2033,7 +2033,7 @@
 
                             var optionText = vehicabrand1 + '/' + modelname1 + '/' + numberPlate + '/' + vehical_id1;
 
-                            $('.modelnameappend').append('<option selected value="' + vehical_id1 + '">' + optionText + '</option>');
+                            $('#vehicle-id').append('<option selected value="' + vehical_id1 + '" selected>' + optionText + '</option>');
                             var vehical_id1 = $('#vehical_id1').val('');
                             var chasicno1 = $('#chasicno1').val('');
                             var vehicabrand1 = $('#vehicabrand1').val('');
@@ -2052,6 +2052,7 @@
                             var engine1 = $('#engine1').val('');
                             var number_plate = $('#number_plate').val('');
                             $(".addvehiclemsg").removeClass("hide");
+                            $('#vehicle-id').select2();
 
                             $('#vehiclemymodel').modal('toggle');
                         },
@@ -2744,8 +2745,7 @@
             });
         });
 
-        var msg1 = "{{ trans('message.Alert') }}";
-        var msg2 = "{{ trans('message.Please select customer!') }}";
+       
 
         $('body').on('change', '.select_vhi', function() {
 
