@@ -938,6 +938,21 @@ Route::middleware('auth')->prefix('job-card')->group(function () {
 	Route::post('multi-image-delete', [App\Http\Controllers\JobCard\JobCardController::class, 'multiimagedelete'])->name('newjobcard.multiimagedelete');
 	Route::post('save-image-form', [App\Http\Controllers\JobCard\JobCardController::class, 'saveimageform'])->name('newjobcard.saveimageform');
 
+	Route::get('add-field', [App\Http\Controllers\JobCard\JobCardController::class, 'addField'])->name('newjobcard.addField');
+	Route::get('add-field-work-note', [App\Http\Controllers\JobCard\JobCardController::class, 'addFieldWorkNote'])->name('newjobcard.addFieldWorkNote');
+
+	Route::get('add-accessories', [App\Http\Controllers\JobCard\JobCardController::class, 'accessories'])->name('newjobcard.accessories');
+	Route::post('save-accessories', [App\Http\Controllers\JobCard\JobCardController::class, 'saveAccessories'])->name('newjobcard.saveaccessories');
+	Route::get('add-field-accessories', [App\Http\Controllers\JobCard\JobCardController::class, 'addFieldAccessories'])->name('newjobcard.addFieldAccessories');
+
+	Route::get('add-customer-view', [App\Http\Controllers\JobCard\JobCardController::class, 'addCustomerView'])->name('newjobcard.customerview');
+	Route::get('delte-dent-mark', [App\Http\Controllers\JobCard\JobCardController::class, 'deleteDentMark'])->name('newjobcard.deleteDentMark'); 
+
+
+
+
+
+
 });
 //Notes Module
 Route::group(['prefix' => 'notes'], function () {
