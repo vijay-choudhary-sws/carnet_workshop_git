@@ -2,13 +2,12 @@
     <h4 class="modal-title" id="myLargeModalLabel">{{$title}}</h4>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
-<form id="add_product" action="{{ route('newjobcard.saveworkNotes') }}" onsubmit="form_submit(this);return false;" method="POST" enctype="multipart/form-data" autocomplete="on">
+<form id="add_product" action="{{ route('newjobcard.saveaccessories') }}" onsubmit="form_submit(this);return false;" method="POST" enctype="multipart/form-data" autocomplete="on">
      @csrf
     <input type="hidden" name="jobcard_numbers" class="jobcard_numbers" value="{{ $jobcard_numbers }}">
-
     <div class="modal-body">
         <div class="container-fluid">
-         <p class="btn btn-success rounded" onclick="addNewField(this)"> Add More</p>
+         <p class="btn btn-success rounded" onclick="addNewField(this)">Add More</p>
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card">
@@ -16,16 +15,16 @@
                             <div class="row"> 
                             @if(empty(@$jobCardsInspection))
                             <div class="mb-3 col-lg-12">
-                               <label for="validationCustom01" class="form-label">Work Note</label><br>
-                                <input type="text" name="work_notes[]" class="form-control" placeholder="Work Note">
+                               <label for="validationCustom01" class="form-label">Accessories</label><br>
+                                <input type="text" name="accessories[]" class="form-control" placeholder="Enter Accessories">
                             </div>
                             @else 
                             @foreach($jobCardsInspection as $key => $jobCardsInspections) 
                             <div class="mb-3 col-lg-12 dynamic-field">
                                 <div class="row">
                                     <div class="col-11">
-                                       <label for="validationCustom01" class="form-label">Work Note</label><br>
-                                        <input type="text" class="form-control" name="work_notes[]" placeholder="Enter Work Note" value="{{ $jobCardsInspections['customer_voice'] }}">
+                                       <label for="validationCustom01" class="form-label">Accessories</label><br>
+                                        <input type="text" class="form-control" name="accessories[]" placeholder="Enter Accessories" value="{{ $jobCardsInspections['customer_voice'] }}">
                                     </div>
                                     <div class="col-1 mt-4 ">
                                         <button type="button" class="btn btn-danger btn-sm remove-field rounded text-white border-white" style="margin-top: 5px;" fdprocessedid="dak07"><i class="fa fa-trash" aria-hidden="true"></i></button>
@@ -70,7 +69,6 @@
                toastr.success(data.message, 'Success'); 
             $("#bs-example-modal-xl").modal("hide");
                dataTable.draw(false); 
-               $('.worknotecount').html(data.countworknotes);
 
             }else if (data.success == 0) {
                toastr.error(data.message, 'Error');
@@ -94,7 +92,7 @@
 
 
     function addNewField(e) {
-        var contentUrl = "{{route('newjobcard.addFieldWorkNote')}}";
+        var contentUrl = "{{route('newjobcard.addFieldAccessories')}}";
         $.ajax({
             type: "GET"
             , url: contentUrl
