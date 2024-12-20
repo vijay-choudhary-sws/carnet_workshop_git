@@ -55,4 +55,8 @@ class User extends Authenticatable
     {
         return $this->morphMany(Notes::class, 'entity', 'entity_type', 'entity_id');
     }
+
+    public function vehicles(){
+        return $this->hasMany(Vehicle::class,'customer_id');
+    }
 }

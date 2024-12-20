@@ -86,18 +86,17 @@
                         <div class="nav toggle">
                             <a id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></a>
                             <a href="{{ route('newjobcard.list') }}" id=""><span class="titleup"><img
-                                        src="{{ URL::asset('public/supplier/Back Arrow.png') }}" class="back-arrow">
-                                    {{ trans('message.JobCard') }}</span></a>
+                                        src="{{ URL::asset('public/supplier/Back Arrow.png') }}" class="back-arrow">Edit JobCard</span></a>
                         </div>
                         @include('dashboard.profile')
                         <div class="ulprofile">
                             <div class="input-group mt-2">
                                 <span class="input-group-text">JobCard No.</span>
                                 <input type="text" form="jobcard-form" id="jobcard_number" name="jobcard_number"
-                                    class="form-control bg-light" value="{{ generateHashJobCardNumber(time()) }}" readonly
+                                    class="form-control bg-light" value="{{ $jobcard->jobcard_number ?? ''}}" readonly
                                     placeholder="Job Card Number" aria-label="Job Card Number">
                                 <span class="input-group-text">Date</span>
-                                <input type="date" class="form-control bg-light" value="{{ now()->format('Y-m-d') }}"
+                                <input type="date" class="form-control bg-light" value="{{ $jobcard->entry_date ?? ''}}"
                                     readonly placeholder="Date" aria-label="Date">
                             </div>
                         </div>
@@ -111,9 +110,10 @@
                     <div class="x_content">
                         <div class="x_panel">
                             <br />
-                            <form id="jobcard-form" action="{{ route('newjobcard.store') }}" method="POST"
+                            <form id="jobcard-form" action="{{ route('newjobcard.update') }}" method="POST"
                                 onsubmit="event.preventDefault();submitJobcard(this);">
                                 @csrf
+                                <input type="hidden" name="id" value="{{ $jobcard->id }}">
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="card h-100">
@@ -128,6 +128,7 @@
                                                     <select name="customer_name" id="customer-dropdown"
                                                         class="form-control select2" style="width: 75%;"
                                                         onchange="getVehicle(this)">
+                                                        <option value="{{ $jobcard->customer_id }}" selected>{{ $jobcard->customer_name ?? ''}}</option>
                                                     </select>
                                                     <button type="button" data-bs-toggle="modal" data-bs-target="#myModal"
                                                         class="btn btn-outline-secondary input-group-text fl margin-left-0">{{ trans('+') }}</button>
@@ -136,8 +137,7 @@
                                                 <label for="vehicle-id" class="form-label">Vehical Name</label>
                                                 <div class="input-group mb-3">
                                                     <select name="vehicle_id" id="vehicle-id" class="form-control select2" style="width: 75% !important;">
-                                                        <option value="" selected disabled>-- Select vehicle --
-                                                        </option>
+                                                        <option value="{{ $jobcard->vehicle_id }}" selected>{{ $jobcard->vehical_number ?? ''}}</option>
                                                     </select>
                                                     <button type="button" data-bs-toggle="modal"
                                                         data-bs-target="#vehiclemymodel"
@@ -160,14 +160,14 @@
                                                     <div class="col-4">
                                                         <div class="form-floating mb-3">
                                                             <input type="number" name="km_reading" class="form-control"
-                                                                id="km_reading" value="0" min="0">
+                                                                id="km_reading" value="{{ $jobcard->km_runing }}" min="1">
                                                             <label for="km_reading">KM Reading</label>
                                                         </div>
                                                     </div>
                                                     <div class="col-4">
                                                         <label for="fual level" class="form-label">Fual Level</label>
                                                         <input type="range" class="form-range" id="fual level"
-                                                            name="fual_level" min="0" max="100">
+                                                            name="fual_level" min="0" max="100" value="{{ $jobcard->fual_level }}">
                                                     </div>
                                                     <div class="col-4">
                                                         <div class="form-floating">
@@ -175,7 +175,7 @@
                                                                 aria-label="Floating label select example" required>
                                                                 <option value="" selected disabled>Open this select
                                                                     menu</option>
-                                                                <option value="1">One</option>
+                                                                <option value="1" selected>One</option>
                                                                 <option value="2">Two</option>
                                                                 <option value="3">Three</option>
                                                             </select>
@@ -372,7 +372,29 @@
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody></tbody>
+                                        <tbody>
+                                            @foreach ($jobcard->jobCardSpareParts->where('category',2) as $sparePartItem)
+                                                <tr data-row="{{$loop->iteration}}">
+                                                    <td>
+                                                        <span>{{ $sparePartItem->stock_label_name }}</span>
+                                                        <input type="hidden" class="form-control" name="jobcard_item_id[]" value="{{ $sparePartItem->stock_label_id }}">
+                                                    </td>
+                                                    <td><input type="number" class="form-control" name="jobcard_quantity[]" value="{{ $sparePartItem->quantity }}" min="1" max="" step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_price[]" value="{{ $sparePartItem->price }}" min="1" step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light" name="jobcard_total_amount[]" readonly value="{{ $sparePartItem->total_amount }}" min="1"  step="1"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_discount[]" value="{{ $sparePartItem->discount }}" min="0"  step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light" name="jobcard_final_amount[]" value="{{ $sparePartItem->final_amount }}" min="1"  step="1" readonly></td>
+                                                    <td>
+                                                        <select name="employee[]" class="select2">
+                                                            @foreach ($employee as $item)
+                                                                <option value="{{$item->id}}" @checked($sparePartItem->machanic_id)>{{$item->display_name}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white" onclick="removeJobCardRow(this)">Remove</button></td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
                                         <tfoot>
                                             <tr>
                                                 <td>
@@ -414,7 +436,29 @@
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody></tbody>
+                                        <tbody>
+                                            @foreach ($jobcard->jobCardSpareParts->where('category',4) as $sparePartItem)
+                                                <tr data-row="{{$loop->iteration}}">
+                                                    <td>
+                                                        <span>{{ $sparePartItem->stock_label_name }}</span>
+                                                        <input type="hidden" class="form-control" name="jobcard_item_id[]" value="{{ $sparePartItem->stock_label_id }}">
+                                                    </td>
+                                                    <td><input type="number" class="form-control" name="jobcard_quantity[]" value="{{ $sparePartItem->quantity }}" min="1" max="" step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_price[]" value="{{ $sparePartItem->price }}" min="1" step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light" name="jobcard_total_amount[]" readonly value="{{ $sparePartItem->total_amount }}" min="1"  step="1"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_discount[]" value="{{ $sparePartItem->discount }}" min="0"  step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light" name="jobcard_final_amount[]" value="{{ $sparePartItem->final_amount }}" min="1"  step="1" readonly></td>
+                                                    <td>
+                                                        <select name="employee[]" class="select2">
+                                                            @foreach ($employee as $item)
+                                                                <option value="{{$item->id}}" @checked($sparePartItem->machanic_id)>{{$item->display_name}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white" onclick="removeJobCardRow(this)">Remove</button></td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
                                         <tfoot>
                                             <tr>
                                                 <td>
@@ -455,7 +499,29 @@
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody></tbody>
+                                        <tbody>
+                                            @foreach ($jobcard->jobCardSpareParts->where('category',3) as $sparePartItem)
+                                                <tr data-row="{{$loop->iteration}}">
+                                                    <td>
+                                                        <span>{{ $sparePartItem->stock_label_name }}</span>
+                                                        <input type="hidden" class="form-control" name="jobcard_item_id[]" value="{{ $sparePartItem->stock_label_id }}">
+                                                    </td>
+                                                    <td><input type="number" class="form-control" name="jobcard_quantity[]" value="{{ $sparePartItem->quantity }}" min="1" max="" step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_price[]" value="{{ $sparePartItem->price }}" min="1" step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light" name="jobcard_total_amount[]" readonly value="{{ $sparePartItem->total_amount }}" min="1"  step="1"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_discount[]" value="{{ $sparePartItem->discount }}" min="0"  step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light" name="jobcard_final_amount[]" value="{{ $sparePartItem->final_amount }}" min="1"  step="1" readonly></td>
+                                                    <td>
+                                                        <select name="employee[]" class="select2">
+                                                            @foreach ($employee as $item)
+                                                                <option value="{{$item->id}}" @checked($sparePartItem->machanic_id)>{{$item->display_name}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white" onclick="removeJobCardRow(this)">Remove</button></td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
                                         <tfoot>
                                             <tr>
                                                 <td>
@@ -496,7 +562,29 @@
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody></tbody>
+                                        <tbody>
+                                            @foreach ($jobcard->jobCardSpareParts->where('category',1) as $sparePartItem)
+                                                <tr data-row="{{$loop->iteration}}">
+                                                    <td>
+                                                        <span>{{ $sparePartItem->stock_label_name }}</span>
+                                                        <input type="hidden" class="form-control" name="jobcard_item_id[]" value="{{ $sparePartItem->stock_label_id }}">
+                                                    </td>
+                                                    <td><input type="number" class="form-control" name="jobcard_quantity[]" value="{{ $sparePartItem->quantity }}" min="1" max="" step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_price[]" value="{{ $sparePartItem->price }}" min="1" step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light" name="jobcard_total_amount[]" readonly value="{{ $sparePartItem->total_amount }}" min="1"  step="1"></td>
+                                                    <td><input type="number" class="form-control" name="jobcard_discount[]" value="{{ $sparePartItem->discount }}" min="0"  step="1" oninput="getJobCardPrice(this)"></td>
+                                                    <td><input type="text" class="form-control bg-light" name="jobcard_final_amount[]" value="{{ $sparePartItem->final_amount }}" min="1"  step="1" readonly></td>
+                                                    <td>
+                                                        <select name="employee[]" class="select2">
+                                                            @foreach ($employee as $item)
+                                                                <option value="{{$item->id}}" @checked($sparePartItem->machanic_id)>{{$item->display_name}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white" onclick="removeJobCardRow(this)">Remove</button></td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
                                         <tfoot>
                                             <tr>
                                                 <td>
@@ -587,7 +675,7 @@
                                                         <div class="mb-3">
                                                             <label for="advance" class="form-label">Advance</label>
                                                             <input type="text" id="advance" name="advance"
-                                                                value="0" placeholder="Advance"
+                                                                value="{{$jobcard->advance}}" placeholder="Advance"
                                                                 class="form-control rounded" oninput="totalCounter()">
                                                         </div>
                                                     </div>
@@ -609,7 +697,7 @@
                                 </div>
 
                                 <div class="mt-5 text-end">
-                                    <button type="submit" class="btn btn-success" onclick="qtyCheck()">Create Job Card</button>
+                                    <button type="submit" class="btn btn-success" onclick="qtyCheck()">Update Job Card</button>
                                 </div>
 
                             </form>
@@ -1185,6 +1273,11 @@
             });
 
             getJobCardLabel();
+            tableCounter('spare-part-table');
+            tableCounter('lubes-table');
+            tableCounter('tools-table');
+            tableCounter('accessory-table');
+            totalCounter();
 
             $('#customer-dropdown').select2({
                 placeholder: 'Search By Name, Mobile No. or Vehicle No.',
@@ -1708,7 +1801,7 @@
                 data: formData,
                 success: function(response) {
                     if (response.status === 1) {
-                        toastr.success('Job Card Added Successfully!');
+                        toastr.success('Job Card Updates Successfully!');
                         setTimeout(() => {
                             window.location.replace("{{ route('newjobcard.list') }}");
                         }, 2000);
