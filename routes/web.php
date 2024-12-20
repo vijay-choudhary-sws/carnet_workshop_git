@@ -925,10 +925,14 @@ Route::group(['prefix' => 'stock_history'], function () {
 });
 
 Route::middleware('auth')->prefix('job-card')->group(function () {
-	Route::get('list', [App\Http\Controllers\JobCard\JobCardController::class, 'index'])->name('newjobcard.list'); 
-	Route::get('add', [App\Http\Controllers\JobCard\JobCardController::class, 'add'])->name('newjobcard.add'); 
-	Route::post('store', [App\Http\Controllers\JobCard\JobCardController::class, 'store'])->name('newjobcard.store'); 
-	Route::get('add-dent-mark', [App\Http\Controllers\JobCard\JobCardController::class, 'addDentMark'])->name('newjobcard.addDentMark'); 
+	Route::get('list', [App\Http\Controllers\JobCard\JobCardController::class, 'index'])->name('newjobcard.list');
+	Route::get('add', [App\Http\Controllers\JobCard\JobCardController::class, 'add'])->name('newjobcard.add');
+	Route::post('store', [App\Http\Controllers\JobCard\JobCardController::class, 'store'])->name('newjobcard.store');
+	Route::get('edit/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'edit'])->name('newjobcard.edit');
+	Route::post('list/update', [App\Http\Controllers\JobCard\JobCardController::class, 'update'])->name('newjobcard.update');
+	Route::get('list/delete/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'destory'])->name('newjobcard.destory');
+	Route::post('list/delete', [App\Http\Controllers\JobCard\JobCardController::class, 'destroyMultiple'])->name('newjobcard.destroyMultiple');
+	Route::get('add-dent-mark', [App\Http\Controllers\JobCard\JobCardController::class, 'addDentMark'])->name('newjobcard.addDentMark');
 	Route::post('save-marked-image', [App\Http\Controllers\JobCard\JobCardController::class, 'saveMarkedImage'])->name('saveMarkedImage');
 	Route::get('add-customer-voice', [App\Http\Controllers\JobCard\JobCardController::class, 'customerVoice'])->name('newjobcard.customerVoice');
 	Route::post('save-customer-voice', [App\Http\Controllers\JobCard\JobCardController::class, 'saveCustomerVoice'])->name('newjobcard.saveCustomerVoice');
@@ -951,7 +955,8 @@ Route::middleware('auth')->prefix('job-card')->group(function () {
 
 
 
-
+	Route::get('/select2-data', [App\Http\Controllers\JobCard\JobCardController::class, 'getData'])->name('newjobcard.getData');
+	Route::post('/get-vehicle', [App\Http\Controllers\JobCard\JobCardController::class, 'getVehicle'])->name('newjobcard.getVehicle');
 
 
 });

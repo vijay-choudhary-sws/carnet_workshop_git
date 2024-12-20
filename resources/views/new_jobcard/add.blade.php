@@ -73,7 +73,10 @@
         .purple-text {
             color: #6A1B9A !important;
         }
-        
+
+        .table-view table th {
+            text-wrap: nowrap !important;
+        }
     </style>
     <div class="right_col " role="main">
         <div class="">
@@ -82,7 +85,7 @@
                     <nav>
                         <div class="nav toggle">
                             <a id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></a>
-                            <a href="{{ route('accessory.list') }}" id=""><span class="titleup"><img
+                            <a href="{{ route('newjobcard.list') }}" id=""><span class="titleup"><img
                                         src="{{ URL::asset('public/supplier/Back Arrow.png') }}" class="back-arrow">
                                     {{ trans('message.JobCard') }}</span></a>
                         </div>
@@ -119,22 +122,27 @@
                                                     <b>Search or Create New User</b>
                                                 </h6>
                                                 <hr>
+                                                <label for="customer-dropdown" class="form-label">Customer Name</label>
                                                 <div class="input-group mb-3">
-                                                    <span class="input-group-text" id="search"><i
-                                                            class="fa fa-search"></i></span>
-                                                    <select name="customer_name" id="customer_name"
-                                                        class="form-control select2" aria-describedby="search"
-                                                        style="width: 75%;">
-                                                        <option value="">-- Select Customer --</option>
-                                                        {{-- @foreach ($customers as $customer)
-                                                            <option value="{{ $customer->id }}">
-                                                                {{ getCustomerName($customer->id) }}
-                                                            </option>
-                                                        @endforeach --}}
+                                                    <select name="customer_name" id="customer-dropdown"
+                                                        class="form-control select2" style="width: 75%;"
+                                                        onchange="getVehicle(this)">
                                                     </select>
-                                                    {{-- <button type="button" class="input-group-text">Add New</button> --}}
+
                                                     <button type="button" data-bs-toggle="modal" data-bs-target="#myModal"
                                                         class="btn btn-outline-secondary input-group-text fl margin-left-0">{{ trans('+') }}</button>
+                                                </div>
+                                                <label for="vehicle-id" class="form-label">Vehical Name</label>
+                                                <div class="input-group mb-3">
+                                                    <select name="vehicle_id" id="vehicle-id" class="form-control select2"
+                                                        style="width: 75% !important;">
+                                                        <option value="" selected disabled>-- Select vehicle --
+                                                        </option>
+                                                    </select>
+                                                    <button type="button" data-bs-toggle="modal"
+                                                        data-bs-target="#vehiclemymodel"
+                                                        class="btn btn-outline-secondary  input-group-text vehiclemodel">{{ trans('+') }}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -165,7 +173,7 @@
                                                             <select class="form-select" id="supervisor" name="supervisor"
                                                                 aria-label="Floating label select example">
                                                                 <option selected>Open this select menu</option>
-                                                                <option value="1">One</option>
+                                                                <option value="1" selected>One</option>
                                                                 <option value="2">Two</option>
                                                                 <option value="3">Three</option>
                                                             </select>
@@ -180,7 +188,13 @@
                                                             alt="image" width="80">
                                                         <p class="my-2">Costomer voice</p>
                                                         <p class="position-absolute list-count rounded-circle bg-primary text-white"
-                                                            style="width: 10px !important;height:10px !important;">@if(!empty($jobCardscustomervoice)) {{$jobCardscustomervoice->count()}} @else 0 @endif</p>
+                                                            style="width: 10px !important;height:10px !important;">
+                                                            @if (!empty($jobCardscustomervoice))
+                                                                {{ $jobCardscustomervoice->count() }}
+                                                            @else
+                                                                0
+                                                            @endif
+                                                        </p>
                                                     </a>
                                                     <a href="javascript:void(0)" onclick=addDentMark(this);return;false;
                                                         class="text-center p-2 position-relative d-flex flex-column justify-content-between">
@@ -188,7 +202,13 @@
                                                             alt="image" width="80">
                                                         <p class="my-2">Dent Marks</p>
                                                         <p class="position-absolute list-count rounded-circle bg-primary text-white"
-                                                            style="width: 10px !important;height:10px !important;">@if(!empty($jobCardsDentMark)) {{$jobCardsDentMark->count()}} @else 0 @endif </p>
+                                                            style="width: 10px !important;height:10px !important;">
+                                                            @if (!empty($jobCardsDentMark))
+                                                                {{ $jobCardsDentMark->count() }}
+                                                            @else
+                                                                0
+                                                            @endif
+                                                        </p>
                                                     </a>
                                                     <a href="javascript:void(0)" onclick=addPhoto(this);return;false;
                                                         class="text-center p-2 position-relative d-flex flex-column justify-content-between">
@@ -196,7 +216,13 @@
                                                             alt="image" width="80">
                                                         <p class="my-2">Photos</p>
                                                         <p class="position-absolute list-count rounded-circle bg-primary text-white"
-                                                            style="width: 10px !important;height:10px !important;">@if(!empty($jobCardsImage)) {{$jobCardsImage->count()}} @else 0 @endif</p>
+                                                            style="width: 10px !important;height:10px !important;">
+                                                            @if (!empty($jobCardsImage))
+                                                                {{ $jobCardsImage->count() }}
+                                                            @else
+                                                                0
+                                                            @endif
+                                                        </p>
                                                     </a>
                                                     <a href="javascript:void(0)" onclick=accessories(this);return;false;
                                                         class="text-center p-2 position-relative d-flex flex-column justify-content-between">
@@ -204,7 +230,13 @@
                                                             alt="image" width="80">
                                                         <p class="my-2">Accessories</p>
                                                         <p class="position-absolute list-count rounded-circle bg-primary text-white"
-                                                            style="width: 10px !important;height:10px !important;">@if(!empty($jobCardsaccessary)) {{$jobCardsaccessary->count()}} @else 0 @endif</p>
+                                                            style="width: 10px !important;height:10px !important;">
+                                                            @if (!empty($jobCardsaccessary))
+                                                                {{ $jobCardsaccessary->count() }}
+                                                            @else
+                                                                0
+                                                            @endif
+                                                        </p>
                                                     </a>
                                                     <a href="javascript:void(0)" onclick=workNotes(this);return;false;
                                                         class="text-center p-2 position-relative d-flex flex-column justify-content-between">
@@ -212,7 +244,13 @@
                                                             alt="image" width="80">
                                                         <p class="my-2">Work Note</p>
                                                         <p class="position-absolute list-count rounded-circle bg-primary text-white worknotecount"
-                                                            style="width: 10px !important;height:10px !important;">@if(!empty($jobCardsworknote)) {{$jobCardsworknote->count()}} @else 0 @endif</p>
+                                                            style="width: 10px !important;height:10px !important;">
+                                                            @if (!empty($jobCardsworknote))
+                                                                {{ $jobCardsworknote->count() }}
+                                                            @else
+                                                                0
+                                                            @endif
+                                                        </p>
                                                     </a>
                                                 </div>
                                             </div>
@@ -233,16 +271,12 @@
                                                                 class="discount-count">0.00</span></small>
                                                     </p>
                                                 </a>
-                                                <div class="d-flex justify-content-between p-2 ps-0">
-                                                    <div class="fs-3 p-1 green-variant rounded mx-1 px-2"><i
-                                                            class="fa fa-user text-white"></i></div>
+                                                <div class="d-flex justify-content-between align-items-center p-1 ps-0 ">
+                                                    <div class="fs-5 green-variant rounded mx-1 px-2"><i
+                                                            class="fa-solid fa-cogs text-white"></i></div>
                                                     <div class="text-end">
                                                         <p class="m-0 ">Total: ₹<span
                                                                 class="final-total-count">0.00</span></p>
-                                                        <div class="d-flex">
-                                                            discount
-                                                            <input type="number" class="w-100">
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -261,16 +295,12 @@
                                                                 class="discount-count">0.00</span></small>
                                                     </p>
                                                 </a>
-                                                <div class="d-flex justify-content-between p-2 ps-0">
-                                                    <div class="fs-3 p-1 blue-variant rounded mx-1 px-2"><i
-                                                            class="fa fa-user text-white"></i></div>
+                                                <div class="d-flex justify-content-between align-items-center p-1 ps-0 ">
+                                                    <div class="fs-5 blue-variant rounded mx-1 px-2"><i
+                                                            class="fa-solid fa-oil-can text-white"></i></div>
                                                     <div class="text-end">
                                                         <p class="m-0 ">Total: ₹<span
                                                                 class="final-total-count">0.00</span></p>
-                                                        <div class="d-flex">
-                                                            discount
-                                                            <input type="number" class="w-100">
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -289,16 +319,12 @@
                                                                 class="discount-count">0.00</span></small>
                                                     </p>
                                                 </a>
-                                                <div class="d-flex justify-content-between p-2 ps-0">
-                                                    <div class="fs-3 p-1 orange-variant rounded mx-1 px-2"><i
-                                                            class="fa fa-user text-white"></i></div>
+                                                <div class="d-flex justify-content-between align-items-center p-1 ps-0 ">
+                                                    <div class="fs-5 orange-variant rounded mx-1 px-2"><i
+                                                            class="fa-solid fa-wrench text-white"></i></div>
                                                     <div class="text-end">
                                                         <p class="m-0 ">Total: ₹<span
                                                                 class="final-total-count">0.00</span></p>
-                                                        <div class="d-flex">
-                                                            discount
-                                                            <input type="number" class="w-100">
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -318,16 +344,12 @@
                                                                 class="discount-count">0.00</span></small>
                                                     </p>
                                                 </a>
-                                                <div class="d-flex justify-content-between p-2 ps-0">
-                                                    <div class="fs-3 p-1 purple-variant rounded mx-1 px-2"><i
-                                                            class="fa fa-user text-white"></i></div>
+                                                <div class="d-flex justify-content-between align-items-center p-1 ps-0 ">
+                                                    <div class="fs-5 purple-variant rounded mx-1 px-2"><i
+                                                            class="fa-solid fa-toolbox text-white"></i></div>
                                                     <div class="text-end">
                                                         <p class="m-0 ">Total: ₹<span
                                                                 class="final-total-count">0.00</span></p>
-                                                        <div class="d-flex">
-                                                            discount
-                                                            <input type="number" class="w-100">
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -345,16 +367,12 @@
                                                                 class="discount-count">0.00</span></small>
                                                     </p>
                                                 </a>
-                                                <div class="d-flex justify-content-between p-2 ps-0">
-                                                    <div class="fs-3 p-1 grey-variant rounded mx-1 px-2"><i
-                                                            class="fa fa-user text-white"></i></div>
+                                                <div class="d-flex justify-content-between align-items-center p-1 ps-0 ">
+                                                    <div class="fs-5 grey-variant rounded mx-1 px-2"><i
+                                                            class="fa-solid fa-calculator text-white"></i></div>
                                                     <div class="text-end">
                                                         <p class="m-0 ">Total: ₹<span
                                                                 class="final-total-count">0.00</span></p>
-                                                        <div class="d-flex">
-                                                            discount
-                                                            <input type="number" class="w-100">
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -536,7 +554,8 @@
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <div class="mb-3">
-                                                            <label for="cost-estimate" class="form-label">Cost Estimate</label>
+                                                            <label for="cost-estimate" class="form-label">Cost
+                                                                Estimate</label>
                                                             <input type="text" id="cost-estimate" name="cost-estimate"
                                                                 value="0" placeholder="Cost Estimate"
                                                                 class="form-control rounded">
@@ -544,18 +563,20 @@
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="mb-3">
-                                                            <label for="delivery_date" class="form-label">Delivery Date</label>
+                                                            <label for="delivery_date" class="form-label">Delivery
+                                                                Date</label>
                                                             <input type="date" id="delivery_date" name="delivery_date"
-                                                            value="{{ now()->format('Y-m-d') }}" placeholder="Delivery Date"
-                                                                class="form-control rounded">
+                                                                value="{{ now()->format('Y-m-d') }}"
+                                                                placeholder="Delivery Date" class="form-control rounded">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="mb-3">
-                                                            <label for="delivery_time" class="form-label">Delivery Time</label>
+                                                            <label for="delivery_time" class="form-label">Delivery
+                                                                Time</label>
                                                             <input type="time" id="delivery_time" name="delivery_time"
-                                                            value="{{ now()->format('m:i') }}" placeholder="Delivery Time"
-                                                                class="form-control rounded">
+                                                                value="{{ now()->format('m:i') }}"
+                                                                placeholder="Delivery Time" class="form-control rounded">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -568,16 +589,17 @@
                                                 <h5>Billing Details</h5>
                                                 <div class="mb-3">
                                                     <label for="total-amount" class="form-label">Total Amount</label>
-                                                    <input type="text" id="total-amount" name="total-amount"
+                                                    <input type="text" id="total-amount" name="total_amount"
                                                         value="0" placeholder="Total Amount"
                                                         class="form-control w-50 bg-secondary text-white rounded" readonly>
+                                                        <input type="hidden" name="total_discount" id="total-discount" value="0">
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <div class="mb-3">
                                                             <label for="final-amount" class="form-label">Payable
                                                                 Amount</label>
-                                                            <input type="text" id="final-amount" name="final-amount"
+                                                            <input type="text" id="final-amount" name="final_amount"
                                                                 value="0" placeholder="Payable Amount"
                                                                 class="form-control bg-secondary text-white rounded"
                                                                 readonly>
@@ -596,7 +618,7 @@
                                                             <label for="pending-amount" class="form-label">Pending
                                                                 Amount</label>
                                                             <input type="text" id="pending-amount"
-                                                                name="pending-amount" value="0"
+                                                                name="balance_amount" value="0"
                                                                 placeholder="Pending Amount"
                                                                 class="form-control bg-secondary text-white rounded"
                                                                 readonly>
@@ -609,7 +631,8 @@
                                 </div>
 
                                 <div class="mt-5 text-end">
-                                    <button type="submit" class="btn btn-success">Create Job Card</button>
+                                    <button type="submit" class="btn btn-success" onclick="qtyCheck()">Create Job
+                                        Card</button>
                                 </div>
 
                             </form>
@@ -880,6 +903,273 @@
         </div>
     </div>
 
+    <div class="modal" id="vehiclemymodel" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">{{ trans('message.Vehicle Details') }}</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                @include('success_message.message')
+                <div class="modal-body">
+                    <form action="" method="post" enctype="multipart/form-data" class="form-horizontal upperform"
+                        id="add_vehi">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="customer_id" value="" class="hidden_customer_id">
+                        <div class="row">
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Vehicle Type') }} <label
+                                        class="color-danger">*</label></label>
+                                <div class="col-md-12 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                    <select class="form-control select_vehicaltype form-select" id="vehical_id1"
+                                        name="vehical_id" vehicalurl="{!! url('/vehicle/vehicaltypefrombrand') !!}" required>
+                                        <option value="">{{ trans('message.Select Vehicle Type') }}</option>
+                                        @if (!empty($vehical_type))
+                                            @foreach ($vehical_type as $vehical_types)
+                                                <option value="{{ $vehical_types->id }}">
+                                                    {{ $vehical_types->vehicle_type }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <span class="color-danger" id="errorlvehical_id1"></span>
+                                </div>
+                                <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 addremove">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm showmodal ms-1"
+                                        data-show-modal="responsive-modal">
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Number Plate') }} <label
+                                        class="text-danger">*</label></label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" id="number_plate" name="number_plate"
+                                        value="{{ old('number_plate') }}"
+                                        placeholder="{{ trans('message.Enter Number Plate') }}" maxlength="30"
+                                        class="form-control" required>
+                                    <span class="color-danger" id="npe"></span>
+                                    @if ($errors->has('price'))
+                                        <span class="help-block">
+                                            <strong>{{ $errors->first('price') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Vehicle Brand') }}<label
+                                        class="color-danger">*</label></label>
+                                <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                    <select class="form-control select_vehicalbrand form-select" id="vehicabrand1"
+                                        name="vehicabrand" url="{!! url('/vehicle/vehicalmodelfrombrand') !!}">
+                                        <option value="">{{ trans('message.Select Brand') }}</option>
+                                    </select>
+                                    <span class="color-danger">
+                                        <strong id="errorlvehicabrand1"></strong>
+                                    </span>
+                                </div>
+                                <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 addremove">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm showmodal ms-1"
+                                        data-show-modal="responsive-modal-brand">
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Chasic No') }}</label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" name="chasicno" id="chasicno1" value="{{ old('chasicno') }}"
+                                        placeholder="{{ trans('message.Enter ChasicNo') }}" maxlength="30"
+                                        class="form-control">
+                                    <span class="color-danger" id="errorlchasicno1"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="last-name">{{ trans('message.Model Name') }} <label
+                                        class="color-danger">*</label></label>
+                                <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                    <select class="form-control model_addname form-select" id="modelname1"
+                                        name="modelname" required>
+                                        <option value="">{{ trans('message.Select Model') }}</option>
+                                    </select>
+                                    <span class="color-danger" id="errorlmodelname1"></span>
+                                </div>
+                                <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 addremove">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm showmodal ms-1"
+                                        data-show-modal="responsive-modal-vehi-model">
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Model Years') }}</label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8 input-groups date">
+                                    <input type="text" name="modelyear" id="modelyear1"
+                                        class="form-control myDatepicker2" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Fuel Type') }}<label
+                                        class="color-danger">*</label></label>
+                                <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                    <select class="form-control select_fueltype form-select" id="fueltype1"
+                                        name="fueltype">
+                                        <option value="">{{ trans('message.Select fuel type') }} </option>
+                                        @if (!empty($fuel_type))
+                                            @foreach ($fuel_type as $fuel_types)
+                                                <option value="{{ $fuel_types->id }}">{{ $fuel_types->fuel_type }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <span class="color-danger" id="fuel1"></span>
+                                </div>
+                                <div class="col-md-2 col-lg-2 col-xl-2 col-xxl-2 col-sm-2 col-xs-2 addremove">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm showmodal ms-1"
+                                        data-show-modal="responsive-modal-fuel">
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.No of Grear') }}</label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" name="gearno" id="gearno1" value="{{ old('gearno') }}"
+                                        placeholder="{{ trans('message.Enter No of Gear') }}" maxlength="5"
+                                        class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div
+                                class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 {{ $errors->has('odometerreading') ? ' has-error' : '' }}">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Odometer Reading') }} </label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" name="odometerreading" id="odometerreading1"
+                                        value="{{ old('odometerreading') }}"
+                                        placeholder="{{ trans('message.Enter Odometer Reading') }}" maxlength="20"
+                                        class="form-control">
+                                </div>
+                            </div>
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="last-name">{{ trans('message.Date Of Manufacturing') }} </label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8 date">
+                                    <input type="text" name="dom" id="dom1" class="form-control datepicker1"
+                                        placeholder="<?php echo getDatepicker(); ?>" onkeypress="return false;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Gear Box') }}</label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" name="gearbox" id="gearbox1" value="{{ old('gearbox') }}"
+                                        placeholder="{{ trans('message.Enter Grear Box') }}" maxlength="30"
+                                        class="form-control">
+                                </div>
+                            </div>
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="last-name">{{ trans('message.Gear Box No') }}</label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" name="gearboxno" id="gearboxno1"
+                                        value="{{ old('gearboxno') }}"
+                                        placeholder="{{ trans('message.Enter Gearbox No') }}" maxlength="30"
+                                        class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Engine No') }}</label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" name="engineno" id="engineno1" value="{{ old('engineno') }}"
+                                        placeholder="{{ trans('message.Enter Engine No') }}" maxlength="30"
+                                        class="form-control">
+                                    <span class="color-danger" id="errorlengineno1"></span>
+                                </div>
+                            </div>
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="last-name">{{ trans('message.Engine Size') }}</label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" name="enginesize" id="enginesize1"
+                                        value="{{ old('enginesize') }}"
+                                        placeholder="{{ trans('message.Enter Engine Size') }}" maxlength="30"
+                                        class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Key No') }} </label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" name="keyno" id="keyno1" value="{{ old('keyno') }}"
+                                        placeholder="{{ trans('message.Enter Key No') }}" maxlength="30"
+                                        class="form-control">
+                                </div>
+                            </div>
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Engine') }} </label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" name="engine" id="engine1" value="{{ old('engine') }}"
+                                        placeholder="{{ trans('message.Enter Engine') }}" maxlength="30"
+                                        class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6">
+                                <label class="control-label col-md-4 col-lg-4 col-xl-4 col-xxl-4 col-sm-4 col-xs-4"
+                                    for="first-name">{{ trans('message.Chasic No') }}</label>
+                                <div class="col-md-8 col-lg-8 col-xl-8 col-xxl-8 col-sm-8 col-xs-8">
+                                    <input type="text" name="chasicno" id="chasicno1" value="{{ old('chasicno') }}"
+                                        placeholder="{{ trans('message.Enter ChasicNo') }}" maxlength="30"
+                                        class="form-control">
+                                    <span class="color-danger" id="errorlchasicno1"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-12 col-lg-12 col-xl-12 col-xxl-12 col-sm-12 col-xs-12 text-center">
+                                <div class="row col-md-6 col-lg-6 col-xl-6 col-xxl-6 col-sm-6 col-xs-6 my-1 mx-0">
+                                    <button type="button"
+                                        class="btn btn-success addvehicleservice">{{ trans('message.SUBMIT') }}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary vhc_close btn-sm mx-1"
+                        data-bs-dismiss="modal">{{ trans('message.Close') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
@@ -899,6 +1189,33 @@
             });
 
             getJobCardLabel();
+
+            $('#customer-dropdown').select2({
+                placeholder: 'Search By Name, Mobile No. or Vehicle No.',
+                minimumInputLength: 2,
+                ajax: {
+                    url: '{{ route('newjobcard.getData') }}',
+                    type: 'GET',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            query: params.term,
+                            page: params.page || 1,
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data.results,
+                            pagination: {
+                                more: data.pagination.more,
+                            },
+                        };
+                    },
+                    cache: true,
+                },
+            });
+
 
             $('body').on('change', '.chooseImage', function() {
                 var imageName = $(this).val();
@@ -1257,7 +1574,8 @@
                         return false;
                     } else if (!call_var_customeradd.lenghtLimit.test(call_var_customeradd
                             .landlineno)) {
-                        var msg = "{{ trans('message.Landline number between 6 to 16 digits only') }}";
+                        var msg =
+                            "{{ trans('message.Landline number between 6 to 16 digits only') }}";
                         $("#landlineno").val("");
                         $('#errorllandlineno').html(msg);
                         errro_msg.push(msg);
@@ -1395,14 +1713,17 @@
                 data: formData,
                 success: function(response) {
                     if (response.status === 1) {
-                        toastr.success('Validation Passed and Data Submitted Successfully!');
+                        toastr.success('Job Card Added Successfully!');
+                        setTimeout(() => {
+                            window.location.replace("{{ route('newjobcard.list') }}");
+                        }, 2000);
                     }
                 },
                 error: function(xhr) {
                     if (xhr.status === 422) {
                         const errors = xhr.responseJSON.errors;
 
-                        let errorMessage = '<ul>';
+                        let errorMessage = '<ul class="list-unstyled"> ';
                         for (const field in errors) {
                             if (errors.hasOwnProperty(field)) {
                                 errorMessage +=
@@ -1641,6 +1962,7 @@
 
             $('#cost-estimate').val(total);
             $('#total-amount').val(total);
+            $('#total-discount').val(discount);
             $('#final-amount').val(finalTotal);
 
             let pendingAmount = parseFloat(finalTotal) - parseFloat($('#advance').val());
@@ -1651,11 +1973,12 @@
 
         function addForm(e) {
             var contentUrl = "{{ route('purchase_spare_part.create') }}";
+            $("#bs-example-modal-xl .modal-body-data").html('');
             $.ajax({
                 type: "GET",
                 url: contentUrl,
                 success: function(data) {
-                    $(".modal-body-data").html(data);
+                    $("#bs-example-modal-xl .modal-body-data").html(data);
                     $("#bs-example-modal-xl").modal("show");
                 },
                 error: function() {
@@ -1670,6 +1993,7 @@
                 toastr.info("Please select a valid category.", 'INFO')
                 return;
             }
+            let tableId = $(e).parents('table').attr('id');
             let row = $(e).parents('tr').attr('data-row');
 
             if (!row) {
@@ -1678,7 +2002,7 @@
             }
 
             let itemId = [];
-            $('select[name="item[]"]').each(function() {
+            $('#' + tableId + ' tbody select[name="item[]"]').each(function() {
                 let value = parseFloat($(this).val());
                 if (!isNaN(value)) {
                     itemId.push(value);
@@ -1697,7 +2021,11 @@
                 },
                 success: function(res) {
                     if (res.status == 1) {
-                        $('select[name="item[]"]').eq(row - 1).html(res.html);
+                        $('#' + tableId + ' tbody select[name="item[]"]').eq(row - 1).html(res.html);
+                        $('#' + tableId + ' tbody input[name="quantity[]"]').eq(row - 1).val('0');
+                        $('#' + tableId + ' tbody input[name="price[]"]').eq(row - 1).val('0');
+                        $('#' + tableId + ' tbody input[name="total_price[]"]').eq(row - 1).val('0');
+                        totalAmount();
                     } else {
                         toastr.info(res.msg, "INFO");
                     }
@@ -1885,137 +2213,182 @@
 
 
         function addDentMark(e) {
-             var jobcard_number = $('#jobcard_number').val();
-    var contentUrl = "{{route('newjobcard.addDentMark')}}";
-    $.ajax({
-        type: "GET",
-        url: contentUrl,
-         data: {
-            jobcard_number: jobcard_number
-        },
-        success: function(data) {  
-            $(".modal-body-data").html(data);
-            $("#bs-example-modal-lg").modal("show");
-        },
-        error: function() {
-            alert("Failed to load content.");
+            var jobcard_number = $('#jobcard_number').val();
+            var contentUrl = "{{ route('newjobcard.addDentMark') }}";
+            $.ajax({
+                type: "GET",
+                url: contentUrl,
+                data: {
+                    jobcard_number: jobcard_number
+                },
+                success: function(data) {
+                    $(".modal-body-data").html(data);
+                    $("#bs-example-modal-lg").modal("show");
+                },
+                error: function() {
+                    alert("Failed to load content.");
+                }
+            });
         }
-    });
-}
 
 
 
         function customerVoice(e) {
-    var jobcard_number = $('#jobcard_number').val();
-    var contentUrl = "{{route('newjobcard.customerVoice')}}";
-    $.ajax({
-        type: "GET",
-        url: contentUrl,
-          data: {
-            jobcard_number: jobcard_number
-        },
-        success: function(data) {  
-            $(".modal-body-data").html(data);
-            $("#bs-example-modal-xl").modal("show");
+            var jobcard_number = $('#jobcard_number').val();
+            var contentUrl = "{{ route('newjobcard.customerVoice') }}";
+            $.ajax({
+                type: "GET",
+                url: contentUrl,
+                data: {
+                    jobcard_number: jobcard_number
+                },
+                success: function(data) {
+                    $(".modal-body-data").html(data);
+                    $("#bs-example-modal-xl").modal("show");
 
-            $('.select2-name').select2({
-                dropdownParent: $('.custommodal-xl'),
+                    $('.select2-name').select2({
+                        dropdownParent: $('.custommodal-xl'),
+                    });
+                },
+                error: function() {
+                    alert("Failed to load content.");
+                }
             });
-        },
-        error: function() {
-            alert("Failed to load content.");
         }
-    });
-}
 
         function workNotes(e) {
-    var contentUrl = "{{route('newjobcard.workNotes')}}";
-    $.ajax({
-        type: "GET",
-        url: contentUrl,
-        success: function(data) {  
-            $(".modal-body-data").html(data);
-            $("#bs-example-modal-xl").modal("show");
-            
-        },
-        error: function() {
-            alert("Failed to load content.");
+            var contentUrl = "{{ route('newjobcard.workNotes') }}";
+            $.ajax({
+                type: "GET",
+                url: contentUrl,
+                success: function(data) {
+                    $(".modal-body-data").html(data);
+                    $("#bs-example-modal-xl").modal("show");
+
+                },
+                error: function() {
+                    alert("Failed to load content.");
+                }
+            });
         }
-    });
-}
 
         function accessories(e) {
-    var contentUrl = "{{route('newjobcard.accessories')}}";
-    $.ajax({
-        type: "GET",
-        url: contentUrl,
-        success: function(data) {  
-            $(".modal-body-data").html(data);
-            $("#bs-example-modal-xl").modal("show");
-        },
-        error: function() {
-            alert("Failed to load content.");
+            var contentUrl = "{{ route('newjobcard.accessories') }}";
+            $.ajax({
+                type: "GET",
+                url: contentUrl,
+                success: function(data) {
+                    $(".modal-body-data").html(data);
+                    $("#bs-example-modal-xl").modal("show");
+                },
+                error: function() {
+                    alert("Failed to load content.");
+                }
+            });
         }
-    });
-}
 
 
 
-function addPhoto(e) {
-    var jobcard_number = $('#jobcard_number').val();
-    var contentUrl = "{{ route('newjobcard.addphoto') }}";
- 
-    $.ajax({
-        type: "GET",
-        url: contentUrl,
-        data: {
-            jobcard_number: jobcard_number
-        },
-        success: function(data) {  
-            $(".modal-body-data").html(data);
-            $("#bs-example-modal-xl").modal("show");
-        },
-        error: function(xhr, status, error) {
-            // Use a Toastr notification for better UX
-            toastr.error("Failed to load content: " + error);
+        function addPhoto(e) {
+            var jobcard_number = $('#jobcard_number').val();
+            var contentUrl = "{{ route('newjobcard.addphoto') }}";
+
+            $.ajax({
+                type: "GET",
+                url: contentUrl,
+                data: {
+                    jobcard_number: jobcard_number
+                },
+                success: function(data) {
+                    $(".modal-body-data").html(data);
+                    $("#bs-example-modal-xl").modal("show");
+                },
+                error: function(xhr, status, error) {
+                    // Use a Toastr notification for better UX
+                    toastr.error("Failed to load content: " + error);
+                }
+            });
         }
-    });
-}
 
 
-   function form_submit_images(e) {
+        function form_submit_images(e) {
 
-      $(e).find('.st_loader').show();
-      $.ajax({
-         url: $(e).attr('action'),
-         method: "POST",
-         dataType: "json",
-         data: $(e).serialize(),
-         success: function(data) {
+            $(e).find('.st_loader').show();
+            $.ajax({
+                url: $(e).attr('action'),
+                method: "POST",
+                dataType: "json",
+                data: $(e).serialize(),
+                success: function(data) {
 
-            if (data.success == 1) {
-               toastr.success(data.message, 'Success'); 
-            $("#bs-example-modal-xl").modal("hide");
-               dataTable.draw(false); 
+                    if (data.success == 1) {
+                        toastr.success(data.message, 'Success');
+                        $("#bs-example-modal-xl").modal("hide");
+                        dataTable.draw(false);
 
-            }else if (data.success == 0) {
-               toastr.error(data.message, 'Error');
-               $(e).find('.st_loader').hide(); 
+                    } else if (data.success == 0) {
+                        toastr.error(data.message, 'Error');
+                        $(e).find('.st_loader').hide();
+                    }
+                },
+                error: function(data) {
+                    if (typeof data.responseJSON.status !== 'undefined') {
+                        toastr.error(data.responseJSON.error, 'Error');
+                    } else {
+                        $.each(data.responseJSON.errors, function(key, value) {
+                            toastr.error(value, 'Error');
+                        });
+                    }
+                    $(e).find('.st_loader').hide();
+                }
+            });
+        }
+
+        function getVehicle(e) {
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: "{{ route('newjobcard.getVehicle') }}",
+                method: "post",
+                data: {
+                    customer_id: $(e).val()
+                },
+                success: function(res) {
+                    if (res.status == 1) {
+                        $('#vehicle-id').html(res.html);
+                        $('#vehicle-id').select2();
+                    } else {
+                        toastr.info(res.msg, "INFO");
+                        $('#vehicle-id').html(
+                            '<option value="" selected disabled>-- Select vehicle --</option>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error: " + error);
+                    console.error("Status: " + status);
+                    console.error("Response: " + xhr.responseText);
+                }
+            });
+        }
+
+        function qtyCheck() {
+            let qtyCheck = false;
+            $('input[name="jobcard_quantity[]"]').each(function() {
+                if ($(this).val() == 0 || $(this).val() == null || $(this).val() == '') {
+                    qtyCheck = true;
+                }
+            });
+
+            $('input[name="jobcard_price[]"]').each(function() {
+                if ($(this).val() == 0 || $(this).val() == null || $(this).val() == '') {
+                    qtyCheck = true;
+                }
+            });
+            if (qtyCheck) {
+                toastr.info("Please check Item QTY or price. Value must me equal to or more than 1.", "INFO");
+                return;
             }
-         },
-         error: function(data) {
-            if (typeof data.responseJSON.status !== 'undefined') {
-               toastr.error(data.responseJSON.error, 'Error');
-            } else {
-               $.each(data.responseJSON.errors, function(key, value) {
-                  toastr.error(value, 'Error');
-               });
-            }
-            $(e).find('.st_loader').hide();
-         }
-      });
-   }
-
- 
+        }
     </script>
 @endsection
