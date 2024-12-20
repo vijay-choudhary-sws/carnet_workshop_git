@@ -50,9 +50,15 @@ class JobCardController extends Controller
         $jobCardsaccessary = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 2)->get();
         $jobCardsImage = JobCardImage::where('job_card_number', 'JCN-BB4659B837')->get();
 
+         //vehicle add
+        $vehical_type = DB::table('tbl_vehicle_types')->where('soft_delete', '=', 0)->get()->toArray();
+        $vehical_brand = DB::table('tbl_vehicle_brands')->where('soft_delete', '=', 0)->get()->toArray();
+        $fuel_type = DB::table('tbl_fuel_types')->where('soft_delete', '=', 0)->get()->toArray();
+        $color = DB::table('tbl_colors')->where('soft_delete', '=', 0)->get()->toArray();
+        $model_name = DB::table('tbl_model_names')->where('soft_delete', '=', 0)->get()->toArray();
 
 
-        return view('new_jobcard.add', compact('country', 'jobCardsDentMark', 'jobCardscustomervoice', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage'));
+        return view('new_jobcard.add', compact('country', 'jobCardsDentMark', 'jobCardscustomervoice', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage','vehical_type','vehical_brand','fuel_type','color','model_name'));
     }
     public function store(Request $request)
     {
@@ -197,38 +203,41 @@ class JobCardController extends Controller
         ])->find($request->customer_name);
 
         $jobcard = NewJobCard::find($request->id);
-        $jobcard->customer_id = $request->customer_name;
-        $jobcard->customer_name = strtoupper($customer->name . ' ' . $customer->lastname);
-        $jobcard->vehicle_id = $vehicleId;
-        $jobcard->vehical = $customer->vehicles->first()->modelname;
-        $jobcard->vehical_number = $customer->vehicles->first()->number_plate;
-        $jobcard->amount = $request->total_amount;
-        $jobcard->discount = $request->total_discount;
-        $jobcard->final_amount = $request->final_amount;
-        $jobcard->advance = $request->advance;
-        $jobcard->balance_amount = $request->balance_amount;
-        $jobcard->km_runing = $request->km_reading;
-        $jobcard->fual_level = $request->fual_level;
-        $jobcard->supervisor_id = $request->supervisor;
-        $jobcard->save();
-        JobCardSparePart::where('jobcard_id', $jobcard->id)->delete();
-        if (count($items) > 0) {
-            foreach ($items as $itemKey => $itemValue) {
-                $item = new JobCardSparePart;
-                $item->jobcard_id = $jobcard->id;
-                $item->stock_label_id = $itemValue;
-                $item->stock_label_name = "test";
-                $item->quantity = $qty[$itemKey];
-                $item->price = $price[$itemKey];
-                $item->total_amount = $totalAmount[$itemKey];
-                $item->discount = $discount[$itemKey];
-                $item->final_amount = $finalAmount[$itemKey];
-                $item->machanic_id = $machanic[$itemKey];
-                $item->save();
+        if (!empty($jobcard)) {
+            $jobcard->customer_id = $request->customer_name;
+            $jobcard->customer_name = strtoupper($customer->name . ' ' . $customer->lastname);
+            $jobcard->vehicle_id = $vehicleId;
+            $jobcard->vehical = $customer->vehicles->first()->modelname;
+            $jobcard->vehical_number = $customer->vehicles->first()->number_plate;
+            $jobcard->amount = $request->total_amount;
+            $jobcard->discount = $request->total_discount;
+            $jobcard->final_amount = $request->final_amount;
+            $jobcard->advance = $request->advance;
+            $jobcard->balance_amount = $request->balance_amount;
+            $jobcard->km_runing = $request->km_reading;
+            $jobcard->fual_level = $request->fual_level;
+            $jobcard->supervisor_id = $request->supervisor;
+            $jobcard->save();
+            JobCardSparePart::where('jobcard_id', $jobcard->id)->delete();
+            if (count($items) > 0) {
+                foreach ($items as $itemKey => $itemValue) {
+                    $item = new JobCardSparePart;
+                    $item->jobcard_id = $jobcard->id;
+                    $item->stock_label_id = $itemValue;
+                    $item->stock_label_name = "test";
+                    $item->quantity = $qty[$itemKey];
+                    $item->price = $price[$itemKey];
+                    $item->total_amount = $totalAmount[$itemKey];
+                    $item->discount = $discount[$itemKey];
+                    $item->final_amount = $finalAmount[$itemKey];
+                    $item->machanic_id = $machanic[$itemKey];
+                    $item->save();
+                }
             }
-        }
 
-        return response()->json(['status' => 1]);
+            return response()->json(['status' => 1]);
+        }
+        return response()->json(['status' => 0, 'msg' => "Details Not Found."]);
     }
 
     public function destory($id)
@@ -627,10 +636,16 @@ class JobCardController extends Controller
     {
         $id = $request->customer_id;
         $vehicles = Vehicle::where('customer_id', $id)->get();
+        // echo "<pre>";print_r($vehicles->toArray());die;
         if (count($vehicles) > 0) {
             $html = view('new_jobcard.component.vehicle-option', compact('vehicles'))->render();
             return response()->json(['status' => 1, 'html' => $html]);
         }
+        return response()->json(['status' => 0, 'msg' => "Vehicle Not Found. Please Add Vehicle."]);
+    }
+
+    public function addCustomer(Request $request)
+    {
         return response()->json(['status' => 0, 'msg' => "Vehicle Not Found. Please Add Vehicle."]);
     }
 }

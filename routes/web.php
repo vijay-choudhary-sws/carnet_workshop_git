@@ -957,6 +957,7 @@ Route::middleware('auth')->prefix('job-card')->group(function () {
 
 	Route::get('/select2-data', [App\Http\Controllers\JobCard\JobCardController::class, 'getData'])->name('newjobcard.getData');
 	Route::post('/get-vehicle', [App\Http\Controllers\JobCard\JobCardController::class, 'getVehicle'])->name('newjobcard.getVehicle');
+	// Route::post('/add-customer', [App\Http\Controllers\JobCard\JobCardController::class, 'addCustomer'])->name('newjobcard.addCustomer');
 
 
 });
