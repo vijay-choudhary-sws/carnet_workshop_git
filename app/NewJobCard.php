@@ -11,4 +11,8 @@ class NewJobCard extends Model
     use HasFactory,SoftDeletes;
 
     protected $dates = ['deleted_at'];
+
+    public function jobCardSpareParts(){
+        return $this->hasMany(JobCardSparePart::class,'jobcard_id');
+    }
 }

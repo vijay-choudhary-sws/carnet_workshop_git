@@ -33,11 +33,12 @@
                                         @endcan
                                         <th>Entry Date</th>
                                         <th>Jobcard Number</th>
-                                        <th>Vehical Number</th>
                                         <th>Customer Name</th>
+                                        <th>Vehical Number</th>
                                         <th>Vehical</th>
                                         <th>Bill Amount</th>
                                         <th>Balance</th>
+                                        <th>Status</th>
                                         @canany(['jobcard_edit', 'jobcard_delete'])
                                             <th>{{ trans('message.Action') }}</th>
                                         @endcanany
@@ -56,14 +57,41 @@
                                                 </td>
                                             @endcan
 
-                                            <td><a href="{{ route('jobcard.edit',$jobcard->id) }}">{{ $jobcard->entry_date  ?? '-'}}</a></td>
-                                            <td><a href="{{ route('jobcard.edit',$jobcard->id) }}">{{ $jobcard->jobcard_number ?? '-' }}</a></td>
-                                            <td><a href="{{ route('jobcard.edit',$jobcard->id) }}">{{ $jobcard->vehical_number  ?? '-' }}</a></td>
-                                            <td><a href="{{ route('jobcard.edit',$jobcard->id) }}">{{ $jobcard->customer_name  ?? '-' }}</a></td>
-                                            <td><a href="{{ route('jobcard.edit',$jobcard->id) }}">{{ $jobcard->vehical  ?? '-' }}</a></td>
-                                            <td><a href="{{ route('jobcard.edit',$jobcard->id) }}">{{ $jobcard->amount  ?? '-' }}</a></td>
-                                            <td><a href="{{ route('jobcard.edit',$jobcard->id) }}">{{ $jobcard->stock  ?? '-' }}</a></td>
-                                            <td><a href="{{ route('jobcard.edit',$jobcard->id) }}">{{ $jobcard->balance_amount  ?? '-' }}</a></td>
+                                            <td><a
+                                                    href="{{ route('newjobcard.edit', $jobcard->id) }}">{{ \Carbon\Carbon::parse($jobcard->entry_date)->format('d-m-Y h:i A') ?? '-' }}</a>
+                                            </td>
+                                            <td><a
+                                                    href="{{ route('newjobcard.edit', $jobcard->id) }}">{{ $jobcard->jobcard_number ?? '-' }}</a>
+                                            </td>
+                                            <td><a
+                                                    href="{{ route('newjobcard.edit', $jobcard->id) }}">{{ $jobcard->customer_name ?? '-' }}</a>
+                                            </td>
+                                            <td><a
+                                                    href="{{ route('newjobcard.edit', $jobcard->id) }}">{{ $jobcard->vehical_number ?? '-' }}</a>
+                                            </td>
+                                            <td><a
+                                                    href="{{ route('newjobcard.edit', $jobcard->id) }}">{{ $jobcard->vehical ?? '-' }}</a>
+                                            </td>
+                                            <td><a
+                                                    href="{{ route('newjobcard.edit', $jobcard->id) }}">{{ $jobcard->amount ?? '-' }}</a>
+                                            </td>
+                                            <td><a
+                                                    href="{{ route('newjobcard.edit', $jobcard->id) }}">{{ $jobcard->balance_amount ?? '-' }}</a>
+                                            </td>
+                                            <td>
+                                                @switch($jobcard->status)
+                                                    @case(1)
+                                                        <span class="badge text-bg-success">Success</span>
+                                                    @break
+
+                                                    @case(2)
+                                                        <span class="badge text-bg-info">Confirmed</span>
+                                                    @break
+
+                                                    @default
+                                                    <span class="badge text-bg-danger">Open</span>
+                                                @endswitch
+                                            </td>
 
                                             @canany(['jobcard_edit', 'jobcard_delete'])
                                                 <td>
@@ -76,7 +104,7 @@
                                                         <ul class="dropdown-menu heder-dropdown-menu action_dropdown shadow py-2"
                                                             aria-labelledby="dropdownMenuButtonaction">
                                                             @can('jobcard_edit')
-                                                                <li><a class="dropdown-item" href="{{ route('jobcard.edit',$jobcard->id) }}">
+                                                                <li><a class="dropdown-item" href="{{ route('newjobcard.edit',$jobcard->id) }}">
                                                                 <img src="{{ URL::asset('public/img/list/Edit.png') }}" class="me-3"> {{ trans('message.Edit') }}</a></li>
                                                             @endcan
 
@@ -84,7 +112,7 @@
                                                                 <div class="dropdown-divider m-0"></div>
                                                                 <li>
                                                                     <a class="dropdown-item sa-warning"
-                                                                        url="{{ route('jobcard.destory', $jobcard->id) }}"
+                                                                        url="{{ route('newjobcard.destory', $jobcard->id) }}"
                                                                         style="color:#FD726A">
                                                                         <img src="{{ URL::asset('public/img/list/Delete.png') }}"
                                                                             class="me-3">{{ trans('message.Delete') }}</a>
@@ -103,7 +131,7 @@
                                 <button id="select-all-btn" class="btn select_all"><input type="checkbox" name="selectAll">
                                     {{ trans('message.Select All') }}</button>
                                 <button id="delete-selected-btn" class="btn btn-danger text-white border-0"
-                                    data-url="{{ route('jobcard.destroyMultiple') }}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                    data-url="{{ route('newjobcard.destroyMultiple') }}"><i class="fa fa-trash" aria-hidden="true"></i></button>
                             @endcan
                         </div>
                     </div>
