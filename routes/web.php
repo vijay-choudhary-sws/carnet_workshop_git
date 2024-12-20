@@ -1,3 +1,4 @@
+
 <?php
 
 /*
@@ -302,8 +303,8 @@ Route::group(['prefix' => 'service'], function () {
 	Route::get('frontendBook', 'ServicesControler@frontendBook')->withoutMiddleware(['auth']);
 	Route::post('forntendAdd', 'ServicesControler@forntendAdd')->withoutMiddleware(['auth']);
 
-	Route::post('stock-label', [ServicesControler::class, 'stockLabel'])->name('jobcard.stock.label');
-	Route::post('add-row', [ServicesControler::class, 'addRow'])->name('jobcard.spare_part.addRow');
+	Route::post('stock-label', [ServicesControler::class,'stockLabel'])->name('jobcard.stock.label');
+	Route::post('add-row', [ServicesControler::class,'addRow'])->name('jobcard.spare_part.addRow');
 });
 
 
@@ -484,7 +485,7 @@ Route::group(['prefix' => 'supportstaff'], function () {
 	Route::post('/store', ['as' => 'supportstaff', 'uses' => 'Supportstaffcontroller@store_supportstaff'])->middleware('can:supportstaff_add');
 
 	/*Route::get('list/edit/{id}',['as'=>'supportstaff','uses'=>'Supportstaffcontroller@edit'])->middleware('canany:supportstaff_edit');
-	   Route::post('/list/edit/update/{id}',['as'=>'supportstaff/list/edit/update/{id}','uses'=>'Supportstaffcontroller@update'])->middleware('can:supportstaff_edit');*/
+	Route::post('/list/edit/update/{id}',['as'=>'supportstaff/list/edit/update/{id}','uses'=>'Supportstaffcontroller@update'])->middleware('can:supportstaff_edit');*/
 
 	Route::get('list/edit/{id}', ['as' => 'supportstaff', 'uses' => 'Supportstaffcontroller@edit']);
 	Route::post('/list/edit/update/{id}', ['as' => 'supportstaff/list/edit/update/{id}', 'uses' => 'Supportstaffcontroller@update']);
@@ -900,38 +901,34 @@ Route::middleware('auth')->prefix('purchase-spare-part')->group(function () {
 	Route::post('get-item', [PurchaseSparePartController::class, 'getItem'])->name('purchase_spare_part.getItem');
 	Route::post('get-amount', [PurchaseSparePartController::class, 'getAmount'])->name('purchase_spare_part.getAmount');
 	Route::post('get-row', [PurchaseSparePartController::class, 'addRow'])->name('purchase_spare_part.addRow');
-	Route::get('Spare-part/create', [PurchaseSparePartController::class, 'create'])->name('purchase_spare_part.create');
+	Route::get('Spare-part/create', [PurchaseSparePartController::class, 'create']) ->name('purchase_spare_part.create');
 	Route::post('get-row-model', [PurchaseSparePartController::class, 'addRowmodel'])->name('purchase_spare_part.addRowmodel');
 
 
 });
 
 Route::middleware('auth')->prefix('order')->group(function () {
-	Route::get('list', [OrderController::class, 'index'])->name('order.list');
-	Route::get('list/view/{id}', [OrderController::class, 'view'])->name('order.view');
-	Route::post('list/accept', [OrderController::class, 'accept'])->name('order.accept');
+	Route::get('list', [OrderController::class, 'index'])->name('order.list'); 
+	Route::get('list/view/{id}', [OrderController::class, 'view'])->name('order.view'); 
+	Route::post('list/accept', [OrderController::class, 'accept'])->name('order.accept'); 
 });
 Route::group(['prefix' => 'stock'], function () {
-	Route::get('list', [ProductStockcontroller::class, 'index'])->name('stock.list');
-	Route::get('list/view/{id}', [ProductStockcontroller::class, 'view'])->name('stock.view');
-	Route::post('list/accept', [ProductStockcontroller::class, 'accept'])->name('stock.accept');
+	Route::get('list', [ProductStockcontroller::class, 'index'])->name('stock.list'); 
+	Route::get('list/view/{id}', [ProductStockcontroller::class, 'view'])->name('stock.view'); 
+	Route::post('list/accept', [ProductStockcontroller::class, 'accept'])->name('stock.accept'); 
 });
 
 Route::group(['prefix' => 'stock_history'], function () {
-	Route::get('list', [StockHistoryController::class, 'index'])->name('stock_history.list');
-	Route::get('list/view/{id}', [StockHistoryController::class, 'view'])->name('stock_history.view');
-	Route::post('list/accept', [StockHistoryController::class, 'accept'])->name('stock_history.accept');
+	Route::get('list', [StockHistoryController::class, 'index'])->name('stock_history.list'); 
+	Route::get('list/view/{id}', [StockHistoryController::class, 'view'])->name('stock_history.view'); 
+	Route::post('list/accept', [StockHistoryController::class, 'accept'])->name('stock_history.accept'); 
 });
 
 Route::middleware('auth')->prefix('job-card')->group(function () {
-	Route::get('list', [App\Http\Controllers\JobCard\JobCardController::class, 'index'])->name('newjobcard.list');
-	Route::get('add', [App\Http\Controllers\JobCard\JobCardController::class, 'add'])->name('newjobcard.add');
-	Route::post('store', [App\Http\Controllers\JobCard\JobCardController::class, 'store'])->name('newjobcard.store');
-	Route::get('edit/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'edit'])->name('newjobcard.edit');
-	Route::post('list/update', [App\Http\Controllers\JobCard\JobCardController::class, 'update'])->name('newjobcard.update');
-	Route::get('list/delete/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'destory'])->name('newjobcard.destory');
-	Route::post('list/delete', [App\Http\Controllers\JobCard\JobCardController::class, 'destroyMultiple'])->name('newjobcard.destroyMultiple');
-	Route::get('add-dent-mark', [App\Http\Controllers\JobCard\JobCardController::class, 'addDentMark'])->name('newjobcard.addDentMark');
+	Route::get('list', [App\Http\Controllers\JobCard\JobCardController::class, 'index'])->name('newjobcard.list'); 
+	Route::get('add', [App\Http\Controllers\JobCard\JobCardController::class, 'add'])->name('newjobcard.add'); 
+	Route::post('store', [App\Http\Controllers\JobCard\JobCardController::class, 'store'])->name('newjobcard.store'); 
+	Route::get('add-dent-mark', [App\Http\Controllers\JobCard\JobCardController::class, 'addDentMark'])->name('newjobcard.addDentMark'); 
 	Route::post('save-marked-image', [App\Http\Controllers\JobCard\JobCardController::class, 'saveMarkedImage'])->name('saveMarkedImage');
 	Route::get('add-customer-voice', [App\Http\Controllers\JobCard\JobCardController::class, 'customerVoice'])->name('newjobcard.customerVoice');
 	Route::post('save-customer-voice', [App\Http\Controllers\JobCard\JobCardController::class, 'saveCustomerVoice'])->name('newjobcard.saveCustomerVoice');
@@ -942,9 +939,6 @@ Route::middleware('auth')->prefix('job-card')->group(function () {
 	Route::post('multi-image-delete', [App\Http\Controllers\JobCard\JobCardController::class, 'multiimagedelete'])->name('newjobcard.multiimagedelete');
 	Route::post('save-image-form', [App\Http\Controllers\JobCard\JobCardController::class, 'saveimageform'])->name('newjobcard.saveimageform');
 
-	Route::get('/select2-data', [App\Http\Controllers\JobCard\JobCardController::class, 'getData'])->name('newjobcard.getData');
-	Route::post('/get-vehicle', [App\Http\Controllers\JobCard\JobCardController::class, 'getVehicle'])->name('newjobcard.getVehicle');
-
 	Route::get('add-field', [App\Http\Controllers\JobCard\JobCardController::class, 'addField'])->name('newjobcard.addField');
 	Route::get('add-field-work-note', [App\Http\Controllers\JobCard\JobCardController::class, 'addFieldWorkNote'])->name('newjobcard.addFieldWorkNote');
 
@@ -954,6 +948,11 @@ Route::middleware('auth')->prefix('job-card')->group(function () {
 
 	Route::get('add-customer-view', [App\Http\Controllers\JobCard\JobCardController::class, 'addCustomerView'])->name('newjobcard.customerview');
 	Route::get('delte-dent-mark', [App\Http\Controllers\JobCard\JobCardController::class, 'deleteDentMark'])->name('newjobcard.deleteDentMark'); 
+
+
+
+
+
 
 });
 //Notes Module
