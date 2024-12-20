@@ -5,7 +5,8 @@
 
 <form id="gumasta_images" action="{{ route('newjobcard.saveimageform') }}" onsubmit="form_submit_images(this);return false;" method="POST" enctype="multipart/form-data" autocomplete="on">
     @csrf
-<input type="hidden" name="images_id" class="images_id">
+<input type="hidden" name="images_id" class="images_id" value="{{ @$jobCardImage->image_id }}">
+<input type="hidden" name="main_id" class="main_id" value="{{ @$jobCardImage->id }}">
 <input type="hidden" name="jobcard_numbers" class="jobcard_numbers" value="{{ $jobcard_numbers }}">
 
     <div class="modal-body">
@@ -23,17 +24,16 @@
                </div> 
             </div>
 
-      <div class="imageresponce d-flex">
-       <i class="gumasta_images_loader fa-btn-loader icon-loader feather fa fa-refresh fa-spin fa-1x fa-fw" style="display:none;"></i>
-                     <label id="lblErrorMessageBannerImage" style="color:red"></label>
+      <div class="imageresponce d-flex"> 
+      {!! $view !!}
       </div>     
     </div>
 
 
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-        <button class="btn btn-primary" type="submit">Save <i class="st_loader fa-btn-loader fa fa-refresh fa-spin fa-1x fa-fw" style="display:none;"></i></button>
+        <button type="button" class="btn btn-light btn-white border-white" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary btn-white border-white" type="submit">Save <i class="st_loader fa-btn-loader fa fa-refresh fa-spin fa-1x fa-fw" style="display:none;"></i></button>
     </div>
 </form>
 
@@ -71,5 +71,30 @@
             }
           });
         }
+
+
+function delete_multiple_image(url,e){  
+  var id = $(e).attr('data-id');
+  var ids = $('.images_id').val();
+  
+   if(confirm('Are you sure you want to delete this?')){
+      $.ajax({     
+              url :url, 
+      headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },  
+       method:"POST",  
+       data:{id:id,ids:ids},
+       success: function(data){ 
+        toastr.success(data.message, 'Success');
+        $(e).parent().remove();
+        $('.images_id').val(data.ids);
+       },
+       
+     }); 
+   }else{ 
+     return false; 
+   }
+}
 
 </script>
