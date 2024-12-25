@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 
-    <style>
+    <style> 
         .list-count {
             width: 10px !important;
             height: 10px !important;
@@ -545,8 +545,19 @@
                                             </tr>
                                         </tfoot>
                                     </table>
-                                </div>
-                                <hr class="my-4">
+                                </div> 
+                                <p class="btn btn-dark rounded" onclick="addextracharge(this)">Extra Charge</p>
+                           
+                                    <div class="row newInputFieldOuter d-none">
+                                        <div class="col-md-12">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <div class="newInputField"><h4>Extra charges</h4></div> 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>    
+                               
                                 <div class="row ">
                                     <div class="col-md-6">
                                         <div class="card h-100">
@@ -971,8 +982,7 @@
             });
         }
 
-        function addJobCardRow(e, id) {
-
+        function addJobCardRow(e, id) { 
             let row = $('#' + id + ' tbody tr').length + 1;
 
             $.ajax({
@@ -1126,6 +1136,9 @@
 
         }
 
+
+
+        
         function addForm(e) {
             var contentUrl = "{{ route('purchase_spare_part.create') }}";
             $("#bs-example-modal-xl .modal-body-data").html('');
@@ -1412,10 +1425,14 @@
         }
 
         function workNotes(e) {
+            var jobcard_number = $('#jobcard_number').val();
             var contentUrl = "{{ route('newjobcard.workNotes') }}";
             $.ajax({
                 type: "GET",
                 url: contentUrl,
+                data: {
+                    jobcard_number: jobcard_number
+                },
                 success: function(data) {
                     $(".modal-body-data").html(data);
                     $("#bs-example-modal-xl").modal("show");
@@ -1428,10 +1445,14 @@
         }
 
         function accessories(e) {
+            var jobcard_number = $('#jobcard_number').val();
             var contentUrl = "{{ route('newjobcard.accessories') }}";
             $.ajax({
                 type: "GET",
                 url: contentUrl,
+                data: {
+                    jobcard_number: jobcard_number
+                },
                 success: function(data) {
                     $(".modal-body-data").html(data);
                     $("#bs-example-modal-xl").modal("show");
@@ -1659,6 +1680,73 @@ $.ajax({
 });
 }
 
+function addextracharge(e) {
+        var contentUrl = "{{route('newjobcard.addextrafields')}}";
+        $.ajax({
+            type: "GET"
+            , url: contentUrl
+            , success: function(data) {
+                $('.newInputField').append(data.newfield);
+                $('.newInputFieldOuter').removeClass('d-none')
+            }
+            , error: function() {
+                alert("Failed to load content.");
+            }
+        });
+    }
+    function getextracharges(e) { 
+    let totalAmount = 0;
+    let totalDiscountedAmount = 0; // Track the total discounted amount
 
+    // Loop through each 'charge' input and add to the totalAmount
+    $('input[name="charge[]"]').each(function() {
+        let chargeValue = parseInt($(this).val()) || 0;   
+        totalAmount += chargeValue;
+    }); 
+
+    let finalAmount = totalAmount; 
+
+    // Loop through each row to calculate the total amount and discount for each row
+    $('input[name="jobcard_quantity[]"]').each(function(index) {
+        let qty = parseInt($(this).val()) || 0;   
+        let tprice = parseInt($('input[name="jobcard_price[]"]').eq(index).val()) || 0;   
+        let dis = parseInt($('input[name="jobcard_discount[]"]').eq(index).val()) || 0; 
+        
+        let rowTotal = (tprice * qty); // Calculate the row's total before discount
+        let rowDiscountAmount = (dis * qty); // Discounted amount for the row
+
+        totalAmount += rowTotal; // Add the row total to the overall total
+        totalDiscountedAmount += rowDiscountAmount; // Add the discounted amount for this row
+
+        // Add discounted amount to finalAmount
+        let rowFinalAmount = rowTotal - rowDiscountAmount;
+        finalAmount += rowFinalAmount; // Add the final amount of this row
+    }); 
+    alert(finalAmount)
+    // Update all necessary fields with the final amounts
+    $('#total-amount').val(totalAmount); // Total without discount 
+    $('#final-amount').val(finalAmount); // Final amount after discount
+    $('#pending-amount').val(finalAmount); // Pending amount, if applicable
+    $('#cost-estimate').val(totalAmount); // Estimate after all calculations
+}
+
+
+
+// function getJobCardPrice(e) {
+//             let row = $(e).parents('tr').attr('data-row');
+//             const table = $(e).parents('table');
+
+//             let qty = table.find('input[name="jobcard_quantity[]"]').eq(row - 1).val();
+//             let price = table.find('input[name="jobcard_price[]"]').eq(row - 1).val();
+//             let discount = table.find('input[name="jobcard_discount[]"]').eq(row - 1).val();
+
+//             let totalAmount = parseInt(qty) * parseInt(price);
+//             let finalAmount = totalAmount - (parseInt(discount) || 0);
+
+//             table.find('input[name="jobcard_total_amount[]"]').eq(row - 1).val(totalAmount);
+//             table.find('input[name="jobcard_final_amount[]"]').eq(row - 1).val(finalAmount);
+
+//             tableCounter(table.attr('id'));
+//         }
     </script>
 @endsection

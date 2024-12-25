@@ -952,6 +952,9 @@ Route::middleware('auth')->prefix('job-card')->group(function () {
 
 	Route::get('add-customer-view', [App\Http\Controllers\JobCard\JobCardController::class, 'addCustomerView'])->name('newjobcard.customerview');
 	Route::get('delte-dent-mark', [App\Http\Controllers\JobCard\JobCardController::class, 'deleteDentMark'])->name('newjobcard.deleteDentMark'); 
+	Route::get('view-invoice', [App\Http\Controllers\JobCard\JobCardController::class, 'viewInvoice'])->name('newjobcard.viewInvoice'); 
+	Route::get('/download-invoice/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'downloadInvoice'])->name('download.invoice');
+	Route::get('add-extra', [App\Http\Controllers\JobCard\JobCardController::class, 'addextrafields'])->name('newjobcard.addextrafields');
 
 
 

@@ -19,8 +19,10 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View as IlluminateViewView;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Storage; 
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class JobCardController extends Controller
 {
@@ -37,19 +39,29 @@ class JobCardController extends Controller
     }
     public function index()
     {
-        $jobcards = NewJobCard::all();
+        if(isset($_GET['type'])){
+                if($_GET['type'] == 'open'){
+                    $type = 0;
+                }elseif($_GET['type'] == 'success'){
+                    $type = 1;
+                }else{
+                    $type= 2;
+                }
+                if($_GET['type'] == ""){
+                    $jobcards = NewJobCard::all();
+                }else{
+                $jobcards = NewJobCard::where('status',$type)->get();
+                }
+        }else{
+            $jobcards = NewJobCard::all();
+        }
+   
         return view('new_jobcard.list', compact('jobcards'));
     }
     public function add()
     {
         $customers = User::where([['role', 'Customer'], ['soft_delete', 0]])->get();
         $country = DB::table('tbl_countries')->get()->toArray();
-        $jobCardsDentMark = JobCardsDentMark::where('jobcard_number', 'JCN-BB4659B837')->first();
-        $jobCardscustomervoice = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 1)->get();
-        $jobCardsworknote = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 0)->get();
-        $jobCardsaccessary = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 2)->get();
-
-        $jobCardsImage = JobCardImage::where('job_card_number', 'JCN-BB4659B837')->first('image_id'); 
          //vehicle add
         $vehical_type = DB::table('tbl_vehicle_types')->where('soft_delete', '=', 0)->get()->toArray();
         $vehical_brand = DB::table('tbl_vehicle_brands')->where('soft_delete', '=', 0)->get()->toArray();
@@ -57,7 +69,7 @@ class JobCardController extends Controller
         $color = DB::table('tbl_colors')->where('soft_delete', '=', 0)->get()->toArray();
         $model_name = DB::table('tbl_model_names')->where('soft_delete', '=', 0)->get()->toArray();
       
-        return view('new_jobcard.add', compact('country', 'jobCardsDentMark', 'jobCardscustomervoice', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage','vehical_type','vehical_brand','fuel_type','color','model_name'));
+        return view('new_jobcard.add', compact('country','vehical_type','vehical_brand','fuel_type','color','model_name'));
     }
     public function store(Request $request)
     {
@@ -99,7 +111,7 @@ class JobCardController extends Controller
         $finalAmount = $request->jobcard_final_amount;
         $machanic = $request->employee;
         $vehicleId = $request->vehicle_id;
-        // echo count($items);die;
+        // echo "<pre>";print_r($machanic);die;
         $customer = User::with([
             'vehicles' => function ($qry) use ($vehicleId) {
                 $qry->where('id', $vehicleId);
@@ -147,11 +159,11 @@ class JobCardController extends Controller
         $employee = User::where(['role' => 'employee', 'soft_delete' => 0])->get();
         $country = DB::table('tbl_countries')->get()->toArray(); 
 
-        $jobCardsDentMark = JobCardsDentMark::where('jobcard_number', 'JCN-BB4659B837')->first();
-        $jobCardscustomervoice = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 1)->get();
-        $jobCardsworknote = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 0)->get();
-        $jobCardsaccessary = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 2)->get();
-        $jobCardsImage = JobCardImage::where('job_card_number', 'JCN-BB4659B837')->first('image_id'); 
+        $jobCardsDentMark = JobCardsDentMark::where('jobcard_number',  $jobcard->jobcard_number)->first();
+        $jobCardscustomervoice = JobCardsInspection::where('jobcard_number',  $jobcard->jobcard_number)->where('is_customer_voice', 1)->get();
+        $jobCardsworknote = JobCardsInspection::where('jobcard_number',  $jobcard->jobcard_number)->where('is_customer_voice', 0)->get();
+        $jobCardsaccessary = JobCardsInspection::where('jobcard_number',  $jobcard->jobcard_number)->where('is_customer_voice', 2)->get();
+        $jobCardsImage = JobCardImage::where('job_card_number',  $jobcard->jobcard_number)->first('image_id'); 
       
          //vehicle add
         $vehical_type = DB::table('tbl_vehicle_types')->where('soft_delete', '=', 0)->get()->toArray();
@@ -272,7 +284,7 @@ class JobCardController extends Controller
     {
         $title = 'Dent Mark';
         $jobcard_numbers = $request->input('jobcard_number');
-        $jobCardsDentImage = JobCardsDentMark::with('Image')->where('jobcard_number', 'JCN-BB4659B837')->first();
+        $jobCardsDentImage = JobCardsDentMark::with('Image')->where('jobcard_number', $jobcard_numbers)->first();
         return view('new_jobcard.dentmark', compact('title', 'jobcard_numbers', 'jobCardsDentImage'));
     }
 
@@ -315,7 +327,7 @@ class JobCardController extends Controller
         $carImage->save();
 
         $jobCardsDentMark = new JobCardsDentMark();
-        $jobCardsDentMark->jobcard_number = 'JCN-BB4659B837';
+        $jobCardsDentMark->jobcard_number = $request->jobcard_no;
         $jobCardsDentMark->file_id = $carImage->id;
         $jobCardsDentMark->save();
 
@@ -334,7 +346,7 @@ class JobCardController extends Controller
         $jobcard_numbers = $request->input('jobcard_number');
         $title = 'Customer Voice';
 
-        $jobCardsInspection = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 1)->get()->toArray();
+        $jobCardsInspection = JobCardsInspection::where('jobcard_number', $jobcard_numbers)->where('is_customer_voice', 1)->get()->toArray();
 
         $jobCardsInspectionselect = JobCardsInspection::where('is_customer_voice', 1)->get();
 
@@ -398,17 +410,16 @@ class JobCardController extends Controller
         request()->validate([
             'customer_voice' => 'required',
         ]);
-        JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 1)->delete();
+        JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 1)->delete();
         foreach ($request->customer_voice as $customer_voice) {
             $data = JobCardsInspection::create([
-                // 'jobcard_number' => $request->jobcard_numbers,    
-                'jobcard_number' => 'JCN-BB4659B837',
+                'jobcard_number' => $request->jobcard_numbers,     
                 'customer_voice' => $customer_voice,
                 'is_customer_voice' => 1,
             ]);
         }
 
-    $cardinspiration = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 1)->get()->count();
+    $cardinspiration = JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 1)->get()->count();
  
 
         return response()->json([
@@ -426,7 +437,7 @@ class JobCardController extends Controller
         $jobcard_numbers = $request->input('jobcard_number');
         $title = 'Work Notes';
 
-        $jobCardsInspection = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 0)->get()->toArray();
+        $jobCardsInspection = JobCardsInspection::where('jobcard_number', $jobcard_numbers)->where('is_customer_voice', 0)->get()->toArray();
 
         return view('new_jobcard.work_notes', compact('title', 'jobcard_numbers', 'jobCardsInspection'));
     }
@@ -463,19 +474,17 @@ class JobCardController extends Controller
             'work_notes' => 'required',
         ]);
 
-        JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 0)->delete();
+        JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 0)->delete();
 
         foreach ($request->work_notes as $work_note) {
             JobCardsInspection::create([
-                // 'jobcard_number' => $request->jobcard_numbers,    
-                'jobcard_number' => 'JCN-BB4659B837',
-                'jobcard_number' => 'JCN-BB4659B837',
+                'jobcard_number' => $request->jobcard_numbers,     
                 'customer_voice' => $work_note,
                 'is_customer_voice' => 0,
             ]);
         }
 
-        $countworknotes = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 0)->get()->count();
+        $countworknotes = JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 0)->get()->count();
 
         return response()->json([
             'success' => 1,
@@ -492,7 +501,7 @@ class JobCardController extends Controller
         $title = 'Add Photo';
         $jobcard_numbers = $jobcard_number;
 
-        $jobCardImage = JobCardImage::where('job_card_number', 'JCN-BB4659B837')->first();
+        $jobCardImage = JobCardImage::where('job_card_number', $jobcard_number)->first();
 
  
         $files = Image::whereIn('id', explode(',',@$jobCardImage->image_id))->get();
@@ -579,7 +588,7 @@ public function saveimageform(Request $request)
         $jobCard->save(); 
     }else{
     $data = JobCardImage::create([
-        'job_card_number' => 'JCN-BB4659B837',
+        'job_card_number' => $request->jobcard_numbers,
         'image_id' => $request->images_id,
     ]);
 }
@@ -589,19 +598,14 @@ return response()->json([
     'message' => "Photos Added Successfully",
     'imageId' => count(explode(',',$request->images_id)),
 ]);
-}
-
-
-
-
-
+} 
 
     public function accessories(Request $request): View
-    {
+    { 
         $jobcard_numbers = $request->input('jobcard_number');
         $title = 'Accessories';
 
-        $jobCardsInspection = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 2)->get()->toArray();
+        $jobCardsInspection = JobCardsInspection::where('jobcard_number', $jobcard_numbers)->where('is_customer_voice', 2)->get()->toArray();
 
         return view('new_jobcard.accessories', compact('title', 'jobcard_numbers', 'jobCardsInspection'));
     }
@@ -639,18 +643,17 @@ return response()->json([
             'accessories' => 'required',
         ]);
 
-        JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 2)->delete();
+        JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 2)->delete();
 
         foreach ($request->accessories as $accessories) {
             JobCardsInspection::create([
-                // 'jobcard_number' => $request->jobcard_numbers,    
-                'jobcard_number' => 'JCN-BB4659B837',
+                'jobcard_number' => $request->jobcard_numbers,    
                 'customer_voice' => $accessories,
                 'is_customer_voice' => 2,
             ]);
         }
 
-       $accessaryCount = JobCardsInspection::where('jobcard_number', 'JCN-BB4659B837')->where('is_customer_voice', 2)->count();
+       $accessaryCount = JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 2)->count();
 
 
         return response()->json([
@@ -711,4 +714,108 @@ return response()->json([
     {
         return response()->json(['status' => 0, 'msg' => "Vehicle Not Found. Please Add Vehicle."]);
     }
+
+
+    public function viewInvoice(Request $request): View
+    {
+        
+        
+        $newjobcard = NewJobCard::where('id',$request->id)->first();
+        $customers = User::where('id',$newjobcard->customer_id)->first(); 
+        $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
+        $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
+
+         
+        // echo "<pre>";print_r($jobCardSpareParts[0]->User->display_name);die;
+
+        $title = 'View Invoice';
+        $logo = DB::table('tbl_settings')->first();
+        return view('new_jobcard.invoice',compact('title','logo','customers','newjobcard','vehicles','jobCardSpareParts'));
+    }
+
+    public function viewPDF(Request $request) 
+    {
+        
+        
+        $newjobcard = NewJobCard::where('id',$request->id)->first();
+        $customers = User::where('id',$newjobcard->customer_id)->first(); 
+        $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
+        $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
+ 
+
+        $title = 'View Invoice';
+        $logo = DB::table('tbl_settings')->first();
+        return view('new_jobcard.invoice',compact('title','logo','customers','newjobcard','vehicles','jobCardSpareParts'));
+    }
+
+
+    public function downloadInvoice(Request $request)
+    {
+        $newjobcard = NewJobCard::where('id', $request->id)->first();
+        $customers = User::where('id', $newjobcard->customer_id)->first();
+        $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
+        $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
+    
+        $title = 'View Invoice';
+        $logo = DB::table('tbl_settings')->first();
+    
+        // Prepare data for the PDF
+        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts');
+    
+        // Load the view and convert to PDF
+         $pdf = PDF::loadView('new_jobcard.pdf', $data)->setPaper([0, 0, 595.28, 1000]);;
+        // Download the generated PDF
+        return $pdf->download('invoice_' . $newjobcard->id . '.pdf');
+        
+    }
+
+    // public function downloadInvoice(Request $request)
+    // {
+        
+    //     $newjobcard = NewJobCard::where('id', $request->id)->first();
+    //     $customers = User::where('id', $newjobcard->customer_id)->first();
+    //     $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
+    //     $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
+    
+    //     $title = 'View Invoice';
+    //     $logo = DB::table('tbl_settings')->first();
+    
+    //     // Prepare data for the PDF
+    //     $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts');
+    
+    //     // Load the view and convert to PDF in landscape orientation
+    //     $pdf = PDF::loadView('new_jobcard.pdf', $data)
+    //         ->setPaper([0, 0, 595.28, 1000]);;
+    
+    //     // Stream the generated PDF to the browser
+    //     return $pdf->stream('invoice_' . $newjobcard->id . '.pdf');
+    // }
+    
+
+    public function addextrafields(Request $request)
+    {
+
+
+        $newfield = '<div class="mb-3 col-lg-12 dynamic-field">
+        <div class="row">
+        <div class="col-5">
+          <label for="validationCustom01" class="form-label">Label</label><br> 
+          <input type="text" class="form-control" name="label[]" placeholder="Enter Label Here">
+        </div>
+         <div class="col-5">
+          <label for="validationCustom01" class="form-label">Charge</label><br> 
+          <input type="text" class="form-control" oninput="getextracharges(this)" name="charge[]" placeholder="Enter Charge Here">
+        </div>
+         <div class="col-2 mt-4 ">
+         <button type="button" class="btn btn-danger btn-sm remove-field rounded text-white border-white" style="margin-top: 5px;" fdprocessedid="dak07"><i class="fa fa-trash" aria-hidden="true"></i></button>
+        </div>
+        </div>
+        </div>';
+
+        return response()->json([
+            'success' => 1,
+            'newfield' => $newfield
+        ]);
+    }
+
 }
