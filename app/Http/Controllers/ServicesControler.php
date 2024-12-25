@@ -1742,7 +1742,7 @@ class ServicesControler extends Controller
         $employee = User::where(['role' => 'employee', 'soft_delete' => 0])->get();
 
 
-        // echo "<pre>";print_r($stock->toArray());die;
+        //   echo "<pre>";print_r($employee->toArray());die;
 
         $html = view('jobcard.component.add_row', compact('employee', 'row', 'mergedData'))->render();
         return response()->json(['status' => 1, 'html' => $html]);

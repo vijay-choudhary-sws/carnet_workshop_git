@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+
     <!-- page content -->
     <div class="right_col" role="main">
         <div class="">
@@ -22,6 +23,21 @@
             </div>
             @include('success_message.message')
             <div class="row">
+                <div class="row my-4">
+                <div class="col-3">
+                    <form action="{{ url('job-card/list') }}" method="get" id="type_form" class="mb-0">
+                        <select name="type" id="type_data" class="form-select" aria-label="Default select example" onchange="this.form.submit()">
+                            <option value="">--Choose--</option>
+                            <option value="open" {{ request('type') == 'open' ? 'selected' : '' }}>Open</option>
+                            <option value="success" {{ request('type') == 'success' ? 'selected' : '' }}>Success</option>
+                            <option value="confirmed" {{ request('type') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                        </select>
+                    </form>
+                    
+                    
+                </div>
+                </div>
+               
                 @if (!empty($jobcards) && count($jobcards) > 0)
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <div class="x_panel">
@@ -118,6 +134,16 @@
                                                                             class="me-3">{{ trans('message.Delete') }}</a>
                                                                 </li>
                                                             @endcan
+ 
+                                                            <div class="dropdown-divider m-0"></div>
+                                                            <li>
+                                                                <a href="javascript:void(0)" class="dropdown-item" 
+                                                                   onclick="viewInvoice(this, {{$jobcard->id}}); return false;" 
+                                                                   style="color:#FD726A">
+                                                                   <i class="fa-solid fa-receipt me-3"></i>{{ trans('message.Invoice') }}
+                                                                </a>
+                                                            </li>                                                            
+
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -149,6 +175,7 @@
     <script src="{{ URL::asset('vendors/jquery/dist/jquery.min.js') }}"></script>
     <!-- language change in user selected -->
     <script>
+ 
         $(document).ready(function() {
 
             var search = "{{ trans('message.Search...') }}";
@@ -189,8 +216,8 @@
 
 
             /*delete vehicalbrand*/
-            $('body').on('click', '.sa-warning', function() {
-
+            $('body').on('click', '.sa-warning', function() { 
+                
                 var url = $(this).attr('url');
                 var msg1 = "{{ trans('message.Are You Sure?') }}";
                 var msg2 = "{{ trans('message.You will not be able to recover this data afterwards!') }}";
@@ -212,6 +239,28 @@
 
             });
         });
+
+        function viewInvoice(e,id) { 
+            var contentUrl = "{{ route('newjobcard.viewInvoice') }}";
+            $.ajax({
+                type: "GET",
+                url: contentUrl,
+                data:{
+                id:id,
+                },
+                success: function(data) {
+                    $(".modal-body-data").html(data);
+                    $("#bs-example-modal-xl").modal("show");
+                },
+                error: function() {
+                    alert("Failed to load content.");
+                }
+            });
+        }
+
+        function filterCompanies(selectedType) {
+                $('.filter_submit').click();
+        } 
     </script>
 
 @endsection

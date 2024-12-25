@@ -4,7 +4,7 @@
 </div>
 <form id="add_product" action="{{ route('newjobcard.saveaccessories') }}" onsubmit="form_submit_accessary(this);return false;" method="POST" enctype="multipart/form-data" autocomplete="on">
      @csrf
-    <input type="hidden" name="jobcard_numbers" class="jobcard_numbers" value="{{ $jobcard_numbers }}">
+    <input type="hidden" name="jobcard_numbers" class="jobcard_numbers" value="{{ @$jobcard_numbers }}">
     <div class="modal-body">
         <div class="container-fluid">
          <p class="btn btn-success rounded" onclick="addNewField(this)">Add More</p>

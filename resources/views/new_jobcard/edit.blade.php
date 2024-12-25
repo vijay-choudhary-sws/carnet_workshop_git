@@ -1549,10 +1549,14 @@
 
 
         function addDentMark(e) {
+            var jobcard_number = $('#jobcard_number').val();
             var contentUrl = "{{ route('newjobcard.addDentMark') }}";
             $.ajax({
                 type: "GET",
                 url: contentUrl,
+                data: {
+                    jobcard_number: jobcard_number
+                },
                 success: function(data) {
                     $(".modal-body-data").html(data);
                     $("#bs-example-modal-lg").modal("show");
@@ -1566,13 +1570,21 @@
 
 
         function customerVoice(e) {
+            var jobcard_number = $('#jobcard_number').val();
             var contentUrl = "{{ route('newjobcard.customerVoice') }}";
             $.ajax({
                 type: "GET",
                 url: contentUrl,
+                data: {
+                    jobcard_number: jobcard_number
+                },
                 success: function(data) {
                     $(".modal-body-data").html(data);
                     $("#bs-example-modal-xl").modal("show");
+
+                    $('.select2-name').select2({
+                        dropdownParent: $('.custommodal-xl'),
+                    });
                 },
                 error: function() {
                     alert("Failed to load content.");
@@ -1581,10 +1593,34 @@
         }
 
         function workNotes(e) {
+            var jobcard_number = $('#jobcard_number').val();
             var contentUrl = "{{ route('newjobcard.workNotes') }}";
             $.ajax({
                 type: "GET",
                 url: contentUrl,
+                data: {
+                    jobcard_number: jobcard_number
+                },
+                success: function(data) {
+                    $(".modal-body-data").html(data);
+                    $("#bs-example-modal-xl").modal("show");
+
+                },
+                error: function() {
+                    alert("Failed to load content.");
+                }
+            });
+        }
+
+        function accessories(e) {
+            var jobcard_number = $('#jobcard_number').val(); 
+            var contentUrl = "{{ route('newjobcard.accessories') }}";
+            $.ajax({
+                type: "GET",
+                url: contentUrl,
+                data: {
+                    jobcard_number: jobcard_number
+                },
                 success: function(data) {
                     $(".modal-body-data").html(data);
                     $("#bs-example-modal-xl").modal("show");
@@ -1594,24 +1630,29 @@
                 }
             });
         }
-
 
 
 
         function addPhoto(e) {
+            var jobcard_number = $('#jobcard_number').val();
             var contentUrl = "{{ route('newjobcard.addphoto') }}";
+
             $.ajax({
                 type: "GET",
                 url: contentUrl,
+                data: {
+                    jobcard_number: jobcard_number
+                },
                 success: function(data) {
                     $(".modal-body-data").html(data);
                     $("#bs-example-modal-xl").modal("show");
                 },
-                error: function() {
-                    alert("Failed to load content.");
+                error: function(xhr, status, error) { 
+                    toastr.error("Failed to load content: " + error);
                 }
             });
         }
+
 
         function getVehicle(e) {
 
@@ -1663,22 +1704,7 @@
             }
         }
 
-
-        function accessories(e) {
-            var contentUrl = "{{ route('newjobcard.accessories') }}";
-            $.ajax({
-                type: "GET",
-                url: contentUrl,
-                success: function(data) {
-                    $(".modal-body-data").html(data);
-                    $("#bs-example-modal-xl").modal("show");
-                },
-                error: function() {
-                    alert("Failed to load content.");
-                }
-            });
-        }
-
+ 
 
         
 function form_submit_images(e) {

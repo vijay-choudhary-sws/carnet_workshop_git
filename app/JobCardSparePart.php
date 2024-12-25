@@ -20,5 +20,8 @@ class JobCardSparePart extends Model
         return $this->labels->spare_part_type;
     }
     
+    public function user(){
+        return $this->belongsTo(User::class,'machanic_id');
+    }
 
 }
