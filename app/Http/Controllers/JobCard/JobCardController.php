@@ -20,7 +20,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View as IlluminateViewView;
-use Illuminate\Support\Facades\Storage; 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -40,40 +40,40 @@ class JobCardController extends Controller
     }
     public function index()
     {
-        if(isset($_GET['type'])){
-                if($_GET['type'] == 'open'){
-                    $type = 0;
-                }elseif($_GET['type'] == 'success'){
-                    $type = 1;
-                }else{
-                    $type= 2;
-                }
-                if($_GET['type'] == ""){
-                    $jobcards = NewJobCard::all();
-                }else{
-                $jobcards = NewJobCard::where('status',$type)->get();
-                }
-        }else{
+        if (isset($_GET['type'])) {
+            if ($_GET['type'] == 'open') {
+                $type = 0;
+            } elseif ($_GET['type'] == 'success') {
+                $type = 1;
+            } else {
+                $type = 2;
+            }
+            if ($_GET['type'] == "") {
+                $jobcards = NewJobCard::all();
+            } else {
+                $jobcards = NewJobCard::where('status', $type)->get();
+            }
+        } else {
             $jobcards = NewJobCard::all();
         }
-   
+
         return view('new_jobcard.list', compact('jobcards'));
     }
     public function add()
     {
         $customers = User::where([['role', 'Customer'], ['soft_delete', 0]])->get();
         $country = DB::table('tbl_countries')->get()->toArray();
-         //vehicle add
+        //vehicle add
         $vehical_type = DB::table('tbl_vehicle_types')->where('soft_delete', '=', 0)->get()->toArray();
         $vehical_brand = DB::table('tbl_vehicle_brands')->where('soft_delete', '=', 0)->get()->toArray();
         $fuel_type = DB::table('tbl_fuel_types')->where('soft_delete', '=', 0)->get()->toArray();
         $color = DB::table('tbl_colors')->where('soft_delete', '=', 0)->get()->toArray();
         $model_name = DB::table('tbl_model_names')->where('soft_delete', '=', 0)->get()->toArray();
-      
-        return view('new_jobcard.add', compact('country','vehical_type','vehical_brand','fuel_type','color','model_name'));
+
+        return view('new_jobcard.add', compact('country', 'vehical_type', 'vehical_brand', 'fuel_type', 'color', 'model_name'));
     }
     public function store(Request $request)
-    { 
+    {
 
         $this->validate(
             $request,
@@ -137,31 +137,33 @@ class JobCardController extends Controller
         $jobcard->fual_level = $request->fual_level;
         $jobcard->supervisor_id = $request->supervisor;
         $jobcard->save();
-        if (count($items) > 0) {
-            foreach ($items as $itemKey => $itemValue) {
-                $item = new JobCardSparePart;
-                $item->jobcard_id = $jobcard->id;
-                $item->stock_label_id = $itemValue;
-                $item->stock_label_name = "test";
-                $item->quantity = $qty[$itemKey];
-                $item->price = $price[$itemKey];
-                $item->total_amount = $totalAmount[$itemKey];
-                $item->discount = $discount[$itemKey];
-                $item->final_amount = $finalAmount[$itemKey];
-                $item->machanic_id = $machanic[$itemKey];
-                $item->save();
+        if (!empty($items)) {
+            if (count($items) > 0) {
+                foreach ($items as $itemKey => $itemValue) {
+                    $item = new JobCardSparePart;
+                    $item->jobcard_id = $jobcard->id;
+                    $item->stock_label_id = $itemValue;
+                    $item->stock_label_name = "test";
+                    $item->quantity = $qty[$itemKey];
+                    $item->price = $price[$itemKey];
+                    $item->total_amount = $totalAmount[$itemKey];
+                    $item->discount = $discount[$itemKey];
+                    $item->final_amount = $finalAmount[$itemKey];
+                    $item->machanic_id = $machanic[$itemKey];
+                    $item->save();
+                }
             }
         }
- 
-        if(isset($request->label)){
-            foreach ($request->label as $key => $label) { 
+
+        if (isset($request->label)) {
+            foreach ($request->label as $key => $label) {
                 $extraCharge = new JobCardExtraCharge;
                 $extraCharge->jobcard_id = $jobcard->id;
                 $extraCharge->label = $label;
-                $extraCharge->charges = $request->charge[$key]; 
+                $extraCharge->charges = $request->charge[$key];
                 $extraCharge->save();
-            } 
-        }   
+            }
+        }
 
         return response()->json(['status' => 1]);
     }
@@ -170,24 +172,24 @@ class JobCardController extends Controller
     {
         $jobcard = NewJobCard::with('jobCardSpareParts')->find($id);
         $employee = User::where(['role' => 'employee', 'soft_delete' => 0])->get();
-        $country = DB::table('tbl_countries')->get()->toArray(); 
+        $country = DB::table('tbl_countries')->get()->toArray();
 
-        $jobCardsDentMark = JobCardsDentMark::where('jobcard_number',  $jobcard->jobcard_number)->first();
-        $jobCardscustomervoice = JobCardsInspection::where('jobcard_number',  $jobcard->jobcard_number)->where('is_customer_voice', 1)->get();
-        $jobCardsworknote = JobCardsInspection::where('jobcard_number',  $jobcard->jobcard_number)->where('is_customer_voice', 0)->get();
-        $jobCardsaccessary = JobCardsInspection::where('jobcard_number',  $jobcard->jobcard_number)->where('is_customer_voice', 2)->get();
-        $jobCardsImage = JobCardImage::where('job_card_number',  $jobcard->jobcard_number)->first('image_id'); 
-        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id',  $jobcard->id)->get(); 
-      
+        $jobCardsDentMark = JobCardsDentMark::where('jobcard_number', $jobcard->jobcard_number)->first();
+        $jobCardscustomervoice = JobCardsInspection::where('jobcard_number', $jobcard->jobcard_number)->where('is_customer_voice', 1)->get();
+        $jobCardsworknote = JobCardsInspection::where('jobcard_number', $jobcard->jobcard_number)->where('is_customer_voice', 0)->get();
+        $jobCardsaccessary = JobCardsInspection::where('jobcard_number', $jobcard->jobcard_number)->where('is_customer_voice', 2)->get();
+        $jobCardsImage = JobCardImage::where('job_card_number', $jobcard->jobcard_number)->first('image_id');
+        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $jobcard->id)->get();
+
         // echo "<prE>";print_r($jobCardExtraCharges->toArray());die;
-         //vehicle add
+        //vehicle add
         $vehical_type = DB::table('tbl_vehicle_types')->where('soft_delete', '=', 0)->get()->toArray();
         $vehical_brand = DB::table('tbl_vehicle_brands')->where('soft_delete', '=', 0)->get()->toArray();
         $fuel_type = DB::table('tbl_fuel_types')->where('soft_delete', '=', 0)->get()->toArray();
         $color = DB::table('tbl_colors')->where('soft_delete', '=', 0)->get()->toArray();
         $model_name = DB::table('tbl_model_names')->where('soft_delete', '=', 0)->get()->toArray();
-      
-        return view('new_jobcard.edit', compact('jobcard', 'employee', 'country', 'jobCardsDentMark', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage','jobCardscustomervoice','vehical_type','vehical_brand','fuel_type','color','model_name','jobCardExtraCharges'));
+
+        return view('new_jobcard.edit', compact('jobcard', 'employee', 'country', 'jobCardsDentMark', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage', 'jobCardscustomervoice', 'vehical_type', 'vehical_brand', 'fuel_type', 'color', 'model_name', 'jobCardExtraCharges'));
     }
 
     public function update(Request $request)
@@ -259,33 +261,35 @@ class JobCardController extends Controller
             $jobcard->supervisor_id = $request->supervisor;
             $jobcard->save();
             JobCardSparePart::where('jobcard_id', $jobcard->id)->delete();
-            if (count($items) > 0) {
-                foreach ($items as $itemKey => $itemValue) {
-                    $item = new JobCardSparePart;
-                    $item->jobcard_id = $jobcard->id;
-                    $item->stock_label_id = $itemValue;
-                    $item->stock_label_name = "test";
-                    $item->quantity = $qty[$itemKey];
-                    $item->price = $price[$itemKey];
-                    $item->total_amount = $totalAmount[$itemKey];
-                    $item->discount = $discount[$itemKey];
-                    $item->final_amount = $finalAmount[$itemKey];
-                    $item->machanic_id = $machanic[$itemKey];
-                    $item->save();
+            if (!empty($items)) {
+                if (count($items) > 0) {
+                    foreach ($items as $itemKey => $itemValue) {
+                        $item = new JobCardSparePart;
+                        $item->jobcard_id = $jobcard->id;
+                        $item->stock_label_id = $itemValue;
+                        $item->stock_label_name = "test";
+                        $item->quantity = $qty[$itemKey];
+                        $item->price = $price[$itemKey];
+                        $item->total_amount = $totalAmount[$itemKey];
+                        $item->discount = $discount[$itemKey];
+                        $item->final_amount = $finalAmount[$itemKey];
+                        $item->machanic_id = $machanic[$itemKey];
+                        $item->save();
+                    }
                 }
             }
 
-            JobCardExtraCharge::where('jobcard_id',$jobcard->id)->delete();
+            JobCardExtraCharge::where('jobcard_id', $jobcard->id)->delete();
 
-            if(isset($request->label)){
-            foreach ($request->label as $key => $label) { 
-                $extraCharge = new JobCardExtraCharge;
-                $extraCharge->jobcard_id = $jobcard->id;
-                $extraCharge->label = $label;
-                $extraCharge->charges = $request->charge[$key]; 
-                $extraCharge->save();
-            } 
-        }
+            if (isset($request->label)) {
+                foreach ($request->label as $key => $label) {
+                    $extraCharge = new JobCardExtraCharge;
+                    $extraCharge->jobcard_id = $jobcard->id;
+                    $extraCharge->label = $label;
+                    $extraCharge->charges = $request->charge[$key];
+                    $extraCharge->save();
+                }
+            }
 
             return response()->json(['status' => 1]);
         }
@@ -442,14 +446,14 @@ class JobCardController extends Controller
         JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 1)->delete();
         foreach ($request->customer_voice as $customer_voice) {
             $data = JobCardsInspection::create([
-                'jobcard_number' => $request->jobcard_numbers,     
+                'jobcard_number' => $request->jobcard_numbers,
                 'customer_voice' => $customer_voice,
                 'is_customer_voice' => 1,
             ]);
         }
 
-    $cardinspiration = JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 1)->get()->count();
- 
+        $cardinspiration = JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 1)->get()->count();
+
 
         return response()->json([
             'success' => 1,
@@ -507,7 +511,7 @@ class JobCardController extends Controller
 
         foreach ($request->work_notes as $work_note) {
             JobCardsInspection::create([
-                'jobcard_number' => $request->jobcard_numbers,     
+                'jobcard_number' => $request->jobcard_numbers,
                 'customer_voice' => $work_note,
                 'is_customer_voice' => 0,
             ]);
@@ -532,105 +536,105 @@ class JobCardController extends Controller
 
         $jobCardImage = JobCardImage::where('job_card_number', $jobcard_number)->first();
 
- 
-        $files = Image::whereIn('id', explode(',',@$jobCardImage->image_id))->get();
-        $view = view('new_jobcard.outlet_imagesmultiple', ['files' => $files, 'route' => $this->route])->render();
-         
- 
 
-        return view('new_jobcard.addPhoto', compact('title', 'jobcard_numbers','view','jobCardImage'));
+        $files = Image::whereIn('id', explode(',', @$jobCardImage->image_id))->get();
+        $view = view('new_jobcard.outlet_imagesmultiple', ['files' => $files, 'route' => $this->route])->render();
+
+
+
+        return view('new_jobcard.addPhoto', compact('title', 'jobcard_numbers', 'view', 'jobCardImage'));
     }
 
     public function imageUpload(Request $request)
-{
-    if (!$request->has('type') || !$request->hasFile('gumasta_images')) {
-        return response()->json(['status' => 0, 'msg' => 'File type not allowed']);
+    {
+        if (!$request->has('type') || !$request->hasFile('gumasta_images')) {
+            return response()->json(['status' => 0, 'msg' => 'File type not allowed']);
+        }
+
+        $type = $request->type;
+        $filePath = '/uploads/gumasta/';
+        $files = $request->file('gumasta_images');
+        $movedFiles = [];
+        $fileIds = [];
+
+        $destinationPath = public_path($filePath);
+
+        // Move files and save their paths
+        foreach ($files as $file) {
+            $fileName = time() . rand(1, 2000) . '.' . $file->getClientOriginalExtension();
+            $file->move($destinationPath, $fileName);
+            $movedFiles[] = $fileName;
+        }
+
+        // Store file data in the database and collect IDs
+        foreach ($movedFiles as $fileName) {
+            $fileData = Image::create(['path' => $fileName]);
+            $fileIds[] = $fileData->id;
+        }
+
+        // Handle existing image IDs if `main_id` is provided
+        if ($request->main_id) {
+            $jobCardImage = JobCardImage::find($request->main_id);
+            $existingIds = $jobCardImage ? explode(',', $jobCardImage->image_id) : [];
+            $fileIds = array_unique(array_merge($fileIds, $existingIds));
+
+            // Update the JobCardImage with the new list of image IDs
+            $jobCardImage->update(['image_id' => implode(',', $fileIds)]);
+        }
+
+        // Fetch all images for rendering
+        $files = Image::whereIn('id', $fileIds)->get();
+        $view = view('new_jobcard.outlet_imagesmultiple', ['files' => $files, 'route' => $this->route])->render();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Image uploaded successfully',
+            'file_id' => implode(',', $fileIds),
+            'file_path' => $view,
+        ]);
     }
 
-    $type = $request->type;
-    $filePath = '/uploads/gumasta/';
-    $files = $request->file('gumasta_images');
-    $movedFiles = [];
-    $fileIds = [];
+    public function multiimagedelete(Request $request)
+    {
 
-    $destinationPath = public_path($filePath);
+        $id = $request->id;
+        $ids = explode(',', $request->ids);
+        $ids = array_values(array_diff($ids, array($id)));
 
-    // Move files and save their paths
-    foreach ($files as $file) {
-        $fileName = time() . rand(1, 2000) . '.' . $file->getClientOriginalExtension();
-        $file->move($destinationPath, $fileName);
-        $movedFiles[] = $fileName;
+        return response()->json([
+            'success' => 1,
+            'message' => "Photos Deleted Successfully",
+            'ids' => $ids
+        ]);
+
+
     }
 
-    // Store file data in the database and collect IDs
-    foreach ($movedFiles as $fileName) {
-        $fileData = Image::create(['path' => $fileName]);
-        $fileIds[] = $fileData->id;
+
+
+    public function saveimageform(Request $request)
+    {
+        // echo "<pre>";print_r($request->all());die;
+        if ($request->main_id) {
+            $jobCard = JobCardImage::find($request->main_id);
+            $jobCard->image_id = $request->images_id;
+            $jobCard->save();
+        } else {
+            $data = JobCardImage::create([
+                'job_card_number' => $request->jobcard_numbers,
+                'image_id' => $request->images_id,
+            ]);
+        }
+
+        return response()->json([
+            'success' => 1,
+            'message' => "Photos Added Successfully",
+            'imageId' => count(explode(',', $request->images_id)),
+        ]);
     }
-
-    // Handle existing image IDs if `main_id` is provided
-    if ($request->main_id) {
-        $jobCardImage = JobCardImage::find($request->main_id);
-        $existingIds = $jobCardImage ? explode(',', $jobCardImage->image_id) : [];
-        $fileIds = array_unique(array_merge($fileIds, $existingIds));
-
-        // Update the JobCardImage with the new list of image IDs
-        $jobCardImage->update(['image_id' => implode(',', $fileIds)]);
-    }
-
-    // Fetch all images for rendering
-    $files = Image::whereIn('id', $fileIds)->get();
-    $view = view('new_jobcard.outlet_imagesmultiple', ['files' => $files, 'route' => $this->route])->render();
-
-    return response()->json([
-        'status' => 1,
-        'message' => 'Image uploaded successfully',
-        'file_id' => implode(',', $fileIds),
-        'file_path' => $view,
-    ]);
-}
-
-public function multiimagedelete(Request $request)
-{
-   
-    $id = $request->id;
-    $ids = explode(',', $request->ids); 
-    $ids = array_values(array_diff($ids, array($id))); 
-
-    return response()->json([
-        'success' => 1,
-        'message' => "Photos Deleted Successfully",
-        'ids'=>$ids
-    ]);
-
-
-}
- 
-
-
-public function saveimageform(Request $request)
-{
-    // echo "<pre>";print_r($request->all());die;
-    if($request->main_id){
-        $jobCard = JobCardImage::find($request->main_id);
-        $jobCard->image_id = $request->images_id;
-        $jobCard->save(); 
-    }else{
-    $data = JobCardImage::create([
-        'job_card_number' => $request->jobcard_numbers,
-        'image_id' => $request->images_id,
-    ]);
-}
-
-return response()->json([
-    'success' => 1,
-    'message' => "Photos Added Successfully",
-    'imageId' => count(explode(',',$request->images_id)),
-]);
-} 
 
     public function accessories(Request $request): View
-    { 
+    {
         $jobcard_numbers = $request->input('jobcard_number');
         $title = 'Accessories';
 
@@ -676,13 +680,13 @@ return response()->json([
 
         foreach ($request->accessories as $accessories) {
             JobCardsInspection::create([
-                'jobcard_number' => $request->jobcard_numbers,    
+                'jobcard_number' => $request->jobcard_numbers,
                 'customer_voice' => $accessories,
                 'is_customer_voice' => 2,
             ]);
         }
 
-       $accessaryCount = JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 2)->count();
+        $accessaryCount = JobCardsInspection::where('jobcard_number', $request->jobcard_numbers)->where('is_customer_voice', 2)->count();
 
 
         return response()->json([
@@ -747,35 +751,35 @@ return response()->json([
 
     public function viewInvoice(Request $request): View
     {
-        
-        
-        $newjobcard = NewJobCard::where('id',$request->id)->first();
-        $customers = User::where('id',$newjobcard->customer_id)->first(); 
+
+
+        $newjobcard = NewJobCard::where('id', $request->id)->first();
+        $customers = User::where('id', $newjobcard->customer_id)->first();
         $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
         $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
         $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
 
-         
+
         // echo "<pre>";print_r($jobCardSpareParts[0]->User->display_name);die;
 
         $title = 'View Invoice';
         $logo = DB::table('tbl_settings')->first();
-        return view('new_jobcard.invoice',compact('title','logo','customers','newjobcard','vehicles','jobCardSpareParts','jobCardExtraCharges'));
+        return view('new_jobcard.invoice', compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges'));
     }
 
-    public function viewPDF(Request $request) 
+    public function viewPDF(Request $request)
     {
-        
-        
-        $newjobcard = NewJobCard::where('id',$request->id)->first();
-        $customers = User::where('id',$newjobcard->customer_id)->first(); 
+
+
+        $newjobcard = NewJobCard::where('id', $request->id)->first();
+        $customers = User::where('id', $newjobcard->customer_id)->first();
         $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
         $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
- 
+
 
         $title = 'View Invoice';
         $logo = DB::table('tbl_settings')->first();
-        return view('new_jobcard.invoice',compact('title','logo','customers','newjobcard','vehicles','jobCardSpareParts'));
+        return view('new_jobcard.invoice', compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts'));
     }
 
 
@@ -785,68 +789,53 @@ return response()->json([
     //     $customers = User::where('id', $newjobcard->customer_id)->first();
     //     $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
     //     $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
-    
+
     //     $title = 'View Invoice';
     //     $logo = DB::table('tbl_settings')->first();
-    
+
     //     // Prepare data for the PDF
     //     $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts');
-    
+
     //     // Load the view and convert to PDF
     //      $pdf = PDF::loadView('new_jobcard.pdf', $data)->setPaper([0, 0, 595.28, 1000]);;
     //     // Download the generated PDF
     //     return $pdf->download('invoice_' . $newjobcard->id . '.pdf');
-        
+
     // }
 
     public function downloadInvoice(Request $request)
     {
-        
+
         $newjobcard = NewJobCard::where('id', $request->id)->first();
         $customers = User::where('id', $newjobcard->customer_id)->first();
         $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
         $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
         $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
-    
+
         $title = 'View Invoice';
         $logo = DB::table('tbl_settings')->first();
-    
+
         // echo "<pre>";print_r($jobCardExtraCharges->toArray());die;
         // Prepare data for the PDF
-        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts','jobCardExtraCharges');
-    
+        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges');
+
         // Load the view and convert to PDF in landscape orientation
         $pdf = PDF::loadView('new_jobcard.pdf', $data)
-            ->setPaper([0, 0, 595.28, 1000]);;
-    
+            ->setPaper([0, 0, 595.28, 1000]);
+        ;
+
         // Stream the generated PDF to the browser
         return $pdf->stream('invoice_' . $newjobcard->id . '.pdf');
     }
-    
+
 
     public function addextrafields(Request $request)
     {
-
-
-        $newfield = '<div class="mb-3 col-lg-12 dynamic-field">
-        <div class="row">
-        <div class="col-5">
-          <label for="validationCustom01" class="form-label">Label</label><br> 
-          <input type="text" class="form-control" name="label[]" placeholder="Enter Label Here">
-        </div>
-         <div class="col-5">
-          <label for="validationCustom01" class="form-label">Charge</label><br> 
-          <input type="number" class="form-control" oninput="getextracharges()" name="charge[]" placeholder="Enter Charge Here">
-        </div>
-         <div class="col-2 mt-4 ">
-         <button type="button" class="btn btn-danger btn-sm remove-field rounded text-white border-white" style="margin-top: 5px;" fdprocessedid="dak07"><i class="fa fa-trash" aria-hidden="true"></i></button>
-        </div>
-        </div>
-        </div>';
+        $html = view('new_jobcard.component.add-other-charges')->render();
 
         return response()->json([
             'success' => 1,
-            'newfield' => $newfield
+            'newfield' => $html
         ]);
     }
 

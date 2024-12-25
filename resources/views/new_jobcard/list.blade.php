@@ -123,13 +123,14 @@
 
                                                         <ul class="dropdown-menu heder-dropdown-menu action_dropdown shadow py-2"
                                                             aria-labelledby="dropdownMenuButtonaction">
+                                                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="viewInvoice(this, {{$jobcard->id}}); return false;" >
+                                                            <img src="{{ URL::asset('public/img/list/Vector.png') }}" class="me-3"> {{ trans('message.Invoice') }}</a></li>
                                                             @can('jobcard_edit')
                                                                 <li><a class="dropdown-item" href="{{ route('newjobcard.edit',$jobcard->id) }}">
                                                                 <img src="{{ URL::asset('public/img/list/Edit.png') }}" class="me-3"> {{ trans('message.Edit') }}</a></li>
                                                             @endcan
 
                                                             @can('jobcard_delete')
-                                                                <div class="dropdown-divider m-0"></div>
                                                                 <li>
                                                                     <a class="dropdown-item sa-warning"
                                                                         url="{{ route('newjobcard.destory', $jobcard->id) }}"
@@ -139,14 +140,7 @@
                                                                 </li>
                                                             @endcan
  
-                                                            <div class="dropdown-divider m-0"></div>
-                                                            <li>
-                                                                <a href="javascript:void(0)" class="dropdown-item" 
-                                                                   onclick="viewInvoice(this, {{$jobcard->id}}); return false;" 
-                                                                   style="color:#FD726A">
-                                                                   <i class="fa-solid fa-receipt me-3"></i>{{ trans('message.Invoice') }}
-                                                                </a>
-                                                            </li>                                                            
+                                                                                                                       
 
                                                         </ul>
                                                     </div>
