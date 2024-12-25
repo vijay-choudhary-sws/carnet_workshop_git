@@ -19,41 +19,50 @@ class OrderController extends Controller
   }
   public function index()
   {
-    $orders = Order::with('orderItem')
-      ->whereHas('orderItem', function ($qry) {
+    $orders = Order::with(['orderItem' => function ($qry) {
+      $qry->where('user_id', Auth::user()->id);
+    }])->whereHas('orderItem', function ($qry) {
         $qry->where('user_id', Auth::user()->id);
       })
       ->get();
+
+      // echo "<pre>";print_r($orders->toArray());die;
     return view('saas.order.list', compact('orders'));
   }
 
   public function view($id)
   {
-    $order_items = OrderItem::where('order_id', $id)->get();
+    $order_items = OrderItem::where(['order_id' => $id,'user_id' => Auth::user()->id ],)->get();
 
-    //  echo "<pre>";print_r($order_items[0]->SpareParts->name);die;
+    //  echo "<pre>";print_r($order_items->toArray());die;
     return view('saas.order.view', compact('order_items'));
   }
-
-
+  
+  
   public function accept(Request $request)
   {
+    
     $order_item = OrderItem::where('id', $request->id)->first();
+    
     if ($request->status == 1) {
-      $sparepartStock = SparePart::where('id', $order_item->spare_part_id)->first();
-      $spare_part = SparePart::where('id', $order_item->spare_part_id)->first();
+
+      $sparepartStock = $spare_part = SparePart::where('id', $order_item->spare_part_id)->first();
       $spare_part->stock = $spare_part->stock - $order_item->quantity;
       $spare_part->save();
-      $stockProduct = ProductStock::where('label_id', $spare_part->label_id)->first();
+
+      $stockProduct = ProductStock::where(['label_id' => $spare_part->label_id,'price' => $order_item->price])->first();
+      //  echo "<pre>";print_r($order_items->toArray());die;
       if (empty($stockProduct)) {
         $stockProducts = new ProductStock;
         $stockProducts->label_id = $spare_part->label_id;
         $stockProducts->category_id = $order_item->category;
         $stockProducts->stock = $order_item->quantity;
+        $stockProducts->price = $order_item->price;
         $stockProducts->user_id = Auth::user()->id;
         $stockProducts->save();
       } else {
         $stockProduct->stock = $stockProduct->stock + $order_item->quantity;
+        $stockProduct->price = $order_item->price;
         $stockProduct->save();
       }
       

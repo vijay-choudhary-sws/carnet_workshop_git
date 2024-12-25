@@ -6,7 +6,7 @@
                 margin-top: -169px;
             }
         }
-    </style> 
+    </style>
     <!-- page content -->
     <div class="right_col" role="main">
         <div class="">
@@ -28,7 +28,7 @@
                         <div class="x_panel">
                             <table id="supplier" class="table jambo_table" style="width:100%">
                                 <thead>
-                                    <tr> 
+                                    <tr>
                                         <th>Order No.</th>
                                         <th>Order Date</th>
                                         <th>Total Amount</th>
@@ -43,42 +43,38 @@
                                 <tbody>
                                     <?php $i = 1; ?>
                                     @foreach ($orders as $order)
-                                        <tr data-user-id="{{ $order->id }}"> 
-                                            <td><a href="{{ route('order.view',$order->id) }}">{{ $order->id }}</a></td>
-                                            <td><a href="{{ route('order.view',$order->id) }}">{{ $order->order_date }}</a></td>
-                                            <td><a href="{{ route('order.view',$order->id) }}">{{ $order->total_amount }}</a></td> 
-                                            <td><a href="{{ route('order.view',$order->id) }}">{{ $order->total_quantity }}</a></td> 
-                                            <td><a href="{{ route('order.view',$order->id) }}">{{ $order->total_item }}</a></td> 
-                                             <td> 
-                                              @switch($order->status)
+                                        <tr data-user-id="{{ $order->id }}">
+                                            <td><a href="{{ route('order.view', $order->id) }}">{{ $order->id }}</a></td>
+                                            <td><a href="{{ route('order.view', $order->id) }}">{{ $order->order_date }}</a>
+                                            </td>
+                                            <td><a
+                                                    href="{{ route('order.view', $order->id) }}">{{ $order->total_amount }}</a>
+                                            </td>
+                                            <td><a
+                                                    href="{{ route('order.view', $order->id) }}">{{ $order->total_quantity }}</a>
+                                            </td>
+                                            <td><a
+                                                    href="{{ route('order.view', $order->id) }}">{{ $order->total_item }}</a>
+                                            </td>
+                                            <td>
+                                                @switch($order->orderItem->where('status',0)->count())
                                                     @case(1)
-                                                      <p class="badge bg-success">Completed</p> 
+                                                        <p class="badge bg-danger">Pending</p>
                                                     @break
 
                                                     @case(0)
-                                                      <p class="badge bg-danger">Pending</p>  
-                                                    @break
-
-                                                    @case(2)
-                                                      <p class="badge bg-danger">Decline</p>   
-                                                        
-                                                    @break
-
-                                                    @case(3)
-                                                      <p class="badge bg-primary">Partial Pending</p>   
-                                                    @break
-
-                                                    @case(4).
-                                                      <p class="badge bg-primary">Partial Complete</p>   
+                                                        <p class="badge bg-success">Accepted</p>
                                                     @break
 
                                                     @default
-                                                @endswitch 
-                                                 
-                                                </td> 
-                                                <td> 
-                                                    <a href="{{ route('order.view',$order->id) }}" class="btn btn-success">View Item</a>   
-                                                </td> 
+                                                        <p class="badge bg-danger">Pending</p>
+                                                @endswitch
+
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('order.view', $order->id) }}" class="btn btn-success">View
+                                                    Item</a>
+                                            </td>
                                         </tr>
                                         <?php $i++; ?>
                                     @endforeach
