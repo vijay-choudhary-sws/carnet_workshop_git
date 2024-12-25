@@ -2,17 +2,21 @@
 
 namespace App;
 
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable; // Add this line
 
 class User extends Authenticatable
 {
+    use HasApiTokens, Notifiable;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'mobile_no', 'otp',
     ];
 
     /**
@@ -56,7 +60,9 @@ class User extends Authenticatable
         return $this->morphMany(Notes::class, 'entity', 'entity_type', 'entity_id');
     }
 
-    public function vehicles(){
-        return $this->hasMany(Vehicle::class,'customer_id');
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class, 'customer_id');
     }
+ 
 }

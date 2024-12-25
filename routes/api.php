@@ -1,24 +1,22 @@
 <?php
-
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route; 
+use App\Http\Controllers\Api\AuthController; 
+use App\Http\Controllers\Api\UserAuthController; 
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::controller(UserAuthController::class)->group(function(){
+    Route::post('user/signup', 'signup');
+    Route::post('user/verify-otp', 'verifyOtp');
+    Route::post('user/login-otp', 'login');
+    Route::post('user/login', 'resendOtp'); 
+    Route::get('user/countries', 'countries'); 
+    Route::post('user/state', 'state'); 
+    Route::post('user/cities', 'cities'); 
+    
+}); 
+ 
+Route::middleware('auth:sanctum')->group(function () { 
+    Route::get('/user-info', [AuthController::class, 'userinfo'])->name('user-info');
+    Route::post('/user-profile/update', [UserAuthController::class, 'updateProfile']); 
 });
-
-Route::middleware('auth:api')->get('/app_login', [LoginController::class, 'login']);
-Route::middleware('auth:api')->get('/app_forgotpassword', 'RestePassword@forgotpassword');
-Route::get('/sidemenu', 'Accessrightscontroller@sidemenu')->withoutMiddleware(['auth']);
-Route::get('/get_license', 'DomainController@get_license')->withoutMiddleware(['auth']);
-Route::post('/store_license', 'DomainController@store_license')->withoutMiddleware(['auth']);
