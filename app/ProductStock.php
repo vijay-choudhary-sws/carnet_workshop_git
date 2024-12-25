@@ -14,6 +14,7 @@ class ProductStock extends Model
         'label_id',
         'category_id',
         'stock',
+        'price',
         'user_id',
     ];
     

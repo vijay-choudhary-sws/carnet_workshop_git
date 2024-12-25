@@ -890,8 +890,8 @@ Route::group(['prefix' => 'saas', 'middleware' => 'auth'], function () {
 });
 
 Route::middleware('auth')->prefix('purchase-spare-part')->group(function () {
-	Route::get('list', [PurchaseSparePartController::class, 'index'])->name('purchase_spare_part.list');
-	Route::get('list/view/{id}', [PurchaseSparePartController::class, 'view'])->name('purchase_spare_part.view');
+	Route::get('list', [PurchaseSparePartController::class, 'index'])->name('purchase_spare_part.list')->middleware('can:purchase_view');
+	Route::get('list/view/{id}', [PurchaseSparePartController::class, 'view'])->name('purchase_spare_part.view')->middleware('can:purchase_view');
 	Route::get('add', [PurchaseSparePartController::class, 'add'])->name('purchase_spare_part.add');
 	Route::post('store', [PurchaseSparePartController::class, 'store'])->name('purchase_spare_part.store');
 	// Route::get('edit/{id}', [PurchaseSparePartController::class, 'edit'])->name('purchase_spare_part.edit');

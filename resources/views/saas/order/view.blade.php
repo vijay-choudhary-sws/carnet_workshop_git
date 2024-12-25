@@ -15,7 +15,7 @@
                     <nav>
                         <div class="nav toggle">
                             <a id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></a><a
-                                href="{{ route('purchase_spare_part.list') }}" id=""><i class="">
+                                href="{{ route('order.list') }}" id=""><i class="">
                                     <img src="{{ URL::asset('public/supplier/Back Arrow.png') }}"
                                         class="back-arrow"></i><span class="titleup">
                                     {{ trans('message.Order Item') }}</span></a>
@@ -75,10 +75,10 @@
                                                 @if ($order_item->status == 0)
                                                     <button type="button"
                                                         onclick="accept_order(this,'<?= $order_item->id ?>',1)"
-                                                        class="btn btn-success rounded mx-2">Accept</button>
+                                                        class="btn btn-success btn-sm rounded mx-2">Accept</button>
                                                     <button type="button"
                                                         onclick="accept_order(this,'<?= $order_item->id ?>',2)"
-                                                        class="btn btn-danger border-0 rounded mx-2">Decline</button>
+                                                        class="btn btn-danger btn-sm border-0 text-white rounded mx-2">Decline</button>
                                                 @elseif($order_item->status == 1)
                                                     <p class="badge bg-success">Accepted</p>
                                                 @else

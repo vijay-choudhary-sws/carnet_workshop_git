@@ -53,6 +53,7 @@
                                         <th>Vehical Number</th>
                                         <th>Vehical</th>
                                         <th>Bill Amount</th>
+                                        <th>Advance</th>
                                         <th>Balance</th>
                                         <th>Status</th>
                                         @canany(['jobcard_edit', 'jobcard_delete'])
@@ -92,7 +93,10 @@
                                                     href="{{ route('newjobcard.edit', $jobcard->id) }}">{{ $jobcard->amount ?? '-' }}</a>
                                             </td>
                                             <td><a
-                                                    href="{{ route('newjobcard.edit', $jobcard->id) }}">{{ $jobcard->balance_amount ?? '-' }}</a>
+                                                    href="{{ route('newjobcard.edit', $jobcard->id) }}" class="{{ $jobcard->amount > $jobcard->advance ? '' : 'text-success'}}">{{ $jobcard->advance ?? '-' }}</a>
+                                            </td>
+                                            <td><a
+                                                    href="{{ route('newjobcard.edit', $jobcard->id) }}" class="{{ $jobcard->amount > $jobcard->advance ? 'text-danger' : 'text-success'}}">{{ $jobcard->balance_amount ?? '-' }}</a>
                                             </td>
                                             <td>
                                                 @switch($jobcard->status)
