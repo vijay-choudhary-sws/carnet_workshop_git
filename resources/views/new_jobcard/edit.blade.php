@@ -97,7 +97,8 @@
                                     class="form-control bg-light" value="{{ $jobcard->jobcard_number ?? '' }}" readonly
                                     placeholder="Job Card Number" aria-label="Job Card Number">
                                 <span class="input-group-text">Date</span>
-                                <input type="date" class="form-control bg-light" value="{{ \carbon\carbon::parse($jobcard->entry_date)->format('Y-m-d') ?? '' }}"
+                                <input type="date" class="form-control bg-light"
+                                    value="{{ \carbon\carbon::parse($jobcard->entry_date)->format('Y-m-d') ?? '' }}"
                                     readonly placeholder="Date" aria-label="Date">
                             </div>
                         </div>
@@ -226,7 +227,7 @@
                                                         <p class="position-absolute list-count rounded-circle bg-primary text-white jobcardImage"
                                                             style="width: 10px !important;height:10px !important;">
                                                             @if (!empty($jobCardsImage))
-                                                                {{ count(explode(',',$jobCardsImage)) }}
+                                                                {{ count(explode(',', $jobCardsImage)) }}
                                                             @else
                                                                 0
                                                             @endif
@@ -722,50 +723,63 @@
                                     </table>
                                 </div>
 
-                                
-                                <p class="btn btn-dark rounded" onclick="addextracharge(this)">Extra Charge</p>
-                           @if(count($jobCardExtraCharges) != 0)
-                                <div class="row newInputFieldOuter">
+                                <hr>
+
+                                <p class="btn btn-dark rounded" onclick="addextracharge(this)">Add Other Charges</p>
+
+                                <div class="row newInputFieldOuter {{ count($jobCardExtraCharges) > 0 ? '' : 'd-none' }}">
                                     <div class="col-md-12">
-                                        <div class="card h-100">
-                                            <div class="card-body">
-                                                <div><h4>Extra charges</h4></div> 
-                                                @foreach($jobCardExtraCharges as $jobCardExtraCharge)
-                                                <div class="mb-3 col-lg-12 dynamic-field">
-                                                    <div class="row">
-                                                    <div class="col-5">
-                                                      <label for="validationCustom01" class="form-label">Label</label><br> 
-                                                      <input type="text" class="form-control" name="label[]" value="{{ $jobCardExtraCharge->label }}" placeholder="Enter Label Here">
-                                                    </div>
-                                                     <div class="col-5">
-                                                      <label for="validationCustom01" class="form-label">Charge</label><br> 
-                                                      <input type="number" class="form-control" oninput="getextracharges()"  value="{{ $jobCardExtraCharge->charges }}"  name="charge[]" placeholder="Enter Charge Here">
-                                                    </div>
-                                                     <div class="col-2 mt-4 ">
-                                                     <button type="button" class="btn btn-danger btn-sm remove-field rounded text-white border-white" style="margin-top: 5px;" fdprocessedid="dak07"><i class="fa fa-trash" aria-hidden="true"></i></button>
-                                                    </div>
-                                                    </div>
-                                                    </div>
-                                                @endforeach
-                                                <div class="newInputField"></div>
-                                            </div>
+                                        <div class="newInputFieldExtra">
+                                            <table class="table table-bordered" id="other-charges">
+                                                <thead>
+                                                    <th style="background-color:#4b5f71;color:white;">Label</th>
+                                                    <th style="background-color:#4b5f71;color:white;">Amount</th>
+                                                    <th style="background-color:#4b5f71;color:white;">Action</th>
+                                                </thead>
+                                                <tbody>
+                                                    @if (count($jobCardExtraCharges) > 0)
+                                                        @foreach ($jobCardExtraCharges as $jobCardExtraCharge)
+                                                            <tr>
+                                                                <td>
+                                                                    <input type="text" class="form-control"
+                                                                        name="label[]" placeholder="Enter Label Here"
+                                                                        oninput="$(this).removeClass('is-invalid');"
+                                                                        value="{{ $jobCardExtraCharge->label }}">
+                                                                </td>
+                                                                <td>
+                                                                    <input type="number" class="form-control"
+                                                                        oninput="getextracharges();$(this).removeClass('is-invalid');"
+                                                                        name="charge[]" placeholder="Enter Charge Here"
+                                                                        value="{{ $jobCardExtraCharge->charges }}">
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button"
+                                                                        class="btn btn-danger btn-sm remove-field rounded text-white border-white"
+                                                                        style="margin-top: 5px;" fdprocessedid="dak07">
+                                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    @endif
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary add-spare-btn"
+                                                                title="Click here for add new row."
+                                                                onclick="addextracharge(this);return;false;"
+                                                                style="background-color:#4b5f71;color:white;"> + </button>
+                                                        </td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
                                         </div>
                                     </div>
-                                </div>    
-                                <hr class="my-4">
-                                @else 
-                                   <div class="row newInputFieldOuter  d-none">
-                                                <div class="col-md-12">
-                                                    <div class="card h-100">
-                                                        <div class="card-body">
-                                                            <div><h4>Extra charges</h4></div>  
-                                                            <div class="newInputField"></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>    
-                                <hr class="my-4">
-                                @endif
+                                </div>
                                 <div class="row ">
                                     <div class="col-md-6">
                                         <div class="card h-100">
@@ -869,6 +883,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function() {
@@ -1277,15 +1292,36 @@
         // }
 
         function removeJobCardRow(e) {
-            const table = $(e).parents('table');
-            $(e).parents('tr').remove();
 
-            let i = 1;
-            $('#' + table.attr('id') + ' tbody tr').each(function() {
-                $(this).attr('data-row', i++);
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const table = $(e).parents('table');
+                    $(e).parents('tr').remove();
+
+                    let i = 1;
+                    $('#' + table.attr('id') + ' tbody tr').each(function() {
+                        $(this).attr('data-row', i++);
+                    });
+
+                    tableCounter(table.attr('id'));
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "The row has been deleted.",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
             });
 
-            tableCounter(table.attr('id'));
         }
 
         function tableCounter(id) {
@@ -1315,7 +1351,7 @@
             totalCounter();
         }
 
-      
+
         function totalCounter() {
 
             let trcount = 0;
@@ -1326,7 +1362,7 @@
 
             // Calculate chargeAmount
             $('input[name="charge[]"]').each(function() {
-                let chargeValue = parseFloat($(this).val()) || 0;   
+                let chargeValue = parseFloat($(this).val()) || 0;
                 chargeAmount += chargeValue;
             });
 
@@ -1361,7 +1397,7 @@
             // Calculate and update pending amount
             let pendingAmount = parseFloat(finalTotal) - parseFloat($('#advance').val());
             $('#pending-amount').val(pendingAmount);
-            } 
+        }
 
         function addForm(e) {
             var contentUrl = "{{ route('purchase_spare_part.create') }}";
@@ -1670,7 +1706,7 @@
         }
 
         function accessories(e) {
-            var jobcard_number = $('#jobcard_number').val(); 
+            var jobcard_number = $('#jobcard_number').val();
             var contentUrl = "{{ route('newjobcard.accessories') }}";
             $.ajax({
                 type: "GET",
@@ -1704,7 +1740,7 @@
                     $(".modal-body-data").html(data);
                     $("#bs-example-modal-xl").modal("show");
                 },
-                error: function(xhr, status, error) { 
+                error: function(xhr, status, error) {
                     toastr.error("Failed to load content: " + error);
                 }
             });
@@ -1761,173 +1797,225 @@
             }
         }
 
- 
 
-        
-function form_submit_images(e) {
 
-$(e).find('.st_loader').show();
-$.ajax({
-    url: $(e).attr('action'),
-    method: "POST",
-    dataType: "json",
-    data: $(e).serialize(),
-    success: function(data) {
 
-        if (data.success == 1) {
-            $('.jobcardImage').html(data.imageId)
-            toastr.success(data.message, 'Success');
-            $("#bs-example-modal-xl").modal("hide");
-            dataTable.draw(false);
+        function form_submit_images(e) {
 
-        } else if (data.success == 0) {
-            toastr.error(data.message, 'Error');
-            $(e).find('.st_loader').hide();
-        }
-    },
-    error: function(data) {
-        if (typeof data.responseJSON.status !== 'undefined') {
-            toastr.error(data.responseJSON.error, 'Error');
-        } else {
-            $.each(data.responseJSON.errors, function(key, value) {
-                toastr.error(value, 'Error');
+            $(e).find('.st_loader').show();
+            $.ajax({
+                url: $(e).attr('action'),
+                method: "POST",
+                dataType: "json",
+                data: $(e).serialize(),
+                success: function(data) {
+
+                    if (data.success == 1) {
+                        $('.jobcardImage').html(data.imageId)
+                        toastr.success(data.message, 'Success');
+                        $("#bs-example-modal-xl").modal("hide");
+                        dataTable.draw(false);
+
+                    } else if (data.success == 0) {
+                        toastr.error(data.message, 'Error');
+                        $(e).find('.st_loader').hide();
+                    }
+                },
+                error: function(data) {
+                    if (typeof data.responseJSON.status !== 'undefined') {
+                        toastr.error(data.responseJSON.error, 'Error');
+                    } else {
+                        $.each(data.responseJSON.errors, function(key, value) {
+                            toastr.error(value, 'Error');
+                        });
+                    }
+                    $(e).find('.st_loader').hide();
+                }
             });
         }
-        $(e).find('.st_loader').hide();
-    }
-});
-}
 
 
-function form_submit_customer_view(e) { 
-$(e).find('.st_loader').show();
-$.ajax({
-    url: $(e).attr('action')
-    , method: "POST"
-    , dataType: "json"
-    , data: $(e).serialize()
-    , success: function(data) {
+        function form_submit_customer_view(e) {
+            $(e).find('.st_loader').show();
+            $.ajax({
+                url: $(e).attr('action'),
+                method: "POST",
+                dataType: "json",
+                data: $(e).serialize(),
+                success: function(data) {
 
-        if (data.success == 1) {
-            // alert(data.cardinspiration)
-            $('.customerVoiceCount').html(data.cardinspiration)
-            toastr.success(data.message, 'Success');
-            $("#bs-example-modal-xl").modal("hide");
-            dataTable.draw(false); 
-          
+                    if (data.success == 1) {
+                        // alert(data.cardinspiration)
+                        $('.customerVoiceCount').html(data.cardinspiration)
+                        toastr.success(data.message, 'Success');
+                        $("#bs-example-modal-xl").modal("hide");
+                        dataTable.draw(false);
 
-        } else if (data.success == 0) {
-            toastr.error(data.message, 'Error');
-            $(e).find('.st_loader').hide();
-        }
-    }
-    , error: function(data) {
-        if (typeof data.responseJSON.status !== 'undefined') {
-            toastr.error(data.responseJSON.error, 'Error');
-        } else {
-            $.each(data.responseJSON.errors, function(key, value) {
-                toastr.error(value, 'Error');
+
+                    } else if (data.success == 0) {
+                        toastr.error(data.message, 'Error');
+                        $(e).find('.st_loader').hide();
+                    }
+                },
+                error: function(data) {
+                    if (typeof data.responseJSON.status !== 'undefined') {
+                        toastr.error(data.responseJSON.error, 'Error');
+                    } else {
+                        $.each(data.responseJSON.errors, function(key, value) {
+                            toastr.error(value, 'Error');
+                        });
+                    }
+                    $(e).find('.st_loader').hide();
+                }
             });
         }
-        $(e).find('.st_loader').hide();
-    }
-});
-} 
 
 
 
-function form_submit_accessary(e) {
+        function form_submit_accessary(e) {
 
-$(e).find('.st_loader').show();
-$.ajax({
-   url: $(e).attr('action'),
-   method: "POST",
-   dataType: "json",
-   data: $(e).serialize(),
-   success: function(data) {
+            $(e).find('.st_loader').show();
+            $.ajax({
+                url: $(e).attr('action'),
+                method: "POST",
+                dataType: "json",
+                data: $(e).serialize(),
+                success: function(data) {
 
-      if (data.success == 1) {
-    $('.accessaryCount').html(data.accessaryCount);
-         toastr.success(data.message, 'Success'); 
-      $("#bs-example-modal-xl").modal("hide");
-         dataTable.draw(false); 
+                    if (data.success == 1) {
+                        $('.accessaryCount').html(data.accessaryCount);
+                        toastr.success(data.message, 'Success');
+                        $("#bs-example-modal-xl").modal("hide");
+                        dataTable.draw(false);
 
-      }else if (data.success == 0) {
-         toastr.error(data.message, 'Error');
-         $(e).find('.st_loader').hide(); 
-      }
-   },
-   error: function(data) { 
-      if (typeof data.responseJSON.status !== 'undefined') {
-         toastr.error(data.responseJSON.error, 'Error');
-      } else {
-         $.each(data.responseJSON.errors, function(key, value) {
-            toastr.error(value, 'Error');
-         });
-      }
-      $(e).find('.st_loader').hide();
-   }
-});
-}
+                    } else if (data.success == 0) {
+                        toastr.error(data.message, 'Error');
+                        $(e).find('.st_loader').hide();
+                    }
+                },
+                error: function(data) {
+                    if (typeof data.responseJSON.status !== 'undefined') {
+                        toastr.error(data.responseJSON.error, 'Error');
+                    } else {
+                        $.each(data.responseJSON.errors, function(key, value) {
+                            toastr.error(value, 'Error');
+                        });
+                    }
+                    $(e).find('.st_loader').hide();
+                }
+            });
+        }
 
 
-function form_submit_work_note(e) {
+        function form_submit_work_note(e) {
 
-$(e).find('.st_loader').show();
-$.ajax({
-   url: $(e).attr('action'),
-   method: "POST",
-   dataType: "json",
-   data: $(e).serialize(),
-   success: function(data) {
+            $(e).find('.st_loader').show();
+            $.ajax({
+                url: $(e).attr('action'),
+                method: "POST",
+                dataType: "json",
+                data: $(e).serialize(),
+                success: function(data) {
 
-      if (data.success == 1) {
-    $('.workNoteCount').html(data.workNoteCount)
-         toastr.success(data.message, 'Success'); 
-      $("#bs-example-modal-xl").modal("hide");
-         dataTable.draw(false); 
-         $('.worknotecount').html(data.countworknotes);
+                    if (data.success == 1) {
+                        $('.workNoteCount').html(data.workNoteCount)
+                        toastr.success(data.message, 'Success');
+                        $("#bs-example-modal-xl").modal("hide");
+                        dataTable.draw(false);
+                        $('.worknotecount').html(data.countworknotes);
 
-      }else if (data.success == 0) {
-         toastr.error(data.message, 'Error');
-         $(e).find('.st_loader').hide(); 
-      }
-   },
-   error: function(data) {
-      if (typeof data.responseJSON.status !== 'undefined') {
-         toastr.error(data.responseJSON.error, 'Error');
-      } else {
-         $.each(data.responseJSON.errors, function(key, value) {
-            toastr.error(value, 'Error');
-         });
-      }
-      $(e).find('.st_loader').hide();
-   }
-});
-}
+                    } else if (data.success == 0) {
+                        toastr.error(data.message, 'Error');
+                        $(e).find('.st_loader').hide();
+                    }
+                },
+                error: function(data) {
+                    if (typeof data.responseJSON.status !== 'undefined') {
+                        toastr.error(data.responseJSON.error, 'Error');
+                    } else {
+                        $.each(data.responseJSON.errors, function(key, value) {
+                            toastr.error(value, 'Error');
+                        });
+                    }
+                    $(e).find('.st_loader').hide();
+                }
+            });
+        }
 
-function addextracharge(e) {
-        var contentUrl = "{{route('newjobcard.addextrafields')}}";
-        $.ajax({
-            type: "GET"
-            , url: contentUrl
-            , success: function(data) {
-                $('.newInputField').append(data.newfield);
-                $('.newInputFieldOuter').removeClass('d-none')
+        function addextracharge(e) {
+            let emptyCharges = false;
+            $('input[name="charge[]"]').each(function() {
+                if ($(this).val() <= 0 || $(this).val() == '' || $(this).val() == null) {
+                    $(this).addClass('is-invalid');
+                    emptyCharges = true;
+                }
+                let label = $(this).parents('tr').find('input[name="label[]"]');
+                if (label.val() == '' || label.val() == null) {
+                    label.addClass('is-invalid');
+                    emptyCharges = true;
+                }
+            });
+
+            if (emptyCharges) {
+                Swal.fire({
+                    position: "top-end",
+                    icon: "info",
+                    title: "Please fill in all fields first.",
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                return;
             }
-            , error: function() {
-                alert("Failed to load content.");
-            }
+
+            var contentUrl = "{{ route('newjobcard.addextrafields') }}";
+            $.ajax({
+                type: "GET",
+                url: contentUrl,
+                success: function(data) {
+                    $('#other-charges tbody').append(data.newfield);
+                    $('.newInputFieldOuter').removeClass('d-none')
+                },
+                error: function() {
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "error",
+                        title: "Failed to load content.",
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
+            });
+        }
+
+        $(document).on('click', '.remove-field', function() {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $(this).parents('tr').remove();
+                    if ($('.remove-field').length < 1) {
+                        $('.newInputFieldOuter').addClass('d-none');
+                    }
+                    getextracharges()
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "Other charge field has been deleted.",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
         });
-    }
-    
-    $(document).on('click', '.remove-field', function() {
-        $(this).closest('.dynamic-field').remove(); // Remove the entire dynamic field
-        getextracharges()
-    });
 
 
-    
+
 
         function getJobCardPrice(e) {
 
@@ -1949,33 +2037,31 @@ function addextracharge(e) {
         }
 
 
-        function getextracharges() { 
+        function getextracharges() {
 
-        let totalAmount = 0; 
-        let totalDiscountedAmount = 0; 
+            let totalAmount = 0;
+            let totalDiscountedAmount = 0;
 
-        $('input[name="charge[]"]').each(function() {
-            let chargeValue = parseInt($(this).val()) || 0;   
-            totalAmount += chargeValue;
-        }); 
+            $('input[name="charge[]"]').each(function() {
+                let chargeValue = parseInt($(this).val()) || 0;
+                totalAmount += chargeValue;
+            });
 
-        let finalAmount = totalAmount; 
+            let finalAmount = totalAmount;
 
-        $('input[name="jobcard_quantity[]"]').each(function(index) {
-            let qty = parseInt($(this).val()) || 0;   
-            let tprice = parseInt($('input[name="jobcard_price[]"]').eq(index).val()) || 0;   
-            let dis = parseInt($('input[name="jobcard_discount[]"]').eq(index).val()) || 0;  
-            let rowTotal = (tprice * qty);    
-            totalAmount += rowTotal;  
-            finalAmount  += rowTotal-dis;
-        });  
+            $('input[name="jobcard_quantity[]"]').each(function(index) {
+                let qty = parseInt($(this).val()) || 0;
+                let tprice = parseInt($('input[name="jobcard_price[]"]').eq(index).val()) || 0;
+                let dis = parseInt($('input[name="jobcard_discount[]"]').eq(index).val()) || 0;
+                let rowTotal = (tprice * qty);
+                totalAmount += rowTotal;
+                finalAmount += rowTotal - dis;
+            });
 
-        $('#total-amount').val(totalAmount); 
-        $('#final-amount').val(finalAmount);  
-        $('#pending-amount').val(finalAmount);  
-        $('#cost-estimate').val(totalAmount);  
+            $('#total-amount').val(totalAmount);
+            $('#final-amount').val(finalAmount);
+            $('#pending-amount').val(finalAmount);
+            $('#cost-estimate').val(totalAmount);
         }
-
-
     </script>
 @endsection
