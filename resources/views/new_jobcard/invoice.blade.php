@@ -202,7 +202,41 @@
                     </table>
                 </div>
                 
-             
+
+
+                <table class="table table-bordered" border="0" style="border-collapse:collapse;" width="100%">
+                    <tbody><tr class="printimg">
+                        <td class="cname" style="font-size: 14px;">
+                            <b>Extra Charges</b>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>  
+                <div class="table-responsive col-md-12 col-lg-12 col-xl-12 col-xxl-12 col-sm-12 col-xs-12">
+                    <table class="table table-bordered adddatatable" border="0" style="border-collapse:collapse;">
+                        <thead>
+                            <tr>
+                                <th class="text-start" style="width: 5%;">#</th>
+                                <th class="text-start">Label</th> 
+                                <th class="text-start">Charges</th>  
+                            </tr>
+                        </thead>
+        
+                        <tbody>
+                            @if (count($jobCardExtraCharges) > 0)
+                            @php $i = 1 ; @endphp
+                            @foreach ($jobCardExtraCharges as $jobCardExtraCharge)
+                                <tr> 
+                                    <td class="text-start cname">{{ $i }}</td>
+                                    <td class="text-start cname">{{ $jobCardExtraCharge->label }}</td>
+                                    <td class="text-start cname">{{ $jobCardExtraCharge->charges }}</td> 
+                                </tr>
+                                @php $i++ @endphp
+                            @endforeach
+                        @endif                            
+                        </tbody>
+                    </table>
+                </div> 
             <div class="table-responsive col-md-12 col-lg-12 col-xl-12 col-xxl-12 col-sm-12 col-xs-12">
                 <table class="table table-bordered halfpaymentcharge" style="border-collapse:collapse; width: 99%;">
                     <tbody>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\JobCard;
 use App\Http\Controllers\Controller;
 use App\Image;
 use App\JobCardCustomer;
+use App\JobCardExtraCharge;
 use App\JobCardsCustomer;
 use App\JobCardsDentMark;
 use App\JobCardSparePart;
@@ -72,7 +73,7 @@ class JobCardController extends Controller
         return view('new_jobcard.add', compact('country','vehical_type','vehical_brand','fuel_type','color','model_name'));
     }
     public function store(Request $request)
-    {
+    { 
 
         $this->validate(
             $request,
@@ -95,6 +96,8 @@ class JobCardController extends Controller
                 'jobcard_discount.*' => 'required|numeric|min:0',
                 'jobcard_final_amount.*' => 'required|numeric|min:1',
                 'employee.*' => 'required|integer|min:1',
+                'label.*' => 'required|string|max:255',
+                'charge.*' => 'required|numeric|min:1',
             ],
             [
                 'customer_name.required' => 'The Customer Name field is required.',
@@ -149,6 +152,16 @@ class JobCardController extends Controller
                 $item->save();
             }
         }
+ 
+        if(isset($request->label)){
+            foreach ($request->label as $key => $label) { 
+                $extraCharge = new JobCardExtraCharge;
+                $extraCharge->jobcard_id = $jobcard->id;
+                $extraCharge->label = $label;
+                $extraCharge->charges = $request->charge[$key]; 
+                $extraCharge->save();
+            } 
+        }   
 
         return response()->json(['status' => 1]);
     }
@@ -164,7 +177,9 @@ class JobCardController extends Controller
         $jobCardsworknote = JobCardsInspection::where('jobcard_number',  $jobcard->jobcard_number)->where('is_customer_voice', 0)->get();
         $jobCardsaccessary = JobCardsInspection::where('jobcard_number',  $jobcard->jobcard_number)->where('is_customer_voice', 2)->get();
         $jobCardsImage = JobCardImage::where('job_card_number',  $jobcard->jobcard_number)->first('image_id'); 
+        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id',  $jobcard->id)->get(); 
       
+        // echo "<prE>";print_r($jobCardExtraCharges->toArray());die;
          //vehicle add
         $vehical_type = DB::table('tbl_vehicle_types')->where('soft_delete', '=', 0)->get()->toArray();
         $vehical_brand = DB::table('tbl_vehicle_brands')->where('soft_delete', '=', 0)->get()->toArray();
@@ -172,7 +187,7 @@ class JobCardController extends Controller
         $color = DB::table('tbl_colors')->where('soft_delete', '=', 0)->get()->toArray();
         $model_name = DB::table('tbl_model_names')->where('soft_delete', '=', 0)->get()->toArray();
       
-        return view('new_jobcard.edit', compact('jobcard', 'employee', 'country', 'jobCardsDentMark', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage','jobCardscustomervoice','vehical_type','vehical_brand','fuel_type','color','model_name'));
+        return view('new_jobcard.edit', compact('jobcard', 'employee', 'country', 'jobCardsDentMark', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage','jobCardscustomervoice','vehical_type','vehical_brand','fuel_type','color','model_name','jobCardExtraCharges'));
     }
 
     public function update(Request $request)
@@ -201,6 +216,8 @@ class JobCardController extends Controller
                 'jobcard_discount.*' => 'required|numeric|min:0',
                 'jobcard_final_amount.*' => 'required|numeric|min:1',
                 'employee.*' => 'required|integer|min:1',
+                'label.*' => 'required|string|max:255',
+                'charge.*' => 'required|numeric|min:1',
             ],
             [
                 'customer_name.required' => 'The Customer Name field is required.',
@@ -257,6 +274,18 @@ class JobCardController extends Controller
                     $item->save();
                 }
             }
+
+            JobCardExtraCharge::where('jobcard_id',$jobcard->id)->delete();
+
+            if(isset($request->label)){
+            foreach ($request->label as $key => $label) { 
+                $extraCharge = new JobCardExtraCharge;
+                $extraCharge->jobcard_id = $jobcard->id;
+                $extraCharge->label = $label;
+                $extraCharge->charges = $request->charge[$key]; 
+                $extraCharge->save();
+            } 
+        }
 
             return response()->json(['status' => 1]);
         }
@@ -724,13 +753,14 @@ return response()->json([
         $customers = User::where('id',$newjobcard->customer_id)->first(); 
         $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
         $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
+        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
 
          
         // echo "<pre>";print_r($jobCardSpareParts[0]->User->display_name);die;
 
         $title = 'View Invoice';
         $logo = DB::table('tbl_settings')->first();
-        return view('new_jobcard.invoice',compact('title','logo','customers','newjobcard','vehicles','jobCardSpareParts'));
+        return view('new_jobcard.invoice',compact('title','logo','customers','newjobcard','vehicles','jobCardSpareParts','jobCardExtraCharges'));
     }
 
     public function viewPDF(Request $request) 
@@ -749,29 +779,8 @@ return response()->json([
     }
 
 
-    public function downloadInvoice(Request $request)
-    {
-        $newjobcard = NewJobCard::where('id', $request->id)->first();
-        $customers = User::where('id', $newjobcard->customer_id)->first();
-        $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
-        $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
-    
-        $title = 'View Invoice';
-        $logo = DB::table('tbl_settings')->first();
-    
-        // Prepare data for the PDF
-        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts');
-    
-        // Load the view and convert to PDF
-         $pdf = PDF::loadView('new_jobcard.pdf', $data)->setPaper([0, 0, 595.28, 1000]);;
-        // Download the generated PDF
-        return $pdf->download('invoice_' . $newjobcard->id . '.pdf');
-        
-    }
-
     // public function downloadInvoice(Request $request)
     // {
-        
     //     $newjobcard = NewJobCard::where('id', $request->id)->first();
     //     $customers = User::where('id', $newjobcard->customer_id)->first();
     //     $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
@@ -783,13 +792,36 @@ return response()->json([
     //     // Prepare data for the PDF
     //     $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts');
     
-    //     // Load the view and convert to PDF in landscape orientation
-    //     $pdf = PDF::loadView('new_jobcard.pdf', $data)
-    //         ->setPaper([0, 0, 595.28, 1000]);;
-    
-    //     // Stream the generated PDF to the browser
-    //     return $pdf->stream('invoice_' . $newjobcard->id . '.pdf');
+    //     // Load the view and convert to PDF
+    //      $pdf = PDF::loadView('new_jobcard.pdf', $data)->setPaper([0, 0, 595.28, 1000]);;
+    //     // Download the generated PDF
+    //     return $pdf->download('invoice_' . $newjobcard->id . '.pdf');
+        
     // }
+
+    public function downloadInvoice(Request $request)
+    {
+        
+        $newjobcard = NewJobCard::where('id', $request->id)->first();
+        $customers = User::where('id', $newjobcard->customer_id)->first();
+        $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
+        $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
+        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
+    
+        $title = 'View Invoice';
+        $logo = DB::table('tbl_settings')->first();
+    
+        // echo "<pre>";print_r($jobCardExtraCharges->toArray());die;
+        // Prepare data for the PDF
+        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts','jobCardExtraCharges');
+    
+        // Load the view and convert to PDF in landscape orientation
+        $pdf = PDF::loadView('new_jobcard.pdf', $data)
+            ->setPaper([0, 0, 595.28, 1000]);;
+    
+        // Stream the generated PDF to the browser
+        return $pdf->stream('invoice_' . $newjobcard->id . '.pdf');
+    }
     
 
     public function addextrafields(Request $request)
@@ -804,7 +836,7 @@ return response()->json([
         </div>
          <div class="col-5">
           <label for="validationCustom01" class="form-label">Charge</label><br> 
-          <input type="text" class="form-control" oninput="getextracharges(this)" name="charge[]" placeholder="Enter Charge Here">
+          <input type="number" class="form-control" oninput="getextracharges()" name="charge[]" placeholder="Enter Charge Here">
         </div>
          <div class="col-2 mt-4 ">
          <button type="button" class="btn btn-danger btn-sm remove-field rounded text-white border-white" style="margin-top: 5px;" fdprocessedid="dak07"><i class="fa fa-trash" aria-hidden="true"></i></button>
