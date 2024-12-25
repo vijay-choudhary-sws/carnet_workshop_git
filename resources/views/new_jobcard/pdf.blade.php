@@ -137,6 +137,7 @@
                 </tbody>
             </table>
 
+            <div class="partCharges" style="margin-top:20px;"><strong>Part Charges</strong></div>
             <!-- Spare Parts Table -->
             <table class="table" style="margin-top:20px !important">
                 <thead>
@@ -166,6 +167,33 @@
                     @endif
                 </tbody>
             </table>
+
+            <div class="extraCharges" style="margin-top:20px;"><strong>Extra Charges</strong></div>
+
+            <table class="table" style="margin-top:20px !important">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Label</th>
+                        <th>Charges</th>
+                      
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (count($jobCardExtraCharges) > 0)
+                        @php $i = 1; @endphp
+                        @foreach ($jobCardExtraCharges as $jobCardExtraCharge)
+                            <tr>
+                                <td>{{ $i }}</td>
+                                <td>{{ $jobCardExtraCharge->label }}</td>
+                                <td>{{ $jobCardExtraCharge->charges }}</td> 
+                            </tr>
+                            @php $i++; @endphp
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+
 
             <!-- Summary -->
             <div class="table-container">

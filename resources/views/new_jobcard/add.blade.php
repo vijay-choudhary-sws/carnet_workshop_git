@@ -552,7 +552,7 @@
                                         <div class="col-md-12">
                                             <div class="card h-100">
                                                 <div class="card-body">
-                                                    <div class="newInputField"><h4>Extra charges</h4></div> 
+                                                    <div class="newInputFieldExtra"><h4>Extra charges</h4></div> 
                                                 </div>
                                             </div>
                                         </div>
@@ -1045,23 +1045,7 @@
             });
         }
 
-        function getJobCardPrice(e) {
-            let row = $(e).parents('tr').attr('data-row');
-            const table = $(e).parents('table');
-
-            let qty = table.find('input[name="jobcard_quantity[]"]').eq(row - 1).val();
-            let price = table.find('input[name="jobcard_price[]"]').eq(row - 1).val();
-            let discount = table.find('input[name="jobcard_discount[]"]').eq(row - 1).val();
-
-            let totalAmount = parseInt(qty) * parseInt(price);
-            let finalAmount = totalAmount - (parseInt(discount) || 0);
-
-            table.find('input[name="jobcard_total_amount[]"]').eq(row - 1).val(totalAmount);
-            table.find('input[name="jobcard_final_amount[]"]').eq(row - 1).val(finalAmount);
-
-            tableCounter(table.attr('id'));
-        }
-
+ 
         function removeJobCardRow(e) {
             const table = $(e).parents('table');
             $(e).parents('tr').remove();
@@ -1102,42 +1086,51 @@
         }
 
         function totalCounter() {
-            let trcount = 0;
-            let total = 0;
-            let discount = 0;
-            let finalTotal = 0;
 
-            $('input[name="jobcard_total_amount[]"]').each(function() {
-                total += parseFloat($(this).val()) || 0;
-                trcount++;
-            });
+        let trcount = 0;
+        let total = 0;
+        let discount = 0;
+        let finalTotal = 0;
+        let chargeAmount = 0;
 
-            $('input[name="jobcard_discount[]"]').each(function() {
-                discount += parseFloat($(this).val()) || 0;
-            });
+        // Calculate chargeAmount
+        $('input[name="charge[]"]').each(function() {
+            let chargeValue = parseFloat($(this).val()) || 0;   
+            chargeAmount += chargeValue;
+        });
 
-            $('input[name="jobcard_final_amount[]"]').each(function() {
-                finalTotal += parseFloat($(this).val()) || 0;
-            });
+        // Calculate jobcard totals
+        $('input[name="jobcard_total_amount[]"]').each(function() {
+            total += parseFloat($(this).val()) || 0;
+            trcount++;
+        });
 
-            $('#total-counter span.tr-count').text(trcount);
-            $('#total-counter span.total-count').text(total);
-            $('#total-counter span.discount-count').text(discount);
-            $('#total-counter span.final-total-count').text(finalTotal);
+        $('input[name="jobcard_discount[]"]').each(function() {
+            discount += parseFloat($(this).val()) || 0;
+        });
 
-            $('#cost-estimate').val(total);
-            $('#total-amount').val(total);
-            $('#total-discount').val(discount);
-            $('#final-amount').val(finalTotal);
+        $('input[name="jobcard_final_amount[]"]').each(function() {
+            finalTotal += parseFloat($(this).val()) || 0;
+        });
 
-            let pendingAmount = parseFloat(finalTotal) - parseFloat($('#advance').val());
+        // Add chargeAmount to the total
+        total += chargeAmount;
+        finalTotal += chargeAmount
+        // Update UI
+        $('#total-counter span.tr-count').text(trcount);
+        $('#total-counter span.total-count').text(total);
+        $('#total-counter span.discount-count').text(discount);
+        $('#total-counter span.final-total-count').text(finalTotal);
 
-            $('#pending-amount').val(pendingAmount);
+        $('#cost-estimate').val(total);
+        $('#total-amount').val(total);
+        $('#total-discount').val(discount);
+        $('#final-amount').val(finalTotal);
 
-        }
-
-
-
+        // Calculate and update pending amount
+        let pendingAmount = parseFloat(finalTotal) - parseFloat($('#advance').val());
+        $('#pending-amount').val(pendingAmount);
+    } 
         
         function addForm(e) {
             var contentUrl = "{{ route('purchase_spare_part.create') }}";
@@ -1686,7 +1679,7 @@ function addextracharge(e) {
             type: "GET"
             , url: contentUrl
             , success: function(data) {
-                $('.newInputField').append(data.newfield);
+                $('.newInputFieldExtra').append(data.newfield);
                 $('.newInputFieldOuter').removeClass('d-none')
             }
             , error: function() {
@@ -1694,59 +1687,62 @@ function addextracharge(e) {
             }
         });
     }
-    function getextracharges(e) { 
-    let totalAmount = 0;
-    let totalDiscountedAmount = 0; // Track the total discounted amount
 
-    // Loop through each 'charge' input and add to the totalAmount
+
+    $(document).on('click', '.remove-field', function() {
+        $(this).closest('.dynamic-field').remove(); // Remove the entire dynamic field
+        getextracharges()
+    });
+
+
+    function getJobCardPrice(e) {
+
+
+            let row = $(e).parents('tr').attr('data-row');
+            const table = $(e).parents('table');
+
+            let qty = table.find('input[name="jobcard_quantity[]"]').eq(row - 1).val();
+            let price = table.find('input[name="jobcard_price[]"]').eq(row - 1).val();
+            let discount = table.find('input[name="jobcard_discount[]"]').eq(row - 1).val();
+
+            let totalAmount = parseInt(qty) * parseInt(price);
+            let finalAmount = totalAmount - (parseInt(discount) || 0);
+
+            table.find('input[name="jobcard_total_amount[]"]').eq(row - 1).val(totalAmount);
+            table.find('input[name="jobcard_final_amount[]"]').eq(row - 1).val(finalAmount);
+
+            tableCounter(table.attr('id'));
+        }
+
+
+    function getextracharges() { 
+
+    let totalAmount = 0; 
+    let totalDiscountedAmount = 0; 
+ 
     $('input[name="charge[]"]').each(function() {
         let chargeValue = parseInt($(this).val()) || 0;   
         totalAmount += chargeValue;
     }); 
 
     let finalAmount = totalAmount; 
-
-    // Loop through each row to calculate the total amount and discount for each row
+ 
     $('input[name="jobcard_quantity[]"]').each(function(index) {
         let qty = parseInt($(this).val()) || 0;   
         let tprice = parseInt($('input[name="jobcard_price[]"]').eq(index).val()) || 0;   
-        let dis = parseInt($('input[name="jobcard_discount[]"]').eq(index).val()) || 0; 
-        
-        let rowTotal = (tprice * qty); // Calculate the row's total before discount
-        let rowDiscountAmount = (dis * qty); // Discounted amount for the row
-
-        totalAmount += rowTotal; // Add the row total to the overall total
-        totalDiscountedAmount += rowDiscountAmount; // Add the discounted amount for this row
-
-        // Add discounted amount to finalAmount
-        let rowFinalAmount = rowTotal - rowDiscountAmount;
-        finalAmount += rowFinalAmount; // Add the final amount of this row
-    }); 
-    alert(finalAmount)
-    // Update all necessary fields with the final amounts
-    $('#total-amount').val(totalAmount); // Total without discount 
-    $('#final-amount').val(finalAmount); // Final amount after discount
-    $('#pending-amount').val(finalAmount); // Pending amount, if applicable
-    $('#cost-estimate').val(totalAmount); // Estimate after all calculations
+        let dis = parseInt($('input[name="jobcard_discount[]"]').eq(index).val()) || 0;  
+        let rowTotal = (tprice * qty);    
+        totalAmount += rowTotal;  
+        finalAmount  += rowTotal-dis;
+    });  
+   
+    $('#total-amount').val(totalAmount); 
+    $('#final-amount').val(finalAmount);  
+    $('#pending-amount').val(finalAmount);  
+    $('#cost-estimate').val(totalAmount);  
 }
 
 
-
-// function getJobCardPrice(e) {
-//             let row = $(e).parents('tr').attr('data-row');
-//             const table = $(e).parents('table');
-
-//             let qty = table.find('input[name="jobcard_quantity[]"]').eq(row - 1).val();
-//             let price = table.find('input[name="jobcard_price[]"]').eq(row - 1).val();
-//             let discount = table.find('input[name="jobcard_discount[]"]').eq(row - 1).val();
-
-//             let totalAmount = parseInt(qty) * parseInt(price);
-//             let finalAmount = totalAmount - (parseInt(discount) || 0);
-
-//             table.find('input[name="jobcard_total_amount[]"]').eq(row - 1).val(totalAmount);
-//             table.find('input[name="jobcard_final_amount[]"]').eq(row - 1).val(finalAmount);
-
-//             tableCounter(table.attr('id'));
-//         }
+ 
     </script>
 @endsection
