@@ -203,6 +203,8 @@
 
       @elseif(session('message') == 'Jobcard Process Successfully')
       <label for="checkbox-10 colo_success" style="margin-left: 20px;font-weight: 600;"> {{ trans('message.Jobcard Process Successfully') }}</label>
+      @elseif(session('message') == 'Jobcard Deleted Successfully')
+      <label for="checkbox-10 colo_success" style="margin-left: 20px;font-weight: 600;"> {{ trans('message.Jobcard Deleted Successfully') }}</label>
       @elseif(session('message') == 'General Settings Updated Successfully')
       <label for="checkbox-10 colo_success" style="margin-left: 20px;font-weight: 600;"> {{ trans('message.General Settings Updated Successfully') }}</label>
       @elseif(session('message') == 'Other Settings Updated Successfully')

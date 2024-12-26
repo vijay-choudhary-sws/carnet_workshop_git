@@ -12,6 +12,7 @@ use App\JobCardSparePart;
 use App\JobCardImage;
 use App\JobCardsInspection;
 use App\NewJobCard;
+use App\SparePartLabel;
 use App\User;
 use App\Vehicle;
 use Carbon\Carbon;
@@ -40,14 +41,10 @@ class JobCardController extends Controller
     }
     public function index()
     {
+        $jobcardsCount = NewJobCard::all();
         if (isset($_GET['type'])) {
-            if ($_GET['type'] == 'open') {
-                $type = 0;
-            } elseif ($_GET['type'] == 'success') {
-                $type = 1;
-            } else {
-                $type = 2;
-            }
+            $type = $_GET['type'];
+
             if ($_GET['type'] == "") {
                 $jobcards = NewJobCard::all();
             } else {
@@ -57,7 +54,7 @@ class JobCardController extends Controller
             $jobcards = NewJobCard::all();
         }
 
-        return view('new_jobcard.list', compact('jobcards'));
+        return view('new_jobcard.list', compact('jobcards','jobcardsCount'));
     }
     public function add()
     {
@@ -136,14 +133,17 @@ class JobCardController extends Controller
         $jobcard->km_runing = $request->km_reading;
         $jobcard->fual_level = $request->fual_level;
         $jobcard->supervisor_id = $request->supervisor;
+        $jobcard->delivery_date = $request->delivery_date;
+        $jobcard->delivery_time = $request->delivery_time;
         $jobcard->save();
         if (!empty($items)) {
             if (count($items) > 0) {
                 foreach ($items as $itemKey => $itemValue) {
+                    $labelName = SparePartLabel::select('title')->find($itemValue);
                     $item = new JobCardSparePart;
                     $item->jobcard_id = $jobcard->id;
                     $item->stock_label_id = $itemValue;
-                    $item->stock_label_name = "test";
+                    $item->stock_label_name = $labelName->title;
                     $item->quantity = $qty[$itemKey];
                     $item->price = $price[$itemKey];
                     $item->total_amount = $totalAmount[$itemKey];
@@ -259,15 +259,19 @@ class JobCardController extends Controller
             $jobcard->km_runing = $request->km_reading;
             $jobcard->fual_level = $request->fual_level;
             $jobcard->supervisor_id = $request->supervisor;
+            $jobcard->status = $request->status ?? 0;
+            $jobcard->delivery_date = $request->delivery_date;
+            $jobcard->delivery_time = $request->delivery_time;
             $jobcard->save();
             JobCardSparePart::where('jobcard_id', $jobcard->id)->delete();
             if (!empty($items)) {
                 if (count($items) > 0) {
                     foreach ($items as $itemKey => $itemValue) {
+                        $labelName = SparePartLabel::select('title')->find($itemValue);
                         $item = new JobCardSparePart;
                         $item->jobcard_id = $jobcard->id;
                         $item->stock_label_id = $itemValue;
-                        $item->stock_label_name = "test";
+                        $item->stock_label_name = $labelName->title;
                         $item->quantity = $qty[$itemKey];
                         $item->price = $price[$itemKey];
                         $item->total_amount = $totalAmount[$itemKey];
