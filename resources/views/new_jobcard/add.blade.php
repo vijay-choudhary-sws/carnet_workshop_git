@@ -1794,7 +1794,7 @@
                 url: contentUrl,
                 success: function(data) {
                     $('#labour-table tbody').append(data.newfield);
-                    $('.newInputFieldOuter').removeClass('d-none')
+                    $('.newInputFieldOuter').removeClass('d-none');
                     getextracharges();
                 },
                 error: function() {
