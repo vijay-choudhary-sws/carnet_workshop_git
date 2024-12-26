@@ -1826,6 +1826,7 @@ return [
 	"Branch Updated Successfully" => "Branch Updated Successfully",
 	"Branch Deleted Successfully" => "Branch Deleted Successfully",
 	"Jobcard Process Successfully" => "Jobcard Process Successfully",
+	"Jobcard Deleted Successfully" => "Jobcard Deleted Successfully",
 	"General Settings Updated Successfully" => "General Settings Updated Successfully",
 	"Other Settings Updated Successfully" => "Other Settings Updated Successfully",
 	"Access Rights Updated Successfully" => "Access Rights Updated Successfully",

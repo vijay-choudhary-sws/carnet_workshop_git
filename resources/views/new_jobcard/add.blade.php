@@ -54,28 +54,25 @@
             color: white !important;
         }
 
-        .green-text {
-            color: #2E7D32 !important;
-        }
-
-        .blue-text {
-            color: #1976D2 !important;
-        }
-
-        .orange-text {
-            color: #D84315 !important;
-        }
-
-        .grey-text {
-            color: #424242 !important;
-        }
-
-        .purple-text {
-            color: #6A1B9A !important;
+        #labour-table th,
+        #labour-table .add-spare-btn,
+        .bg-yellow-orange {
+            background: #A52A2A !important;
+            color: #fff !important;
         }
 
         .table-view table th {
             text-wrap: nowrap !important;
+        }
+
+
+        #counters div.card{
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        #counters div.card:hover{
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
     </style>
     <div class="right_col " role="main">
@@ -257,7 +254,31 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row mt-4">
+                                <div class="row mt-4" id="counters">
+                                    <div class="col-2">
+                                        <div class="card">
+                                            <div class="card-body p-0" id="labour-table-counter">
+                                                <a href="javascript:void(0)"
+                                                    class="d-flex justify-content-between bg-yellow-orange px-1 py-2 rounded-top text-white"
+                                                    onclick="viewTable(this);" target-table="labour-div">
+                                                    <p class="m-0"><b>Labour(<span class="tr-count">0</span>)</b></p>
+                                                    <p class="text-end m-0">
+                                                        <b class="">₹<span class="total-count">0.00</span></b>
+                                                        <small class="d-block ">₹<span
+                                                                class="discount-count">0.00</span></small>
+                                                    </p>
+                                                </a>
+                                                <div class="d-flex justify-content-between align-items-center p-1 ps-0 ">
+                                                    <div class="fs-5 bg-yellow-orange rounded mx-1 px-2"><i
+                                                            class="fa-solid fa-user text-white"></i></div>
+                                                    <div class="text-end">
+                                                        <p class="m-0 ">Total: ₹<span
+                                                                class="final-total-count">0.00</span></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-2">
                                         <div class="card">
                                             <div class="card-body p-0" id="spare-part-table-counter">
@@ -378,6 +399,30 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div class="mt-4 table-view" id="labour-div" style="display: none;">
+                                    <table class="table table-bordered" id="labour-table">
+                                        <thead>
+                                            <th style="background-color:#FFC107;color:white;">Label</th>
+                                            <th style="background-color:#4b5f71;color:white;">Amount</th>
+                                            <th style="background-color:#4b5f71;color:white;">Action</th>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td>
+                                                    <button type="button" class="btn btn-outline-secondary add-spare-btn"
+                                                        title="Click here for add new row."
+                                                        onclick="addextracharge(this);return;false;"
+                                                        style="background-color:#4b5f71;color:white;"> + </button>
+                                                </td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
                                 </div>
 
                                 <div class="mt-4 table-view" id="spare-table">
@@ -546,7 +591,7 @@
                                     </table>
                                 </div>
 
-                                <hr>
+                                {{-- <hr>
                                 <p class="btn btn-dark rounded" onclick="addextracharge(this)">Add Other Charges</p>
 
                                 <div class="row newInputFieldOuter d-none">
@@ -578,7 +623,7 @@
                                     </div>
                                 </div>
 
-                                <hr>
+                                <hr> --}}
 
                                 <div class="row ">
                                     <div class="col-md-6">
@@ -1141,6 +1186,7 @@
             $('input[name="charge[]"]').each(function() {
                 let chargeValue = parseFloat($(this).val()) || 0;
                 chargeAmount += chargeValue;
+                trcount++;
             });
 
             // Calculate jobcard totals
@@ -1747,8 +1793,9 @@
                 type: "GET",
                 url: contentUrl,
                 success: function(data) {
-                    $('#other-charges tbody').append(data.newfield);
+                    $('#labour-table tbody').append(data.newfield);
                     $('.newInputFieldOuter').removeClass('d-none')
+                    getextracharges();
                 },
                 error: function() {
                     Swal.fire({
@@ -1778,7 +1825,7 @@
                     if ($('.remove-field').length < 1) {
                         $('.newInputFieldOuter').addClass('d-none');
                     }
-                    getextracharges()
+                    getextracharges();
                     Swal.fire({
                         title: "Deleted!",
                         text: "Other charge field has been deleted.",
@@ -1814,30 +1861,19 @@
 
 
         function getextracharges() {
-
-            let totalAmount = 0;
-            let totalDiscountedAmount = 0;
-
-            $('input[name="charge[]"]').each(function() {
-                let chargeValue = parseInt($(this).val()) || 0;
-                totalAmount += chargeValue;
+            let trcount = 0;
+            let labour = 0;
+            
+            $('#labour-table tbody input[name="charge[]"]').each(function() {
+                labour += parseFloat($(this).val()) || 0;
+                trcount++;
             });
 
-            let finalAmount = totalAmount;
+            $('#labour-table-counter span.tr-count').text(trcount);
+            $('#labour-table-counter span.total-count').text(labour);
+            $('#labour-table-counter span.final-total-count').text(labour);
 
-            $('input[name="jobcard_quantity[]"]').each(function(index) {
-                let qty = parseInt($(this).val()) || 0;
-                let tprice = parseInt($('input[name="jobcard_price[]"]').eq(index).val()) || 0;
-                let dis = parseInt($('input[name="jobcard_discount[]"]').eq(index).val()) || 0;
-                let rowTotal = (tprice * qty);
-                totalAmount += rowTotal;
-                finalAmount += rowTotal - dis;
-            });
-
-            $('#total-amount').val(totalAmount);
-            $('#final-amount').val(finalAmount);
-            $('#pending-amount').val(finalAmount);
-            $('#cost-estimate').val(totalAmount);
+            totalCounter();
         }
     </script>
 @endsection

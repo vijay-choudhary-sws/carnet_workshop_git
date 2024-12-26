@@ -800,16 +800,15 @@
                                                             <label for="delivery_date" class="form-label">Delivery
                                                                 Date</label>
                                                             <input type="date" id="delivery_date" name="delivery_date"
-                                                                value="{{ now()->format('Y-m-d') }}"
+                                                                value="{{ $jobcard->delivery_date ?: \Carbon\Carbon::now()->format('Y-m-d') }}"
                                                                 placeholder="Delivery Date" class="form-control rounded">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="mb-3">
-                                                            <label for="delivery_time" class="form-label">Delivery
-                                                                Time</label>
+                                                            <label for="delivery_time" class="form-label">Delivery Time</label>
                                                             <input type="time" id="delivery_time" name="delivery_time"
-                                                                value="{{ now()->format('m:i') }}"
+                                                                value="{{ $jobcard->delivery_time ? \Carbon\Carbon::parse($jobcard->delivery_time)->format('H:i') : \Carbon\Carbon::now()->format('H:i') }}"
                                                                 placeholder="Delivery Time" class="form-control rounded">
                                                         </div>
                                                     </div>
@@ -866,8 +865,34 @@
                                 </div>
 
                                 <div class="mt-5 text-end">
-                                    <button type="submit" class="btn btn-success" onclick="qtyCheck()">Update Job
-                                        Card</button>
+                                    @switch($jobcard->status)
+                                        {{-- @case(0)
+                                            <button type="submit" class="btn btn-success" onclick="qtyCheck()">Confirm Job
+                                                Card</button>
+                                            <input type="hidden" name="status" value="1">
+                                        @break --}}
+
+                                        @case(1)
+                                            <button type="submit" class="btn btn-success" onclick="qtyCheck()">Process
+                                                Job</button>
+                                            <input type="hidden" name="status" value="2">
+                                        @break
+
+                                        @case(2)
+                                            <button type="submit" class="btn btn-success" onclick="qtyCheck()">Complete
+                                                Job</button>
+                                            <input type="hidden" name="status" value="3">
+                                        @break
+
+                                        @case(3)
+                                            <span class="btn btn-success">job Completed</span>
+                                        @break
+
+                                        @default
+                                            <button type="submit" class="btn btn-success" onclick="qtyCheck()">Update Job
+                                                Card</button>
+                                            <input type="hidden" name="status" value="0">
+                                    @endswitch
                                 </div>
 
                             </form>

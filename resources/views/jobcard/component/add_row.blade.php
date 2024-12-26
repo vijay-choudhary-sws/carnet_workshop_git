@@ -15,5 +15,5 @@
             @endforeach
         </select>
     </td>
-    <td><button type="button"  class="btn btn-sm btn-danger rounded border-0 text-white" onclick="removeJobCardRow(this)">Remove</button></td>
+    <td><button type="button"  class="btn btn-sm btn-danger rounded border-0 text-white" onclick="removeJobCardRow(this)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
 </tr>
