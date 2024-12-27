@@ -11,6 +11,7 @@ use App\JobCardsDentMark;
 use App\JobCardSparePart;
 use App\JobCardImage;
 use App\JobCardsInspection;
+use App\Mail\EstimateMail;
 use App\NewJobCard;
 use App\SparePartLabel;
 use App\User;
@@ -24,6 +25,7 @@ use Illuminate\View\View as IlluminateViewView;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
 
 
 class JobCardController extends Controller
@@ -852,9 +854,11 @@ class JobCardController extends Controller
         $customers = User::where('id', $newjobcard->customer_id)->first();
         $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
         $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
+
         $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get(); 
         $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice',1)->get(); 
         $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice',2)->get(); 
+
         $title = 'View Invoice';
         $logo = DB::table('tbl_settings')->first();
  
@@ -871,8 +875,135 @@ class JobCardController extends Controller
     }
 
 
-    public function sendMail(){
-        
+    public function sendInvoiceMail($id){
+        $data = [
+            'customer_name' => 'John Doe',
+            'service' => 'Car Repair',
+            'amount' => 5000,
+            'date' => now()->toDateString(),
+            'accept_url' => route('estimate.accept', ['id' => 1]),
+            'decline_url' => route('estimate.decline', ['id' => 1]),
+        ];
+    
+        Mail::to('vijay98sws@gmail.com')->send(new EstimateMail($data));
+    
+        return "Estimate sent successfully!";
     }
+    // public function sendInvoiceMail($id)
+    // {
+
+    //     $newjobcard = NewJobCard::find($id);
+    //     $customers = User::find($newjobcard->customer_id);
+    //     $vehicles = Vehicle::find($newjobcard->vehicle_id)->first();
+    //     $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $id)->get();
+    //     $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $id)->get();
+    //     $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 1)->get();
+
+    //     $email = $customers->email;
+
+    //     $mpdf = new Mpdf();
+
+    //     $html = view('quotation.quotationservicepdf');
+
+    //     $mpdf->autoLangToFont = true;
+    //     $mpdf->autoScriptToLang = true;
+    //     $mpdf->WriteHTML($html);
+
+    //     $str = "1234567890";
+    //     $str1 = str_shuffle($str);
+
+    //     $filename = 'QUOTATION-' . $str1 . '.pdf';
+
+    //     $filePath = 'public/pdf/quotation/' . $filename;
+    //     $pdfContents = $mpdf->Output($filePath, Destination::FILE);
+    //     $quotation = URL::to($filePath);
+
+    //     $pdfFileName = $str1 . ".pdf";
+
+    //     $vehicleName = getVehicleName($newjobcard->vehicle_id);
+
+    //     $logo = DB::table('tbl_settings')->first();
+    //     $systemname = $logo->system_name;
+    //     $firstname = getUserFullName($newjobcard->customer_id);
+    //     $sDate = $newjobcard->entry_date;
+    //     $final_grand_total = $newjobcard->final_amount;
+    //     $currencie_symbol = getCurrencySymbols();
+    //     $path = 'confirm_quotation/' . $newjobcard->id;
+    //     $statusUrl = URL::to($path);
+
+    //     $details = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugit eos nam ducimus voluptatibus odio quos magni autem delectus suscipit minus.";
+
+    //     $emailformats = DB::table('tbl_mail_notifications')->where('notification_for', '=', 'service_quotation_pdf_mail_accept_or_declined')->first();
+    //     try {
+    //         if ($emailformats->is_send == 0) {
+    //             $emailformat = DB::table('tbl_mail_notifications')->where('notification_for', '=', 'service_quotation_pdf_mail_accept_or_declined')->first();
+    //             $mail_format = $emailformat->notification_text;
+    //             $notification_label = $emailformat->notification_label;
+    //             $mail_subjects = $emailformat->subject;
+    //             $mail_send_from = $emailformat->send_from;
+
+    //             $search1 = array('{ vehicle_name }', '{ jobcard_number }');
+    //             $replace1 = array($vehicleName, $newjobcard->jobcard_number);
+    //             $mail_sub = str_replace($search1, $replace1, $mail_subjects);
+
+    //             $search = array('{ system_name }', '{ customer_name }', '{ detail }', '{ service_date }', '{ total_amount }', '{ currency_symbol }', '{ vehicle_name }', '{ download_file_url }', '{ download_file_name }', '{ confirm/reject_url }');
+    //             $replace = array($systemname, $firstname, $details, $sDate, $final_grand_total, $currencie_symbol, $vehicleName, $quotation, $pdfFileName, $statusUrl);
+
+    //             $email_content = str_replace($search, $replace, $mail_format);
+
+    //             // Render Blade template with all required variables
+    //             $blade_view = FacadesView::make('mail.template', [
+    //                 'notification_label' => $notification_label,
+    //                 'email_content' => $email_content,
+    //             ])->render();
+
+    //             // Send email
+    //             Mail::send([], [], function ($message) use ($email, $mail_sub, $blade_view, $mail_send_from) {
+    //                 $message->to($email)->subject($mail_sub);
+    //                 $message->from($mail_send_from);
+    //                 $message->html($blade_view, 'text/html');
+    //             });
+
+    //             //live format email
+
+    //             $server = $_SERVER['SERVER_NAME'];
+    //             if (isset($_SERVER['HTTPS'])) {
+    //                 $protocol = ($_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https" : "http";
+    //             } else {
+    //                 $protocol = 'http';
+    //             }
+
+    //             $url = URL::to('/public/pdf/quotation/' . $str1 . '.pdf');
+    //             $fileatt = "test.pdf"; // Path to the file
+
+    //             $fileatt_type = "application/pdf"; // File Type
+    //             $fileatt_name = $str1 . '.pdf'; // Filename that will be used for the file as the attachment
+    //             $email_from = $mail_send_from; // Who the email is from
+    //             $email_subject = $mail_sub; // The Subject of the email
+    //             $email_message = $email_content;
+
+    //             $email_to = $email;
+
+    //             $headers = "From: " . $email_from;
+
+    //             $semi_rand = md5(time());
+    //             $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
+
+    //             $headers = 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+    //             $headers .= 'From:' . $mail_send_from . "\r\n";
+
+    //             $emailLog = new EmailLog();
+    //             $emailLog->recipient_email = $email;
+    //             $emailLog->subject = $mail_sub;
+    //             $emailLog->content = $email_content;
+    //             $emailLog->save();
+    //         }
+    //     } catch (\Exception $e) {
+    //     }
+    //     echo "done";
+    //     echo "<pre>";
+    //     print_r($jobCardCustomerVoice->toArray());
+    //     die;
+    // }
 
 }

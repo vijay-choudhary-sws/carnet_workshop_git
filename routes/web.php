@@ -962,8 +962,15 @@ Route::middleware('auth')->prefix('job-card')->group(function () {
 	Route::post('/get-vehicle', [App\Http\Controllers\JobCard\JobCardController::class, 'getVehicle'])->name('newjobcard.getVehicle');
 	// Route::post('/add-customer', [App\Http\Controllers\JobCard\JobCardController::class, 'addCustomer'])->name('newjobcard.addCustomer');
 	Route::get('/download-mechanic-sheet/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'downloadMechanicSheet'])->name('download.mechanic.sheet');
+	Route::get('/invoice-email-template/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'sendInvoiceMail'])->name('send.invoice.mail');
 
-
+	Route::get('/estimate/accept/{id}', function ($id) {
+		return "Estimate Accepted for ID: " . $id;
+	})->name('estimate.accept');
+	
+	Route::get('/estimate/decline/{id}', function ($id) {
+		return "Estimate Declined for ID: " . $id;
+	})->name('estimate.decline');
 
 });
 //Notes Module
