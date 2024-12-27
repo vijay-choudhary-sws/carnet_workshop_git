@@ -74,6 +74,16 @@
             transform: scale(1.05);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
+        
+        .footer {
+            position: sticky;
+            bottom: 0;
+            background-color: #f8f9fa;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #ccc;
+        }
     </style>
     <div class="right_col " role="main">
         <div class="">
@@ -709,10 +719,16 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <div class="mt-5 text-end">
-                                    <button type="submit" class="btn btn-success" onclick="qtyCheck()">Create Job
-                                        Card</button>
+                                <div class="footer align-items-center">
+                                    <div class="form-check form-switch ">
+                                        <input class="form-check-input fs-3" type="checkbox" role="switch"
+                                            id="sms-alert">
+                                        <label class="form-check-label fs-5" for="sms-alert">SMS Alert</label>
+                                    </div>
+                                    <div>
+                                        <button type="submit" class="btn btn-primary rounded border-0 text-white" onclick="qtyCheck()">Create Job
+                                            Card</button>
+                                    </div>
                                 </div>
 
                             </form>
