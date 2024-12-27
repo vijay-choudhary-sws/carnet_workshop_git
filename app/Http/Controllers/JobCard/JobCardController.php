@@ -823,7 +823,6 @@ class JobCardController extends Controller
         $title = 'View Invoice';
         $logo = DB::table('tbl_settings')->first();
 
-        // echo "<pre>";print_r($jobCardExtraCharges->toArray());die;
         // Prepare data for the PDF
         $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges');
 
@@ -855,14 +854,16 @@ class JobCardController extends Controller
         $customers = User::where('id', $newjobcard->customer_id)->first();
         $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
         $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
-        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
-        $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $request->jobcard_number)->where('is_customer_voice',1)->get(); 
+
+        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get(); 
+        $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice',1)->get(); 
+        $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice',2)->get(); 
+
         $title = 'View Invoice';
         $logo = DB::table('tbl_settings')->first();
-
-        // echo "<pre>";print_r($newjobcard);die;
+ 
         // Prepare data for the PDF
-        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges','jobCardCustomerVoice');
+        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges','jobCardCustomerVoice','jobCardAccessories');
 
         // Load the view and convert to PDF in landscape orientation
         $pdf = PDF::loadView('new_jobcard.mechanic_sheet', $data)

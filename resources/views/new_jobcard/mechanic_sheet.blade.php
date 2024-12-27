@@ -67,6 +67,8 @@
         }
         .table th {
             background-color: #ed8e8a5d;
+            /* margin: 0px !important;
+            padding: 0px !important; */
         } 
         .phoneIMG ,.userIMG,.phoneIMGdd{
             max-width: 15px;
@@ -84,11 +86,11 @@
                     <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('general_setting/' . $logo->logo_image))) }}" alt="Logo" class="logo">
                     <div class="info-section">
                         <div class="info-box">
-                        <p> <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/icons/Vector (15).png'))) }}" alt="Logo" class="logo"> {{ $logo->email }}</p>
-                        <p><img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/icons/phoneimg1.png'))) }}" alt="Logo" class="phoneIMG"> {{ $logo->phone_number }}</p> 
-                        <p> <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/icons/Vector (14).png'))) }}" alt="Logo" class="logo"> Test, Ahmedabad, Gujarat, India</p>
-                    </div>
-                </div>
+                            <p> <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/icons/Vector (15).png'))) }}" alt="Logo" class="logo"> {{ $logo->email }}</p>
+                            <p><img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/icons/phoneimg1.png'))) }}" alt="Logo" class="phoneIMG"> {{ $logo->phone_number }}</p> 
+                            <p> <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/icons/Vector (14).png'))) }}" alt="Logo" class="logo"> Test, Ahmedabad, Gujarat, India</p>
+                        </div>
+                     </div>
                 </div>
     
                 <!-- Info Section -->
@@ -107,7 +109,7 @@
             
 
             <!-- Vehicle Info -->
-            <table class="table">
+            <table class="table" style="height:200px;">
                 <thead>
                     <tr>
                         <th>Vehicle Info</th> 
@@ -134,29 +136,114 @@
                 </tbody>
             </table> 
 
+ 
+            {{-- <div class="customer_accessories" style="">  --}}
+                <table class="table" style="height:auto;">
+                    <tr>
+                        <td style="width:100%; vertical-align: top;">
+                            <div class="customer_voice"  style=""> 
+                                <!-- Customer Voice Table -->
+                                <table class="table" style="">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer Voice</th>  
+                                        </tr>
+                                    </thead>
+                                    <tbody style="height: 100%">
+                                        @php $i = 1; @endphp
+                                        @foreach ($jobCardCustomerVoice as $jobCardCustomerVoices)
+                                            <tr>
+                                                <td>{{ $i }}. <strong>{{ $jobCardCustomerVoices->customer_voice }}</strong></td>   
+                                            </tr>
+                                            @php $i++; @endphp
+                                        @endforeach 
+                                    </tbody>
+                                </table> 
+                            </div>
+                        </td>
+    
+                        <!-- Info Section -->
+                        <td style="width:100%;">
+                            <div class="accessories"  style="">
+                                <!-- Accessories Table -->
+                                <table class="table" style="">
+                                    <thead>
+                                            <tr>
+                                                <th>Accessories</th>  
+                                            </tr>
+                                    </thead>
+                                    <tbody style="height: 100%">
+                                            @php $j = 1; @endphp
+                                            @foreach ($jobCardAccessories as $jobCardAccessorie)
+                                            <tr>
+                                                <td>{{ $j }}. <strong>{{ $jobCardAccessorie->customer_voice }}</strong></td>   
+                                            </tr>
+                                            @php $j++; @endphp
+                                        @endforeach 
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            {{-- </div>  --}}
+ 
 
-            
-            <!-- Customer Voice -->
-            <table class="table" style="margin-top:10px">
+            <table class="table">
                 <thead>
                     <tr>
-                        <th>Customer Voice</th> 
-                        <th></th> 
+                        <th>#</th>
+                        <th>Spare Item</th>
+                        <th>Status</th>
+                        <th>Mechanic</th>
+                        <th>Remark</th> 
                     </tr>
                 </thead>
                 <tbody>
-                  
-                    @php $i = 1; @endphp
-                    @foreach ($jobCardCustomerVoice as $jobCardCustomerVoices)
-                        <tr>
-                            <td>{{ $i }} <strong>{{ $jobCardCustomerVoices->customer_voice }}</strong></td> 
-                            <td></td>  
-                        </tr>
-                        @php $i++; @endphp
-                    @endforeach 
-                  
+                    @if (count($jobCardSpareParts) > 0)
+                        @php $i = 1; @endphp
+                        @foreach ($jobCardSpareParts as $jobCardSparePart)
+                            <tr>
+                                <td>{{ $i }}</td>
+                                {{-- <td>{{ $jobCardSparePart->stock_label_name }}</td> --}}
+                                <td>Test</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            @php $i++; @endphp
+                        @endforeach
+                    @endif
                 </tbody>
-            </table> 
+            </table>
+
+            <table class="table" style="margin-top:10px;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Labour</th>
+                        <th>Status</th>
+                        <th>Mechanic</th>
+                        <th>Remark</th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (count($jobCardExtraCharges) > 0)
+                        @php $i = 1; @endphp
+                        @foreach ($jobCardExtraCharges as $jobCardExtraCharge)
+                            <tr>
+                                <td>{{ $i }}</td>
+                                <td>{{ $jobCardExtraCharge->label }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            @php $i++; @endphp
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+
         </div>
     </div>
 </body>
