@@ -965,6 +965,9 @@
                                         </div>
                                     </div>
                                 </div>
+                                <a href="{{ route('download.mechanic.sheet', $jobcard->id) }}" class="btn btn-primary">
+                                    Mechanic Sheet
+                                </a>
 
                                 <div class="footer align-items-center">
                                     <div>

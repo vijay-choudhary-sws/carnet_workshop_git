@@ -39,7 +39,7 @@
             padding-bottom: 20px;
         }
         .info-box {
-            width: 45%;
+            width: 100%;
         }
         .info-box p {
             margin: 5px 0;
@@ -82,9 +82,9 @@
     <div class="container">
         <div class="inner-container ">
      
-            <div class="main_header" style="display:flex">
+            <div class="main_header">
                 <!-- Header Section -->
-                <div class="header">
+                <div class="header" style="display:inline-block; width:49%">
                     <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('general_setting/' . $logo->logo_image))) }}" alt="Logo" class="logo">
                     <div class="info-section">
                         <div class="info-box">
@@ -96,7 +96,7 @@
                 </div>
     
                 <!-- Info Section -->
-                <div class="info-section">
+                <div class="info-section" style="display:inline-block; width:49%;position: relative;top:17px;">
                     <div class="info-box">
                         <p><img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/icons/user_img.png'))) }}" alt="Logo" class="userIMG"> {{ $customers->name }} {{ $customers->lastname }}</p>
                         <p><img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('img/icons/Vector (14).png'))) }}" alt="Logo" class="logo"> Jawahar Colony, Madhya Pradesh, India</p>
