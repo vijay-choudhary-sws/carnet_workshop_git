@@ -259,7 +259,9 @@ class JobCardController extends Controller
             $jobcard->km_runing = $request->km_reading;
             $jobcard->fual_level = $request->fual_level;
             $jobcard->supervisor_id = $request->supervisor;
-            $jobcard->status = $request->status ?? 0;
+            if($request->status != 0){
+                $jobcard->status = $request->status ;
+            }
             $jobcard->delivery_date = $request->delivery_date;
             $jobcard->delivery_time = $request->delivery_time;
             $jobcard->save();
@@ -869,5 +871,9 @@ class JobCardController extends Controller
         return $pdf->stream('invoice_' . $newjobcard->id . '.pdf');
     }
 
+
+    public function sendMail(){
+        
+    }
 
 }

@@ -95,6 +95,16 @@
             transform: scale(1.05);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
+
+        .footer {
+            position: sticky;
+            bottom: 0;
+            background-color: #f8f9fa;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #ccc;
+        }
     </style>
     <div class="right_col " role="main">
         <div class="">
@@ -959,34 +969,41 @@
                                     Mechanic Sheet
                                 </a>
 
-                                <div class="mt-5 text-end">
-                                    @switch($jobcard->status)
-                                        {{-- @case(0)
-                                            <button type="submit" class="btn btn-success" onclick="qtyCheck()">Confirm Job
-                                                Card</button>
-                                            <input type="hidden" name="status" value="1">
-                                        @break --}}
-                                        @case(1)
-                                            <button type="submit" class="btn btn-success" onclick="qtyCheck()">Process
-                                                Job</button>
-                                            <input type="hidden" name="status" value="2">
-                                        @break
+                                <div class="footer align-items-center">
+                                    <div>
+                                        <a class="btn btn-secondary"><i class="fa fa-print"></i></a>
+                                        <a class="btn btn-secondary"><i class="fa fa-file-pdf-o"></i></a>
+                                        <a class="btn btn-secondary"><i class="fa fa-envelope"></i></a>
+                                        <a class="btn btn-secondary"><i class="fa fa-whatsapp"></i></a>
+                                    </div>
+                                    <div class="form-check form-switch ">
+                                        <input class="form-check-input fs-3" type="checkbox" role="switch"
+                                            id="sms-alert">
+                                        <label class="form-check-label fs-5" for="sms-alert">SMS Alert</label>
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-danger rounded border-0 text-white sa-warning"
+                                            url="{{ route('newjobcard.destory', $jobcard->id) }}">
+                                            {{ trans('message.Delete') }}
+                                        </a>
+                                        <button type="button" class="btn btn-primary rounded border-0 text-white"
+                                            onclick="qtyCheck(0)">
+                                            <small>Update Jobcard</small>
+                                        </button>
+                                        @if ($jobcard->status == 2)
+                                            <button type="button" class="btn btn-primary rounded border-0 text-white"
+                                                onclick="qtyCheck(3)">
+                                                <small>Close Jobcard</small>
+                                            </button>
+                                        @else
+                                            <button type="button" class="btn btn-primary rounded border-0 text-white"
+                                                onclick="qtyCheck(2)">
+                                                <small>Complete Jobcard</small>
+                                            </button>
+                                        @endif
 
-                                        @case(2)
-                                            <button type="submit" class="btn btn-success" onclick="qtyCheck()">Complete
-                                                Job</button>
-                                            <input type="hidden" name="status" value="3">
-                                        @break
-
-                                        @case(3)
-                                            <span class="btn btn-success">job Completed</span>
-                                        @break
-
-                                        @default
-                                            <button type="submit" class="btn btn-success" onclick="qtyCheck()">Update Job
-                                                Card</button>
-                                            <input type="hidden" name="status" value="0">
-                                    @endswitch
+                                        <input type="hidden" name="status" id="status" />
+                                    </div>
                                 </div>
 
                             </form>
@@ -1211,6 +1228,29 @@
                         console.log(e);
                     }
                 });
+            });
+
+            $('body').on('click', '.sa-warning', function() {
+
+                var url = $(this).attr('url');
+                var msg1 = "{{ trans('message.Are You Sure?') }}";
+                var msg2 = "{{ trans('message.You will not be able to recover this data afterwards!') }}";
+                var msg3 = "{{ trans('message.Cancel') }}";
+                var msg4 = "{{ trans('message.Yes, delete!') }}";
+
+                swal({
+                    title: msg1,
+                    text: msg2,
+                    icon: 'warning',
+                    cancelButtonColor: '#C1C1C1',
+                    buttons: [msg3, msg4],
+                    dangerMode: true,
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        window.location.href = url;
+                    }
+                });
+
             });
 
         });
@@ -1897,7 +1937,8 @@
             });
         }
 
-        function qtyCheck() {
+        function qtyCheck(status) {
+
             let qtyCheck = false;
             $('input[name="jobcard_quantity[]"]').each(function() {
                 if ($(this).val() == 0 || $(this).val() == null || $(this).val() == '') {
@@ -1915,6 +1956,10 @@
                 toastr.info("Please check Item QTY or price. Value must me equal to or more than 1.", "INFO");
                 return;
             }
+           
+            $('#status').val(status);
+
+            $('#jobcard-form').submit();
         }
 
 
@@ -2161,7 +2206,7 @@
         function getextracharges() {
             let trcount = 0;
             let labour = 0;
-            
+
             $('#labour-table tbody input[name="charge[]"]').each(function() {
                 labour += parseFloat($(this).val()) || 0;
                 trcount++;
