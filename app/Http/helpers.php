@@ -486,7 +486,7 @@ if (!function_exists('getModelName')) {
 		$tbl_vehicles = DB::table('tbl_vehicles')->where('id', '=', $id)->first();
 
 		if (!empty($tbl_vehicles)) {
-			$modelname	 = $tbl_vehicles->modelname;
+			$modelname = $tbl_vehicles->modelname;
 			return $modelname;
 		} else {
 			return '';
@@ -502,7 +502,7 @@ if (!function_exists('getUnitName')) {
 		$tbl_product_units = DB::table('tbl_product_units')->where('id', '=', $id)->first();
 
 		if (!empty($tbl_product_units)) {
-			$name	 = $tbl_product_units->name;
+			$name = $tbl_product_units->name;
 			return $name;
 		} else {
 			return '';
@@ -589,7 +589,7 @@ if (!function_exists('getSelectedProduct')) {
 	function getSelectedProduct($id, $pro_id)
 	{
 
-		$data  = DB::table('tbl_service_pros')->where([['service_id', '=', $id], ['product_id', '=', $pro_id]])->first();
+		$data = DB::table('tbl_service_pros')->where([['service_id', '=', $id], ['product_id', '=', $pro_id]])->first();
 
 		if (!empty($data)) {
 			$p_id = $data->product_id;
@@ -602,7 +602,7 @@ if (!function_exists('getSumOfIncome')) {
 	function getSumOfIncome($id)
 	{
 
-		$data  = DB::table('tbl_income_history_records')->where('tbl_income_id', '=', $id)->SUM('income_amount');
+		$data = DB::table('tbl_income_history_records')->where('tbl_income_id', '=', $id)->SUM('income_amount');
 
 		return $data;
 	}
@@ -613,7 +613,7 @@ if (!function_exists('getSumOfIncome')) {
 if (!function_exists('getSumOfExpense')) {
 	function getSumOfExpense($id)
 	{
-		$data  = DB::table('tbl_expenses_history_records')->where('tbl_expenses_id', '=', $id)->SUM('expense_amount');
+		$data = DB::table('tbl_expenses_history_records')->where('tbl_expenses_id', '=', $id)->SUM('expense_amount');
 		return $data;
 	}
 }
@@ -622,7 +622,7 @@ if (!function_exists('getInvoiceStatus')) {
 	function getInvoiceStatus($jobcard)
 	{
 
-		$data  = DB::table('tbl_invoices')->where('job_card', '=', $jobcard)->first();
+		$data = DB::table('tbl_invoices')->where('job_card', '=', $jobcard)->first();
 
 		if (!empty($data)) {
 			return "Yes";
@@ -636,7 +636,7 @@ if (!function_exists('getInvoicePaymentStatus')) {
 	function getInvoicePaymentStatus($jobcard)
 	{
 
-		$data  = DB::table('tbl_invoices')->where('job_card', '=', $jobcard)->first();
+		$data = DB::table('tbl_invoices')->where('job_card', '=', $jobcard)->first();
 
 		if (!empty($data)) {
 			return $data->payment_status;
@@ -649,7 +649,7 @@ if (!function_exists('getInvoicePaymentStatus')) {
 if (!function_exists('getJobcardStatus')) {
 	function getJobcardStatus($jobcard)
 	{
-		$data  = DB::table('tbl_gatepasses')->where('jobcard_id', '=', $jobcard)->first();
+		$data = DB::table('tbl_gatepasses')->where('jobcard_id', '=', $jobcard)->first();
 		if (!empty($data)) {
 			$jbno = $data->ser_pro_status;
 			return $jbno;
@@ -661,7 +661,7 @@ if (!function_exists('getJobcardStatus')) {
 if (!function_exists('getCheckedStatus')) {
 	function getCheckedStatus($id, $ids)
 	{
-		$data  = DB::table('tbl_service_observation_points')
+		$data = DB::table('tbl_service_observation_points')
 			->join('tbl_service_pros', 'tbl_service_observation_points.id', '=', 'tbl_service_pros.tbl_service_observation_points_id')
 			->where([['tbl_service_observation_points.observation_points_id', '=', $id], ['tbl_service_observation_points.services_id', '=', $ids], ['tbl_service_pros.type', '=', 0]])->first();
 
@@ -683,7 +683,7 @@ if (!function_exists('getCheckedStatus')) {
 if (!function_exists('getObservationPoint')) {
 	function getObservationPoint($id)
 	{
-		$data  = DB::table('tbl_points')->where('id', '=', $id)->first();
+		$data = DB::table('tbl_points')->where('id', '=', $id)->first();
 		if (!empty($data)) {
 			$name = $data->checkout_point;
 			return $name;
@@ -698,7 +698,7 @@ if (!function_exists('getCheckPointSubCategory')) {
 
 		//$data  = DB::table('tbl_points')->where([['checkout_subpoints','=',$id],['vehicle_id','=',$vid]])->get()->toArray();
 
-		$data  = DB::table('tbl_points')->where([['checkout_subpoints', '=', $id], ['vehicle_id', '=', $vid], ['soft_delete', '=', 0]])->get()->toArray();
+		$data = DB::table('tbl_points')->where([['checkout_subpoints', '=', $id], ['vehicle_id', '=', $vid], ['soft_delete', '=', 0]])->get()->toArray();
 
 
 		if (!empty($data)) {
@@ -715,7 +715,7 @@ if (!function_exists('getDataFromCheckoutCategorie')) {
 
 		//$data  = DB::table('tbl_points')->where([['checkout_subpoints','=',$id],['vehicle_id','=',$vid]])->get()->toArray();
 
-		$data  = DB::table('tbl_points')->where([['checkout_subpoints', '=', $id], ['vehicle_id', '=', $vid], ['soft_delete', '=', 0], ['checkout_point', '!=', '']])->get()->toArray();
+		$data = DB::table('tbl_points')->where([['checkout_subpoints', '=', $id], ['vehicle_id', '=', $vid], ['soft_delete', '=', 0], ['checkout_point', '!=', '']])->get()->toArray();
 
 
 		if (!empty($data)) {
@@ -922,7 +922,7 @@ if (!function_exists('getValue')) {
 if (!function_exists('getVehicleName')) {
 	function getVehicleName($id)
 	{
-		$vehicles  = DB::table('tbl_vehicles')->where('id', '=', $id)->first();
+		$vehicles = DB::table('tbl_vehicles')->where('id', '=', $id)->first();
 		if (!empty($vehicles)) {
 			// $vehicle_name = $vehicles->modelname;
 			$vehicle_name = getVehicleBrand($vehicles->vehiclebrand_id) . ' ' . $vehicles->modelname . ' ' . $vehicles->modelyear;
@@ -955,11 +955,11 @@ if (!function_exists('Getvehiclecheckpoint')) {
 		$adminCurrentBranch = DB::table('branch_setting')->where('id', '=', 1)->first();
 
 		if (isAdmin(Auth::User()->role_id)) {
-			$vehicles  = DB::table('tbl_checkout_categories')->where([['vehicle_id', '=', $id], ['soft_delete', '=', 0], ['branch_id', '=', $adminCurrentBranch->branch_id]])->get()->toArray();
+			$vehicles = DB::table('tbl_checkout_categories')->where([['vehicle_id', '=', $id], ['soft_delete', '=', 0], ['branch_id', '=', $adminCurrentBranch->branch_id]])->get()->toArray();
 		} elseif (getUsersRole(Auth::user()->role_id) == 'Customer') {
-			$vehicles  = DB::table('tbl_checkout_categories')->where([['vehicle_id', '=', $id], ['soft_delete', '=', 0]])->get()->toArray();
+			$vehicles = DB::table('tbl_checkout_categories')->where([['vehicle_id', '=', $id], ['soft_delete', '=', 0]])->get()->toArray();
 		} else {
-			$vehicles  = DB::table('tbl_checkout_categories')->where([['vehicle_id', '=', $id], ['soft_delete', '=', 0], ['branch_id', '=', $currentUser->branch_id]])->get()->toArray();
+			$vehicles = DB::table('tbl_checkout_categories')->where([['vehicle_id', '=', $id], ['soft_delete', '=', 0], ['branch_id', '=', $currentUser->branch_id]])->get()->toArray();
 		}
 		//$vehicles  = DB::table('tbl_checkout_categories')->where('vehicle_id','=',$id)->get()->toArray();
 
@@ -1000,7 +1000,7 @@ if (!function_exists('Getvehiclecheckpoint')) {
 if (!function_exists('getVehicleBrand')) {
 	function getVehicleBrand($id)
 	{
-		$vehiclebrand  = DB::table('tbl_vehicle_brands')->where('id', '=', $id)->first();
+		$vehiclebrand = DB::table('tbl_vehicle_brands')->where('id', '=', $id)->first();
 		if (!empty($vehiclebrand)) {
 			$vehicle_brand = $vehiclebrand->vehicle_brand;
 
@@ -1032,7 +1032,7 @@ if (!function_exists('getPaidAmount')) {
 if (!function_exists('getVehicleDescription')) {
 	function getVehicleDescription($id)
 	{
-		$VehicalDescription  = DB::table('tbl_vehicles')->where('id', '=', $id)->first();
+		$VehicalDescription = DB::table('tbl_vehicles')->where('id', '=', $id)->first();
 		if (!empty($VehicalDescription)) {
 			$VehicalDescriptions = $VehicalDescription->modelname;
 			return $VehicalDescriptions;
@@ -1044,7 +1044,7 @@ if (!function_exists('getVehicleDescription')) {
 if (!function_exists('getServiceId')) {
 	function getServiceId()
 	{
-		$data  = DB::table('tbl_services')->orderBy('id', 'DESC')->first();
+		$data = DB::table('tbl_services')->orderBy('id', 'DESC')->first();
 		if (!empty($data)) {
 			$id = $data->id;
 			return $id;
@@ -1056,7 +1056,7 @@ if (!function_exists('getServiceId')) {
 if (!function_exists('getCustomerName')) {
 	function getCustomerName($id)
 	{
-		$customer  = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
+		$customer = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
 		if (!empty($customer)) {
 			$customer_name = $customer->name;
 			$customer_lname = $customer->lastname;
@@ -1069,7 +1069,7 @@ if (!function_exists('getCustomerName')) {
 if (!function_exists('getAssignedName')) {
 	function getAssignedName($id)
 	{
-		$assigned  = DB::table('users')->where([['id', '=', $id], ['role', '=', 'employee']])->first();
+		$assigned = DB::table('users')->where([['id', '=', $id], ['role', '=', 'employee']])->first();
 		if (!empty($assigned)) {
 			$assi_name = $assigned->name;
 			$assi_lname = $assigned->lastname;
@@ -1083,7 +1083,7 @@ if (!function_exists('getCustomerAddress')) {
 	function getCustomerAddress($id)
 	{
 
-		$customer  = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
+		$customer = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
 
 		if (!empty($customer)) {
 			$customer_address = $customer->address;
@@ -1098,7 +1098,7 @@ if (!function_exists('getCustomerCity')) {
 	function getCustomerCity($id)
 	{
 
-		$customer  = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
+		$customer = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
 
 		if (!empty($customer)) {
 			$customer_city = getCityName($customer->city_id);
@@ -1112,7 +1112,7 @@ if (!function_exists('getCustomerState')) {
 	function getCustomerState($id)
 	{
 
-		$customer  = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
+		$customer = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
 
 		if (!empty($customer)) {
 			$customer_state = getStateName($customer->state_id);
@@ -1126,7 +1126,7 @@ if (!function_exists('getCustomerCountry')) {
 	function getCustomerCountry($id)
 	{
 
-		$customer  = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
+		$customer = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
 
 		if (!empty($customer)) {
 			$customer_country = getCountryName($customer->country_id);
@@ -1141,7 +1141,7 @@ if (!function_exists('getCustomerMobile')) {
 	function getCustomerMobile($id)
 	{
 
-		$customer  = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
+		$customer = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
 
 		if (!empty($customer)) {
 			$customer_mobile = $customer->mobile_no;
@@ -1156,7 +1156,7 @@ if (!function_exists('getCustomerTaxid')) {
 	function getCustomerTaxid($id)
 	{
 
-		$customer  = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
+		$customer = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
 
 		if (!empty($customer)) {
 			$customer_taxid = $customer->tax_id;
@@ -1172,7 +1172,7 @@ if (!function_exists('getCustomerEmail')) {
 	function getCustomerEmail($id)
 	{
 
-		$customer  = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
+		$customer = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
 
 		if (!empty($customer)) {
 			$customer_email = $customer->email;
@@ -1200,7 +1200,7 @@ if (!function_exists('getVehicleType')) {
 	function getVehicleType($id)
 	{
 
-		$vehi_type  = DB::table('tbl_vehicle_types')->where('id', '=', $id)->first();
+		$vehi_type = DB::table('tbl_vehicle_types')->where('id', '=', $id)->first();
 
 		if (!empty($vehi_type)) {
 			$vehi_type_name = $vehi_type->vehicle_type;
@@ -1216,7 +1216,7 @@ if (!function_exists('getVehicleColor')) {
 	function getVehicleColor($id)
 	{
 
-		$color  = DB::table('tbl_colors')->where('id', '=', $id)->first();
+		$color = DB::table('tbl_colors')->where('id', '=', $id)->first();
 
 		if (!empty($color)) {
 			$color_name = $color->color;
@@ -1232,7 +1232,7 @@ if (!function_exists('getTotalAmonut')) {
 	function getTotalAmonut($tax, $name, $amount)
 	{
 
-		$tax  = DB::table('tbl_sales_taxes')->where([['tax_name', '=', $name], ['tax', '=', $tax]])->first();
+		$tax = DB::table('tbl_sales_taxes')->where([['tax_name', '=', $name], ['tax', '=', $tax]])->first();
 		$tax_rate = $tax->tax;
 		$total_price = ($tax_rate * $amount) / 100;
 		return $total_price;
@@ -1277,7 +1277,7 @@ if (!function_exists('getFuelType')) {
 	function getFuelType($id)
 	{
 
-		$fueal_type  = DB::table('tbl_fuel_types')->where('id', '=', $id)->first();
+		$fueal_type = DB::table('tbl_fuel_types')->where('id', '=', $id)->first();
 
 		if (!empty($fueal_type)) {
 			$fuel_type_name = $fueal_type->fuel_type;
@@ -1395,7 +1395,7 @@ if (!function_exists('getVehicleImage')) {
 
 		$vehicleimage = DB::table('tbl_vehicle_images')->where('vehicle_id', '=', $id)->first();
 		if (!empty($vehicleimage)) {
-			$vehiclefisrtimage =	$vehicleimage->image;
+			$vehiclefisrtimage = $vehicleimage->image;
 			return $vehiclefisrtimage;
 		} else {
 			$vehiclefisrtimage = 'avtar.png';
@@ -1410,7 +1410,7 @@ if (!function_exists('getAssignTo')) {
 	function getAssignTo($id)
 	{
 
-		$AssignTo  = DB::table('users')->where('id', '=', $id)->first();
+		$AssignTo = DB::table('users')->where('id', '=', $id)->first();
 
 		if (!empty($AssignTo)) {
 			$AssignTo_name = $AssignTo->name . ' ' . $AssignTo->lastname;
@@ -1453,7 +1453,7 @@ if (!function_exists('getUsedCoupon')) {
 		if (!empty($used_coupon)) {
 
 			$done_status = $used_coupon->done_status;
-			return  $done_status;
+			return $done_status;
 		}
 	}
 }
@@ -1521,7 +1521,7 @@ if (!function_exists('getAccessStatusUser')) {
 if (!function_exists('getActiveAdmin')) {
 	function getActiveAdmin($id)
 	{
-		$data  = DB::table('users')->where('id', '=', $id)->first();
+		$data = DB::table('users')->where('id', '=', $id)->first();
 
 		if (!empty($data)) {
 			$userrole = $data->role;
@@ -1539,7 +1539,7 @@ if (!function_exists('getActiveCustomer')) {
 	function getActiveCustomer($id)
 	{
 
-		$data  = DB::table('users')->where('id', '=', $id)->first();
+		$data = DB::table('users')->where('id', '=', $id)->first();
 
 		if (!empty($data)) {
 			$userrole = $data->role;
@@ -1558,7 +1558,7 @@ if (!function_exists('getActiveEmployee')) {
 	function getActiveEmployee($id)
 	{
 
-		$data  = DB::table('users')->where('id', '=', $id)->first();
+		$data = DB::table('users')->where('id', '=', $id)->first();
 
 		if (!empty($data)) {
 			$userrole = $data->role;
@@ -1578,7 +1578,7 @@ if (!function_exists('getCustomersactive')) {
 	function getCustomersactive($id)
 	{
 
-		$data  = DB::table('users')->where('id', '=', $id)->first();
+		$data = DB::table('users')->where('id', '=', $id)->first();
 
 		if (!empty($data)) {
 			$userrole = $data->role;
@@ -1596,7 +1596,7 @@ if (!function_exists('getCustomersactive')) {
 if (!function_exists('getBranchadminsactive')) {
 	function getBranchadminsactive($id)
 	{
-		$data  = DB::table('users')->where('id', '=', $id)->first();
+		$data = DB::table('users')->where('id', '=', $id)->first();
 
 		if (!empty($data)) {
 			$userrole = $data->role;
@@ -1664,7 +1664,7 @@ if (!function_exists('getCustomerList')) {
 	function getCustomerList($id)
 	{
 
-		$data  = DB::table('users')->where('id', '=', $id)->first();
+		$data = DB::table('users')->where('id', '=', $id)->first();
 
 		if (!empty($data)) {
 			$userrole = $data->role;
@@ -2591,12 +2591,12 @@ if (!function_exists('getLatestPurchaseDate')) {
 		}
 
 		/*$tbl_purchases = DB::table('tbl_purchases')->where('id','=',$id)->first();
-		
-		if(!empty($tbl_purchases))
-		{
-			$date = $tbl_purchases->date;
-			return $date;
-		}*/
+						  
+						  if(!empty($tbl_purchases))
+						  {
+							  $date = $tbl_purchases->date;
+							  return $date;
+						  }*/
 	}
 }
 
@@ -2817,7 +2817,7 @@ if (!function_exists('getVehicleNumberPlateFromSale')) {
 	if (!function_exists('getCustomerCompanyName')) {
 		function getCustomerCompanyName($id)
 		{
-			$customer  = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
+			$customer = DB::table('users')->where([['id', '=', $id], ['role', '=', 'Customer']])->first();
 			if (!empty($customer)) {
 				return $customer->company_name;
 			}
@@ -2829,7 +2829,7 @@ if (!function_exists('getVehicleNumberPlateFromSale')) {
 	if (!function_exists('getVehicleNumberPlate')) {
 		function getVehicleNumberPlate($id)
 		{
-			$vehicle  = DB::table('tbl_vehicles')->where('id', '=', $id)->first();
+			$vehicle = DB::table('tbl_vehicles')->where('id', '=', $id)->first();
 			if (!empty($vehicle)) {
 				return $vehicle->number_plate;
 			}
@@ -3415,7 +3415,7 @@ if (!function_exists('getVehicleNumberPlateFromSale')) {
 		function getBranchName($id)
 		{
 
-			$branch  = DB::table('branches')->where('id', '=', $id)->first();
+			$branch = DB::table('branches')->where('id', '=', $id)->first();
 
 			if (!empty($branch)) {
 				$branch_name = $branch->branch_name;
@@ -3442,7 +3442,7 @@ if (!function_exists('getVehicleNumberPlateFromSale')) {
 	if (!function_exists('getCustomerImage')) {
 		function getCustomerImage($id)
 		{
-			$customer  = DB::table('users')->where([['id', '=', $id]])->first();
+			$customer = DB::table('users')->where([['id', '=', $id]])->first();
 			if (!empty($customer)) {
 				$image = $customer->image;
 				return $image;
@@ -3471,7 +3471,7 @@ if (!function_exists('getVehicleNumberPlateFromSale')) {
 	if (!function_exists('getModel')) {
 		function getModel($id)
 		{
-			$modelName  = DB::table('tbl_model_names')->where('id', '=', $id)->first();
+			$modelName = DB::table('tbl_model_names')->where('id', '=', $id)->first();
 			if (!empty($modelName)) {
 				$vehicle_model = $modelName->model_name;
 
@@ -3484,7 +3484,7 @@ if (!function_exists('getVehicleNumberPlateFromSale')) {
 	if (!function_exists('getModel_id')) {
 		function getModel_id($name)
 		{
-			$model  = DB::table('tbl_model_names')->where('model_name', '=', $name)->first();
+			$model = DB::table('tbl_model_names')->where('model_name', '=', $name)->first();
 			if (!empty($model)) {
 				$model_id = $model->id;
 
@@ -3497,7 +3497,7 @@ if (!function_exists('getVehicleNumberPlateFromSale')) {
 	if (!function_exists('getManufacturer')) {
 		function getManufacturer($id)
 		{
-			$name  = DB::table('tbl_product_types')->where('id', '=', $id)->first();
+			$name = DB::table('tbl_product_types')->where('id', '=', $id)->first();
 			if (!empty($name)) {
 				$name = $name->type;
 
@@ -3702,7 +3702,7 @@ if (!function_exists('getVehicleNumberPlateFromSale')) {
 		}
 	}
 
-	function sendNotesEmail($sharedNotes, $model,  ?string $toEmail = null)
+	function sendNotesEmail($sharedNotes, $model, ?string $toEmail = null)
 	{
 		try {
 			// dd($toEmail);
@@ -3752,20 +3752,21 @@ if (!function_exists('getVehicleNumberPlateFromSale')) {
 
 
 if (!function_exists('uploadFile')) {
-	function uploadFile($file,$path = '/uploads/file/')
+	function uploadFile($file, $path = '/uploads/file/')
 	{
 		if (!empty($file)) {
-			$filename = time().$file->getClientOriginalName();
+			$filename = time() . $file->getClientOriginalName();
 			$file->move(public_path() . $path, $filename);
 			return $filename;
-		} 
+		}
 
 		return false;
 	}
 }
 
 if (!function_exists('generateHashJobCardNumber')) {
-	function generateHashJobCardNumber($userId) {
+	function generateHashJobCardNumber($userId)
+	{
 		$timestamp = microtime(true);
 		$random = mt_rand();
 		$hash = strtoupper(substr(sha1($userId . $timestamp . $random), 0, 10));

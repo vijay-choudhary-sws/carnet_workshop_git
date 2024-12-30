@@ -179,10 +179,9 @@
                                                         <div class="form-floating">
                                                             <select class="form-select" id="supervisor" name="supervisor"
                                                                 aria-label="Floating label select example">
-                                                                <option selected>Open this select menu</option>
-                                                                <option value="1" selected>One</option>
-                                                                <option value="2">Two</option>
-                                                                <option value="3">Three</option>
+                                                                @foreach ($supervisors as $supervisor)
+                                                                    <option value="{{ $supervisor->id }}" @selected($loop->first)>{{ getUserFullName($supervisor->id)}}</option>
+                                                                @endforeach
                                                             </select>
                                                             <label for="supervisor">Supervisor</label>
                                                         </div>
@@ -721,7 +720,7 @@
                                 </div>
                                 <div class="footer align-items-center">
                                     <div class="form-check form-switch ">
-                                        <input class="form-check-input fs-3" type="checkbox" role="switch"
+                                        <input class="form-check-input fs-6" type="checkbox" role="switch"
                                             id="sms-alert">
                                         <label class="form-check-label fs-5" for="sms-alert">SMS Alert</label>
                                     </div>

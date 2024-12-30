@@ -19,6 +19,7 @@ use App\EmailLog;
 use App\Notes;
 use App\tbl_service_pros;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
@@ -1007,7 +1008,7 @@ class QuotationController extends Controller
 			$washbayPrice = $washbay_data->price;
 		}
 
-		$currentUser = User::where([['soft_delete', 0], ['id', '=', Auth::User()->id]])->orderBy('id', 'DESC')->first();
+		$currentUser = User::where([['soft_delete', 0], ['id', '=', FacadesAuth::User()->id]])->orderBy('id', 'DESC')->first();
 		$adminCurrentBranch = BranchSetting::where('id', '=', 1)->first();
 		if (isAdmin(Auth::User()->role_id)) {
 			$branchDatas = Branch::get();
@@ -1400,7 +1401,7 @@ class QuotationController extends Controller
 			$user_id = $service->customer_id;
 			// Log in the user
 			Auth::loginUsingId($user_id);
-
+			
 			// Redirect the user to the desired destination
 			return redirect('/quotation/quotationstatus/' . $service->id);
 		} else {

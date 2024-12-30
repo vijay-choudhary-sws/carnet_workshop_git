@@ -3,30 +3,13 @@
 namespace App\Http\Controllers\JobCard;
 
 use App\Http\Controllers\Controller;
-use App\Image;
-use App\JobCardCustomer;
-use App\JobCardExtraCharge;
-use App\JobCardsCustomer;
-use App\JobCardsDentMark;
-use App\JobCardSparePart;
-use App\JobCardImage;
-use App\JobCardsInspection;
+use App\{Image, JobCardExtraCharge, JobCardsDentMark, JobCardSparePart, JobCardImage, JobCardsInspection, NewJobCard, Setting, SparePartLabel, User, Vehicle};
 use App\Mail\EstimateMail;
-use App\NewJobCard;
-use App\SparePartLabel;
-use App\User;
-use App\Vehicle;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\View\View as IlluminateViewView;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\{Auth, DB, Storage, Mail};
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Mail;
-
 
 class JobCardController extends Controller
 {
@@ -39,7 +22,6 @@ class JobCardController extends Controller
     public function __construct()
     {
         $this->route = new \stdClass;
-        $this->middleware('auth');
     }
     public function index()
     {
@@ -56,11 +38,12 @@ class JobCardController extends Controller
             $jobcards = NewJobCard::all();
         }
 
-        return view('new_jobcard.list', compact('jobcards','jobcardsCount'));
+        return view('new_jobcard.list', compact('jobcards', 'jobcardsCount'));
     }
     public function add()
     {
         $customers = User::where([['role', 'Customer'], ['soft_delete', 0]])->get();
+        $supervisors = User::where([['role', 'supportstaff'], ['soft_delete', 0]])->get();
         $country = DB::table('tbl_countries')->get()->toArray();
         //vehicle add
         $vehical_type = DB::table('tbl_vehicle_types')->where('soft_delete', '=', 0)->get()->toArray();
@@ -69,7 +52,7 @@ class JobCardController extends Controller
         $color = DB::table('tbl_colors')->where('soft_delete', '=', 0)->get()->toArray();
         $model_name = DB::table('tbl_model_names')->where('soft_delete', '=', 0)->get()->toArray();
 
-        return view('new_jobcard.add', compact('country', 'vehical_type', 'vehical_brand', 'fuel_type', 'color', 'model_name'));
+        return view('new_jobcard.add', compact('country', 'vehical_type', 'vehical_brand', 'fuel_type', 'color', 'model_name', 'supervisors'));
     }
     public function store(Request $request)
     {
@@ -174,6 +157,7 @@ class JobCardController extends Controller
     {
         $jobcard = NewJobCard::with('jobCardSpareParts')->find($id);
         $employee = User::where(['role' => 'employee', 'soft_delete' => 0])->get();
+        $supervisors = User::where([['role', 'supportstaff'], ['soft_delete', 0]])->get();
         $country = DB::table('tbl_countries')->get()->toArray();
 
         $jobCardsDentMark = JobCardsDentMark::where('jobcard_number', $jobcard->jobcard_number)->first();
@@ -191,7 +175,7 @@ class JobCardController extends Controller
         $color = DB::table('tbl_colors')->where('soft_delete', '=', 0)->get()->toArray();
         $model_name = DB::table('tbl_model_names')->where('soft_delete', '=', 0)->get()->toArray();
 
-        return view('new_jobcard.edit', compact('jobcard', 'employee', 'country', 'jobCardsDentMark', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage', 'jobCardscustomervoice', 'vehical_type', 'vehical_brand', 'fuel_type', 'color', 'model_name', 'jobCardExtraCharges'));
+        return view('new_jobcard.edit', compact('jobcard', 'employee', 'country', 'jobCardsDentMark', 'jobCardsworknote', 'jobCardsaccessary', 'jobCardsImage', 'jobCardscustomervoice', 'vehical_type', 'vehical_brand', 'fuel_type', 'color', 'model_name', 'jobCardExtraCharges', 'supervisors'));
     }
 
     public function update(Request $request)
@@ -261,8 +245,8 @@ class JobCardController extends Controller
             $jobcard->km_runing = $request->km_reading;
             $jobcard->fual_level = $request->fual_level;
             $jobcard->supervisor_id = $request->supervisor;
-            if($request->status != 0){
-                $jobcard->status = $request->status ;
+            if ($request->status != 0) {
+                $jobcard->status = $request->status;
             }
             $jobcard->delivery_date = $request->delivery_date;
             $jobcard->delivery_time = $request->delivery_time;
@@ -855,155 +839,147 @@ class JobCardController extends Controller
         $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
         $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
 
-        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get(); 
-        $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice',1)->get(); 
-        $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice',2)->get(); 
+        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
+        $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 1)->get();
+        $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 0)->get();
 
         $title = 'View Invoice';
         $logo = DB::table('tbl_settings')->first();
- 
-        // Prepare data for the PDF
-        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges','jobCardCustomerVoice','jobCardAccessories');
 
-        // Load the view and convert to PDF in landscape orientation
-        $pdf = PDF::loadView('new_jobcard.mechanic_sheet', $data)
-            ->setPaper([0, 0, 595.28, 1000]);
-        ;
+        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges', 'jobCardCustomerVoice', 'jobCardAccessories');
 
-        // Stream the generated PDF to the browser
-        return $pdf->stream('invoice_' . $newjobcard->id . '.pdf');
+        $pdf = PDF::loadView('new_jobcard.pdf.mechanic_sheet', $data)
+            ->setPaper('a4', 'portrait');
+
+        if ($request->type) {
+            return $pdf->stream('machanicSheet_' . $newjobcard->jobcard_number . '.pdf');
+        }
+        return $pdf->download('machanicSheet_' . $newjobcard->jobcard_number . '.pdf');
     }
 
+    public function downloadEstimateInvoice(Request $request)
+    {
+        $newjobcard = NewJobCard::where('id', $request->id)->first();
+        $customer = User::where('id', $newjobcard->customer_id)->first();
+        $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
+        $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
 
-    public function sendInvoiceMail($id){
-        $data = [
-            'customer_name' => 'John Doe',
-            'service' => 'Car Repair',
-            'amount' => 5000,
-            'date' => now()->toDateString(),
-            'accept_url' => route('estimate.accept', ['id' => 1]),
-            'decline_url' => route('estimate.decline', ['id' => 1]),
-        ];
-    
-        Mail::to('vijay98sws@gmail.com')->send(new EstimateMail($data));
-    
-        return "Estimate sent successfully!";
+        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
+        $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 1)->get();
+        $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 2)->get();
+
+        // echo "<pre>";print_r($jobCardSpareParts->toArray());die;
+        $title = 'View Invoice';
+        $logo = DB::table('tbl_settings')->first();
+
+        $data = compact('title', 'logo', 'customer', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges', 'jobCardCustomerVoice', 'jobCardAccessories');
+
+        $pdf = PDF::loadView('new_jobcard.pdf.estimate-invoice', $data)
+            ->setPaper('a4', 'portrait');
+
+        if ($request->type) {
+            return $pdf->stream('estimate_invoice_' . $newjobcard->jobcard_number . '.pdf');
+        }
+        
+        return $pdf->download('estimate_invoice_' . $newjobcard->jobcard_number . '.pdf');
     }
-    // public function sendInvoiceMail($id)
-    // {
+    public function downloadOpenInvoice(Request $request)
+    {
 
-    //     $newjobcard = NewJobCard::find($id);
-    //     $customers = User::find($newjobcard->customer_id);
-    //     $vehicles = Vehicle::find($newjobcard->vehicle_id)->first();
-    //     $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $id)->get();
-    //     $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $id)->get();
-    //     $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 1)->get();
+        $newjobcard = NewJobCard::where('id', $request->id)->first();
+        $customer = User::where('id', $newjobcard->customer_id)->first();
+        $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
+        $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
 
-    //     $email = $customers->email;
+        $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
+        $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 1)->get();
+        $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 2)->get();
 
-    //     $mpdf = new Mpdf();
+        // echo "<pre>";print_r($jobCardSpareParts->toArray());die;
+        $title = 'View Invoice';
+        $logo = DB::table('tbl_settings')->first();
 
-    //     $html = view('quotation.quotationservicepdf');
+        $data = compact('title', 'logo', 'customer', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges', 'jobCardCustomerVoice', 'jobCardAccessories');
 
-    //     $mpdf->autoLangToFont = true;
-    //     $mpdf->autoScriptToLang = true;
-    //     $mpdf->WriteHTML($html);
+        $pdf = PDF::loadView('new_jobcard.pdf.invoice', $data)
+            ->setPaper('a4', 'portrait');
 
-    //     $str = "1234567890";
-    //     $str1 = str_shuffle($str);
+        return $pdf->download('invoice' . $newjobcard->jobcard_number . '.pdf');
+    }
 
-    //     $filename = 'QUOTATION-' . $str1 . '.pdf';
+    public function sendInvoiceMail(Request $request)
+    {
+        $newjobcard = NewJobCard::where('id', $request->id)->first();
+        if (!empty($newjobcard)) {
+            $customer = User::where('id', $newjobcard->customer_id)->first();
+            $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
+            $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
 
-    //     $filePath = 'public/pdf/quotation/' . $filename;
-    //     $pdfContents = $mpdf->Output($filePath, Destination::FILE);
-    //     $quotation = URL::to($filePath);
+            $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
+            $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 1)->get();
+            $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 2)->get();
 
-    //     $pdfFileName = $str1 . ".pdf";
+            $title = 'View Invoice';
+            $logo = DB::table('tbl_settings')->first();
 
-    //     $vehicleName = getVehicleName($newjobcard->vehicle_id);
+            $data = compact('title', 'logo', 'customer', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges', 'jobCardCustomerVoice', 'jobCardAccessories');
 
-    //     $logo = DB::table('tbl_settings')->first();
-    //     $systemname = $logo->system_name;
-    //     $firstname = getUserFullName($newjobcard->customer_id);
-    //     $sDate = $newjobcard->entry_date;
-    //     $final_grand_total = $newjobcard->final_amount;
-    //     $currencie_symbol = getCurrencySymbols();
-    //     $path = 'confirm_quotation/' . $newjobcard->id;
-    //     $statusUrl = URL::to($path);
+            Mail::to($customer->email)->send(new EstimateMail($data));
 
-    //     $details = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugit eos nam ducimus voluptatibus odio quos magni autem delectus suscipit minus.";
+            return response()->json(['status' => 1, 'msg' => "The estimate has been sent to the customer's mail successfully!"]);
+        }
+        return response()->json(['status' => 0, 'msg' => "Something wrong found! Please try again."]);
 
-    //     $emailformats = DB::table('tbl_mail_notifications')->where('notification_for', '=', 'service_quotation_pdf_mail_accept_or_declined')->first();
-    //     try {
-    //         if ($emailformats->is_send == 0) {
-    //             $emailformat = DB::table('tbl_mail_notifications')->where('notification_for', '=', 'service_quotation_pdf_mail_accept_or_declined')->first();
-    //             $mail_format = $emailformat->notification_text;
-    //             $notification_label = $emailformat->notification_label;
-    //             $mail_subjects = $emailformat->subject;
-    //             $mail_send_from = $emailformat->send_from;
+    }
 
-    //             $search1 = array('{ vehicle_name }', '{ jobcard_number }');
-    //             $replace1 = array($vehicleName, $newjobcard->jobcard_number);
-    //             $mail_sub = str_replace($search1, $replace1, $mail_subjects);
+    public function estimateConfirmReject(Request $request)
+    {
 
-    //             $search = array('{ system_name }', '{ customer_name }', '{ detail }', '{ service_date }', '{ total_amount }', '{ currency_symbol }', '{ vehicle_name }', '{ download_file_url }', '{ download_file_name }', '{ confirm/reject_url }');
-    //             $replace = array($systemname, $firstname, $details, $sDate, $final_grand_total, $currencie_symbol, $vehicleName, $quotation, $pdfFileName, $statusUrl);
+        $status = $request->status;
+        $id = base64_decode($request->id);
+        $userId = base64_decode(base64_decode($request->userId));
 
-    //             $email_content = str_replace($search, $replace, $mail_format);
+        $newjobcard = NewJobCard::where(['id' => $id, 'status' => 0, 'customer_id' => $userId])->first();
 
-    //             // Render Blade template with all required variables
-    //             $blade_view = FacadesView::make('mail.template', [
-    //                 'notification_label' => $notification_label,
-    //                 'email_content' => $email_content,
-    //             ])->render();
+        // echo "<pre>";print_r($newjobcard);die;
+        if ($newjobcard) {
+            $user_id = $newjobcard->customer_id;
 
-    //             // Send email
-    //             Mail::send([], [], function ($message) use ($email, $mail_sub, $blade_view, $mail_send_from) {
-    //                 $message->to($email)->subject($mail_sub);
-    //                 $message->from($mail_send_from);
-    //                 $message->html($blade_view, 'text/html');
-    //             });
+            Auth::loginUsingId($user_id);
 
-    //             //live format email
+            $customer = User::find($newjobcard->customer_id);
+            $vehicles = Vehicle::find($newjobcard->vehicle_id);
+            $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $id)->get();
 
-    //             $server = $_SERVER['SERVER_NAME'];
-    //             if (isset($_SERVER['HTTPS'])) {
-    //                 $protocol = ($_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https" : "http";
-    //             } else {
-    //                 $protocol = 'http';
-    //             }
+            $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $id)->get();
+            $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 1)->get();
+            $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 2)->get();
 
-    //             $url = URL::to('/public/pdf/quotation/' . $str1 . '.pdf');
-    //             $fileatt = "test.pdf"; // Path to the file
+            $title = 'View Invoice';
+            $logo = Setting::first();
+            // echo "<pre>";print_r($jobCardSpareParts->toArray());die;
 
-    //             $fileatt_type = "application/pdf"; // File Type
-    //             $fileatt_name = $str1 . '.pdf'; // Filename that will be used for the file as the attachment
-    //             $email_from = $mail_send_from; // Who the email is from
-    //             $email_subject = $mail_sub; // The Subject of the email
-    //             $email_message = $email_content;
+            $data = compact('title', 'logo', 'customer', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges', 'jobCardCustomerVoice', 'jobCardAccessories', 'status');
 
-    //             $email_to = $email;
 
-    //             $headers = "From: " . $email_from;
+            return view('new_jobcard.estimate.estimate-confirm-reject', $data);
+        }
 
-    //             $semi_rand = md5(time());
-    //             $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
+        return view('new_jobcard.estimate.thankyou');
+    }
 
-    //             $headers = 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-    //             $headers .= 'From:' . $mail_send_from . "\r\n";
+    public function changeStatus(Request $request)
+    {
 
-    //             $emailLog = new EmailLog();
-    //             $emailLog->recipient_email = $email;
-    //             $emailLog->subject = $mail_sub;
-    //             $emailLog->content = $email_content;
-    //             $emailLog->save();
-    //         }
-    //     } catch (\Exception $e) {
-    //     }
-    //     echo "done";
-    //     echo "<pre>";
-    //     print_r($jobCardCustomerVoice->toArray());
-    //     die;
-    // }
+        $id = $request->id;
+        $status = $request->status == 1 ? 1 : 0;
+        $newjobcard = NewJobCard::where(['id' => $id, 'status' => 0, 'customer_id' => $request->user()->id])->first();
+        if ($newjobcard) {
+            $newjobcard->status = $status;
+            $newjobcard->save();
+            return response()->json(['status' => 1]);
+        }
 
+        return response()->json(['status' => 0, 'msg' => "Something went wrong. Please contact the administrator."]);
+    }
 }

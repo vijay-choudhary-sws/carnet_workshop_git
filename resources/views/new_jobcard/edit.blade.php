@@ -105,7 +105,45 @@
             justify-content: space-between;
             border-top: 1px solid #ccc;
         }
+
+            /* Full-screen overlay */
+            #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.652); /* Light background with transparency */
+            z-index: 9999; /* Ensure it overlays everything */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden; /* Hidden by default */
+        }
+
+        /* Spinner style */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #3498db; /* Spinner color */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Spinner animation */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
+      <div id="loader">
+        <div class="spinner"></div>
+    </div>
     <div class="right_col " role="main">
         <div class="">
             <div class="page-title">
@@ -208,11 +246,11 @@
                                                         <div class="form-floating">
                                                             <select class="form-select" id="supervisor" name="supervisor"
                                                                 aria-label="Floating label select example" required>
-                                                                <option value="" selected disabled>Open this select
-                                                                    menu</option>
-                                                                <option value="1" selected>One</option>
-                                                                <option value="2">Two</option>
-                                                                <option value="3">Three</option>
+                                                                @foreach ($supervisors as $supervisor)
+                                                                    <option value="{{ $supervisor->id }}"
+                                                                        @selected($supervisor->id == $jobcard->supervisor_id)>
+                                                                        {{ getUserFullName($supervisor->id) }}</option>
+                                                                @endforeach
                                                             </select>
                                                             <label for="supervisor">Supervisor</label>
                                                         </div>
@@ -965,16 +1003,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <a href="{{ route('download.mechanic.sheet', $jobcard->id) }}" class="btn btn-primary">
-                                    Mechanic Sheet
-                                </a>
 
                                 <div class="footer align-items-center">
                                     <div>
-                                        <a class="btn btn-secondary"><i class="fa fa-print"></i></a>
-                                        <a class="btn btn-secondary"><i class="fa fa-file-pdf-o"></i></a>
-                                        <a class="btn btn-secondary"><i class="fa fa-envelope"></i></a>
-                                        <a class="btn btn-secondary"><i class="fa fa-whatsapp"></i></a>
+                                        <a href="javascript:void(0);" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#pdfPrint"><i class="fa fa-print"></i></a>
+                                        <a href="javascript:void(0);" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#pdfDownload"><i class="fa fa-file-pdf-o"></i></a>
+                                        <a href="javascript:void(0);" class="btn btn-secondary" onclick="sendMail('{{ route('send.invoice.mail', $jobcard->id) }}')"><i class="fa fa-envelope"></i></a>
+                                        <a href="javascript:void(0);" class="btn btn-secondary"><i class="fa fa-whatsapp"></i></a>
                                     </div>
                                     <div class="form-check form-switch ">
                                         <input class="form-check-input fs-3" type="checkbox" role="switch"
@@ -1014,6 +1049,74 @@
         </div>
     </div>
 
+    <!-- Pdf download modal -->
+    <div class="modal fade" id="pdfDownload" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="pdfDownloadLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="pdfDownloadLabel">Download pdf</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="my-4">
+                        <h5>Please select type <span class="text-danger">*</span></h5>
+
+                        <div class="py-4">
+                            <input class="form-check-input" type="radio" name="pdf_type" id="machanic-worksheet"
+                                value="1" checked>
+                            <label class="" for="machanic-worksheet">Machanic Worksheet</label>
+
+                            <input class="form-check-input" type="radio" name="pdf_type" id="estimate-invoice"
+                                value="2">
+                            <label class="" for="estimate-invoice">Estimate</label>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary rounded border-0 text-white"
+                        data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary  rounded border-0 text-white"
+                        onclick="downloadPdf()">Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Pdf download modal -->
+    <div class="modal fade" id="pdfPrint" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="pdfPrintLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="my-4">
+                        <h5>Please select type <span class="text-danger">*</span></h5>
+
+                        <div class="py-4">
+                            <input class="form-check-input" type="radio" name="print_pdf_type" id="machanic-worksheet-print"
+                                value="1" checked>
+                            <label class="" for="machanic-worksheet-print">Machanic Worksheet</label>
+
+                            <input class="form-check-input" type="radio" name="print_pdf_type" id="estimate-invoice-print"
+                                value="2">
+                            <label class="" for="estimate-invoice-print">Estimate</label>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary rounded border-0 text-white"
+                        data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary  rounded border-0 text-white"
+                        onclick="printPdf()">Print</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @include('new_jobcard.includes.model')
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
@@ -1022,6 +1125,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        let btnClick = false;
         $(document).ready(function() {
 
             $('.select2').select2();
@@ -1956,7 +2060,7 @@
                 toastr.info("Please check Item QTY or price. Value must me equal to or more than 1.", "INFO");
                 return;
             }
-           
+
             $('#status').val(status);
 
             $('#jobcard-form').submit();
@@ -2217,6 +2321,110 @@
             $('#labour-table-counter span.final-total-count').text(labour);
 
             totalCounter();
+        }
+
+        function sendMail(contentUrl) {
+            if (btnClick) {
+                return;
+            }
+            
+            btnClick = true;
+            showLoader();
+            $.ajax({
+                type: "GET",
+                url: contentUrl,
+                success: function(res) {
+                    if (res.status == 1) {
+                        Swal.fire({
+                            position: "top",
+                            icon: "success",
+                            title: "Success",
+                            html: res.msg,
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    } else {
+                        Swal.fire({
+                            position: "top",
+                            icon: "error",
+                            title: "Error",
+                            html: res.msg,
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                    btnClick = false;
+                    hideLoader();
+                },
+                error: function() {
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "error",
+                        title: "Failed to load content.",
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                    btnClick = false;
+                    hideLoader();
+                }
+            });
+        }
+
+        function downloadPdf() {
+
+            let type = $('input[name="pdf_type"]:checked').val();
+            let url = "{{ route('download.mechanic.sheet', [$jobcard->id,0]) }}";
+            if(type == 1){
+                 url = "{{ route('download.mechanic.sheet', [$jobcard->id,0]) }}";
+            }else if(type == 2){
+                 url = "{{ route('download.estimate.invoice', [$jobcard->id,0]) }}";
+            }
+
+            const link = document.createElement('a');
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            $('#pdfDownload').modal('hide');
+            Swal.fire({
+                position: "top-end",
+                icon: "success",
+                title: "Success",
+                html: "PDF generated successfully.",
+                showConfirmButton: false,
+                timer: 3000
+            });
+
+        }
+        function printPdf() {
+
+            let type = $('input[name="print_pdf_type"]:checked').val();
+            let url = "{{ base64_encode(route('download.mechanic.sheet', [$jobcard->id,1])) }}";
+            if(type == 1){
+                 url = "{{ base64_encode(route('download.mechanic.sheet', [$jobcard->id,1])) }}";
+            }else if(type == 2){
+                 url = "{{ base64_encode(route('download.estimate.invoice', [$jobcard->id,1])) }}";
+            }
+            
+            const link = document.createElement('a');
+            link.href = "{{ route('pdf.view') }}?url=" + url;
+            link.target = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            $('#pdfPrint').modal('hide');
+
+        }
+
+        function showLoader() {
+            document.getElementById('loader').style.visibility = 'visible';
+        }
+
+        // Hide the loader
+        function hideLoader() {
+            document.getElementById('loader').style.visibility = 'hidden';
         }
     </script>
 @endsection

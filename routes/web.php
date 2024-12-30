@@ -961,18 +961,24 @@ Route::middleware('auth')->prefix('job-card')->group(function () {
 	Route::get('/select2-data', [App\Http\Controllers\JobCard\JobCardController::class, 'getData'])->name('newjobcard.getData');
 	Route::post('/get-vehicle', [App\Http\Controllers\JobCard\JobCardController::class, 'getVehicle'])->name('newjobcard.getVehicle');
 	// Route::post('/add-customer', [App\Http\Controllers\JobCard\JobCardController::class, 'addCustomer'])->name('newjobcard.addCustomer');
-	Route::get('/download-mechanic-sheet/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'downloadMechanicSheet'])->name('download.mechanic.sheet');
+	Route::get('/download-mechanic-sheet/{id}/{type}', [App\Http\Controllers\JobCard\JobCardController::class, 'downloadMechanicSheet'])->name('download.mechanic.sheet');
+	Route::get('/download-estimate-invoice/{id}/{type}', [App\Http\Controllers\JobCard\JobCardController::class, 'downloadEstimateInvoice'])->name('download.estimate.invoice');
+	Route::get('/download-open-invoice/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'downloadOpenInvoice'])->name('download.open.invoice');
 	Route::get('/invoice-email-template/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'sendInvoiceMail'])->name('send.invoice.mail');
 
-	Route::get('/estimate/accept/{id}', function ($id) {
-		return "Estimate Accepted for ID: " . $id;
-	})->name('estimate.accept');
 	
-	Route::get('/estimate/decline/{id}', function ($id) {
-		return "Estimate Declined for ID: " . $id;
-	})->name('estimate.decline');
-
+	
+	Route::post('/jobcard-status/change',  [App\Http\Controllers\JobCard\JobCardController::class, 'changeStatus'])->name('jobcard.status');
+	Route::view('thankyou', 'new_jobcard.estimate.thankyou')->name('thankyou');
+	
+	Route::get('/view-pdf', function () {
+		return view('pdf_view');
+	})->name('pdf.view');
 });
+
+Route::get('job-card/estimate/accept/{status}/{id}/{userId}',  [App\Http\Controllers\JobCard\JobCardController::class, 'estimateConfirmReject'])->name('estimate.accept');
+Route::get('job-card/estimate/decline/{status}/{id}/{userId}',  [App\Http\Controllers\JobCard\JobCardController::class, 'estimateConfirmReject'])->name('estimate.decline');
+
 //Notes Module
 Route::group(['prefix' => 'notes'], function () {
 	Route::get('/add', 'NotesController@index');
