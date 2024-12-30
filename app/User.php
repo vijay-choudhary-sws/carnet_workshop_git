@@ -64,5 +64,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Vehicle::class, 'customer_id');
     }
+
+    public function sparePart(){
+        return $this->hasMany(SparePart::class,'user_id');
+    }
  
 }

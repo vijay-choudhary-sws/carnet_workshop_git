@@ -9,8 +9,10 @@ use App\Branch;
 use App\Expense;
 use App\CustomField;
 use App\BranchSetting;
+use App\ExpenseCategory;
 use Illuminate\Http\Request;
 use App\ExpenseHistoryRecord;
+use DataTables\Editor\Validate;
 use Illuminate\Support\Facades\Session;
 
 class ExpenseController extends Controller
@@ -25,186 +27,60 @@ class ExpenseController extends Controller
 	// expense list
 	public function showall()
 	{
-		$currentUser = User::where([['soft_delete', 0], ['id', '=', Auth::User()->id]])->orderBy('id', 'DESC')->first();
-		// $adminCurrentBranch = BranchSetting::where('id', '=', 1)->first();
+		$expenses = Expense::with('category')->get();
 
-		if (isAdmin(Auth::User()->role_id)) {
-			$expense = Expense::join('tbl_expenses_history_records', 'tbl_expenses.id', '=', 'tbl_expenses_history_records.tbl_expenses_id')
-				// ->where('tbl_expenses.branch_id', '=', $adminCurrentBranch->branch_id)
-				->groupBy('tbl_expenses_history_records.tbl_expenses_id')
-				->orderBy('tbl_expenses.id', 'DESC')
-				->get();
-		// } elseif (getUsersRole(Auth::user()->role_id) == 'Customer') {
-		// 	$expense = Expense::join('tbl_expenses_history_records', 'tbl_expenses.id', '=', 'tbl_expenses_history_records.tbl_expenses_id')
-		// 		->groupBy('tbl_expenses_history_records.tbl_expenses_id')
-		// 		->orderBy('tbl_expenses.id', 'DESC')
-		// 		->get();
-		} else {
-			$expense = Expense::join('tbl_expenses_history_records', 'tbl_expenses.id', '=', 'tbl_expenses_history_records.tbl_expenses_id')
-				->where('tbl_expenses.branch_id', '=', $currentUser->branch_id)
-				->groupBy('tbl_expenses_history_records.tbl_expenses_id')
-				->orderBy('tbl_expenses.id', 'DESC')
-				->get();
-		}
-
-		//Custom Field Data
-		$tbl_custom_fields = CustomField::where([['form_name', '=', 'expense'], ['always_visable', '=', 'yes']])->get();
-
-		return view('expense.list', compact('expense', 'tbl_custom_fields'));
+		return view('expense.list', compact('expenses'));
 	}
 
 
 	// expense addform
 	public function index()
 	{
-		$currentUser = User::where([['soft_delete', 0], ['id', '=', Auth::User()->id]])->orderBy('id', 'DESC')->first();
-		// $adminCurrentBranch = BranchSetting::where('id', '=', 1)->first();
-
-		if (isAdmin(Auth::User()->role_id)) {
-			$branchDatas = Branch::get();
-		// } elseif (getUsersRole(Auth::user()->role_id) == 'Customer') {
-		// 	$branchDatas = Branch::get();
-		} else {
-			$branchDatas = Branch::where('id', $currentUser->branch_id)->get();
-		}
-
-		$tbl_custom_fields = DB::table('tbl_custom_fields')->where([['form_name', '=', 'expense'], ['always_visable', '=', 'yes']])->get();
-
-		return view('expense.add', compact('tbl_custom_fields', 'branchDatas'));
+		$categories = ExpenseCategory::where('status',0)->get();
+		$suppliers = User::where('soft_delete',0)->get();
+		return view('expense.add',compact('suppliers','categories'));
 	}
 
 	// expense store
 	public function store(Request $request)
 	{
-		if (getDateFormat() == 'm-d-Y') {
-			$dates = date('Y-m-d', strtotime(str_replace('-', '/', $request->date)));
-		} else {
-			$dates = date('Y-m-d', strtotime($request->date));
-		}
 
 		$tbl_expenses = new Expense;
-		$tbl_expenses->main_label = $request->main_label;
-		$tbl_expenses->status = $request->status;
-		$tbl_expenses->date = $dates;
-		$tbl_expenses->branch_id = $request->branch;
-
-		//custom field	
-		$custom = $request->custom;
-		$custom_fileld_value = array();
-		$custom_fileld_value_jason_array = array();
-		if (!empty($custom)) {
-			foreach ($custom as $key => $value) {
-				if (is_array($value)) {
-					$add_one_in = implode(",", $value);
-					$custom_fileld_value[] = array("id" => "$key", "value" => "$add_one_in");
-				} else {
-					$custom_fileld_value[] = array("id" => "$key", "value" => "$value");
-				}
-			}
-
-			$custom_fileld_value_jason_array['custom_fileld_value'] = json_encode($custom_fileld_value);
-
-			foreach ($custom_fileld_value_jason_array as $key1 => $val1) {
-				$expenseData = $val1;
-			}
-			$tbl_expenses->custom_field = $expenseData;
-		}
-
+		$tbl_expenses->category_id = $request->category_id;
+		$tbl_expenses->supplier_id = $request->supplier_id ?? null;
+		$tbl_expenses->bill_number = $request->bill_number;
+		$tbl_expenses->date = $request->date;
+		$tbl_expenses->total_amount = $request->total_amount;
+		$tbl_expenses->paid_amount = $request->paid_amount;
+		$tbl_expenses->balance_amount = $request->balance_amount;
+		$tbl_expenses->description = $request->description ?? null;
 		$tbl_expenses->save();
-
-		$expense_entry = $request->expense_entry;
-		$expense_label = $request->expense_label;
-
-		foreach ($expense_entry as $key => $value) {
-			$expense_entr = $expense_entry[$key];
-
-			$expense_lbls = $expense_label[$key];
-
-			$tbl_expense_id = DB::table('tbl_expenses')->orderBy('id', 'DESC')->first();
-
-			$tbl_expenses_history_records = new ExpenseHistoryRecord;
-			$tbl_expenses_history_records->tbl_expenses_id = $tbl_expense_id->id;
-			$tbl_expenses_history_records->expense_amount = $expense_entr;
-			$tbl_expenses_history_records->label_expense = $expense_lbls;
-			$tbl_expenses_history_records->save();
-		}
+		
 		return redirect('expense/list')->with('message', 'Expense Added Successfully');
 	}
 
-
-
-	// expense edit
 	public function edit($id)
 	{
-		$currentUser = User::where([['soft_delete', 0], ['id', '=', Auth::User()->id]])->orderBy('id', 'DESC')->first();
-		// $adminCurrentBranch = BranchSetting::where('id', '=', 1)->first();
-		if (isAdmin(Auth::User()->role_id)) {
-			$branchDatas = Branch::get();
-			$first_data = Expense::where([['id', $id]])->first();
-			$sec_data = ExpenseHistoryRecord::where('tbl_expenses_id', $id)->get();
-		// } elseif (getUsersRole(Auth::user()->role_id) == 'Customer') {
-		// 	$branchDatas = Branch::get();
-		// 	$first_data = Expense::where('id', $id)->first();
-		// 	$sec_data = ExpenseHistoryRecord::where('tbl_expenses_id', $id)->get();
-		} else {
-			$branchDatas = Branch::where('id', '=', $currentUser->branch_id)->get();
-			$first_data = Expense::where([['id', $id], ['branch_id', $currentUser->branch_id]])->first();
-			$sec_data = ExpenseHistoryRecord::where('tbl_expenses_id', $id)->get();
-		}
-
-		//Custom Field Data
-		$tbl_custom_fields = CustomField::where([['form_name', '=', 'expense'], ['soft_delete', '=', 0], ['always_visable', '=', 'yes']])->get();
-		return view("expense/edit", compact('first_data', 'sec_data', 'tbl_custom_fields', 'branchDatas'));
+		$expense = Expense::find($id);
+		$categories = ExpenseCategory::where('status',0)->get();
+		$suppliers = User::where('soft_delete',0)->get();
+		return view("expense/edit",compact('expense','categories','suppliers'));
 	}
 
 	// expense update
-	public function update(Request $request, $id)
+	public function update(Request $request)
 	{
-		if (getDateFormat() == 'm-d-Y') {
-			$dates = date('Y-m-d', strtotime(str_replace('-', '/', $request->date)));
-		} else {
-			$dates = date('Y-m-d', strtotime($request->date));
-		}
-
-		$tbl_expenses = Expense::find($id);
-		$tbl_expenses->main_label = $request->main_label;
-		$tbl_expenses->status = $request->status;
-		$tbl_expenses->date = $dates;
-		$tbl_expenses->branch_id = $request->branch;
-
-		//custom field	
-		$custom = $request->custom;
-		$custom_fileld_value = array();
-		$custom_fileld_value_jason_array = array();
-		if (!empty($custom)) {
-			foreach ($custom as $key => $value) {
-				if (is_array($value)) {
-					$add_one_in = implode(",", $value);
-					$custom_fileld_value[] = array("id" => "$key", "value" => "$add_one_in");
-				} else {
-					$custom_fileld_value[] = array("id" => "$key", "value" => "$value");
-				}
-			}
-
-			$custom_fileld_value_jason_array['custom_fileld_value'] = json_encode($custom_fileld_value);
-			foreach ($custom_fileld_value_jason_array as $key1 => $val1) {
-				$expenseData = $val1;
-			}
-			$tbl_expenses->custom_field = $expenseData;
-		}
-
+		$tbl_expenses = Expense::find($request->id);
+		$tbl_expenses->category_id = $request->category_id;
+		$tbl_expenses->supplier_id = $request->supplier_id;
+		$tbl_expenses->bill_number = $request->bill_number;
+		$tbl_expenses->date = $request->date;
+		$tbl_expenses->total_amount = $request->total_amount;
+		$tbl_expenses->paid_amount = $request->paid_amount;
+		$tbl_expenses->balance_amount = $request->balance_amount;
+		$tbl_expenses->description = $request->description;
 		$tbl_expenses->save();
 
-		$expense_entry = $request->expense_entry;
-		$expense_label = $request->expense_label;
-		$id = $request->autoid;
-		DB::table('tbl_expenses_history_records')->where('tbl_expenses_id', $request->id)->delete();
-		foreach ($expense_entry as $key => $value) {
-			$expense_entr = $expense_entry[$key];
-			$expense_lbls = $expense_label[$key];
-
-			DB::insert("insert into tbl_expenses_history_records set tbl_expenses_id = $request->id, expense_amount = $expense_entr, label_expense = '$expense_lbls' ");
-		}
 		return redirect('expense/list')->with('message', 'Expense Updated Successfully');
 	}
 
@@ -212,7 +88,6 @@ class ExpenseController extends Controller
 	public function destroy($id)
 	{
 		Expense::where('id', $id)->delete();
-		ExpenseHistoryRecord::where('tbl_expenses_id', '=', $id)->delete();
 
 		return redirect("expense/list")->with('message', 'Expense Deleted Successfully');
 	}
@@ -223,7 +98,6 @@ class ExpenseController extends Controller
 
 		if (!empty($ids)) {
 			Expense::whereIn('id', $ids)->delete();
-			ExpenseHistoryRecord::whereIn('tbl_expenses_id', $ids)->delete();
 		}
 	}
 
@@ -280,5 +154,20 @@ class ExpenseController extends Controller
 			Session::flash('message', 'Data Not Found !');
 		}
 		return view('expense.expense_report', compact('month_expense', 'start_date', 'end_date'));
+	}
+
+	public function addCategory(Request $request){
+
+		$category = ExpenseCategory::where('title',$request->title)->first();
+		if(empty($category)){
+			$category = new ExpenseCategory;
+			$category->title = $request->title;
+			$category->save();
+
+			$html = '<option value="'.$category->id.'" selected>'.$category->title.'</option>';
+			
+			return response()->json(['status'=>1,'msg'=>'Category Saved Successfully.','html'=>$html]);
+		}
+		return response()->json(['status'=>2,'msg'=>'Duplicate Entry.']);
 	}
 }

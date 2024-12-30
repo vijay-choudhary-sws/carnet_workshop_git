@@ -14,7 +14,7 @@
 
 // For patch
 
-use App\Http\Controllers\{AccessoryController, CategoryController, LubricantController, OrderController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, StockHistoryController, ToolController, UnitController};
+use App\Http\Controllers\{AccessoryController, CategoryController, ExpenseController, LubricantController, OrderController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, StockHistoryController, ToolController, UnitController};
 use Illuminate\Support\Facades\{Route, Auth, Artisan};
 
 Route::get('/updateDB', 'instaltionController@updateDB')->name('db_version');
@@ -714,15 +714,16 @@ Route::group(['prefix' => 'income'], function () {
 
 //Expenses Module
 Route::group(['prefix' => 'expense'], function () {
-	Route::get('/list', 'ExpenseController@showall')->middleware('can:expense_view');
-	Route::get('/add', 'ExpenseController@index')->middleware('can:expense_add');
-	Route::post('/store', 'ExpenseController@store')->middleware('can:expense_add');
-	Route::get('/edit/{id}', 'ExpenseController@edit')->middleware('can:expense_edit');
-	Route::post('/update/{id}', 'ExpenseController@update')->middleware('can:expense_edit');
-	Route::get('/delete/{id}', 'ExpenseController@destroy')->middleware('can:expense_delete');
-	Route::post('/delete', 'ExpenseController@destroyMultiple')->middleware('can:expense_delete');
-	Route::get('/month_expense', 'ExpenseController@monthly_expense')->middleware('can:expense_view');
-	Route::post('/expense_report', 'ExpenseController@get_month_expense')->middleware('can:expense_view');
+	Route::get('/list', [ExpenseController::class,'showall'])->name('expense.list')->middleware('can:expense_view');
+	Route::get('/add', [ExpenseController::class,'index'])->name('expense.add')->middleware('can:expense_add');
+	Route::post('/store', [ExpenseController::class,'store'])->name('expense.store')->middleware('can:expense_add');
+	Route::get('/edit/{id}', [ExpenseController::class,'edit'])->name('expense.edit')->middleware('can:expense_edit');
+	Route::post('/update', [ExpenseController::class,'update'])->name('expense.update')->middleware('can:expense_edit');
+	Route::get('/delete/{id}', [ExpenseController::class,'destroy'])->name('expense.delete')->middleware('can:expense_delete');
+	Route::post('/delete', [ExpenseController::class,'destroyMultiple'])->name('expense.bulk.delete')->middleware('can:expense_delete');
+	Route::get('/month_expense', [ExpenseController::class,'monthly_expense'])->name('expense.monthly')->middleware('can:expense_view');
+	Route::post('/expense_report', [ExpenseController::class,'get_month_expense'])->name('expense.monthly.report')->middleware('can:expense_view');
+	Route::post('/add-category', [ExpenseController::class,'addCategory'])->name('expense.add.category')->middleware('can:expense_add');
 });
 
 //Report Module

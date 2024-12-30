@@ -69,7 +69,7 @@
       </li>
     </ul>
   </div>
-  @canany(['supplier_add', 'product_add', 'purchase_add', 'customer_add','employee_add','supportstaff_add','accountant_add','branchAdmin_add','vehicle_add','vehicletype_add','vehiclebrand_add','colors_add','service_add','quotation_add','invoice_add','jobcard_add','gatepass_add','taxrate_add','paymentmethod_add','income_add','expense_add','salespart_add','rto_add','customfield_add','observationlibrary_add','branch_add'])
+  {{-- @canany(['supplier_add', 'product_add', 'purchase_add', 'customer_add','employee_add','supportstaff_add','accountant_add','branchAdmin_add','vehicle_add','vehicletype_add','vehiclebrand_add','colors_add','service_add','quotation_add','invoice_add','jobcard_add','gatepass_add','taxrate_add','paymentmethod_add','income_add','expense_add','salespart_add','rto_add','customfield_add','observationlibrary_add','branch_add'])
   <div class="dropdown_toggle ulprofile global_plus">
     <img src="{{ URL::asset('public/img/icons/Add.png') }}" alt="Add" width="40px" height="40px" class="m-1 dropdown-toggle border-0" type="button" id="dropdownMenuButtonAction" data-bs-toggle="dropdown" aria-expanded="false">
     <ul class="dropdown-menu heder-dropdown-menu action_dropdown shadow py-2 overflow-auto max-height-245" aria-labelledby="dropdownMenuButtonAction">
@@ -157,4 +157,4 @@
       @endcan
     </ul>
   </div>
-  @endcanany
+  @endcanany --}}

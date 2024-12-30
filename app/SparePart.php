@@ -12,7 +12,7 @@ class SparePart extends Model
     use HasFactory,SoftDeletes;
     protected $table = 'spare_parts';
     protected $dates = ['deleted_at'];
-    protected $append = ['name'];
+    protected $append = ['name','spare_type'];
 
     public function unit(){
         return $this->belongsTo(Unit::class);
@@ -29,6 +29,10 @@ class SparePart extends Model
     public function getNameAttribute()
     {
         return $this->label ? $this->label->title : null;
+    }
+    public function getSpareTypeAttribute()
+    {
+        return $this->label ? $this->label->spare_part_type : null;
     }
 
 }

@@ -17,7 +17,9 @@ use Carbon\Carbon;
 use App\BusinessHour;
 use App\BranchSetting;
 use App\EmailLog;
+use App\Order;
 use App\Setting;
+use App\SparePart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
@@ -36,6 +38,22 @@ class homecontroller extends Controller
 
 		//For branching feature current user of branch or admin
 		$currentUser = User::where([['soft_delete', 0], ['id', '=', Auth::User()->id]])->orderBy('id', 'DESC')->first();
+
+		if($currentUser->role_id == 7){
+
+			$accessoryCount = count($currentUser->sparePart->where('spare_part_type',1));
+			$partCount = count($currentUser->sparePart->where('spare_part_type',2));
+			$toolCount = count($currentUser->sparePart->where('spare_part_type',3));
+			$lubesCount = count($currentUser->sparePart->where('spare_part_type',4));
+
+			$orderCount = Order::with('orderItem')
+			->whereHas('orderItem',function($qry) use ($currentUser){
+				$qry->where('user_id',$currentUser->id);
+			})
+			->count();
+
+			return view('spare_part_vendor.dashboard',compact('orderCount','accessoryCount','partCount','toolCount','lubesCount'));	
+		}
 		// $adminCurrentBranch = BranchSetting::where('id', '=', 1)->first();
 
 		$Customer = null;
