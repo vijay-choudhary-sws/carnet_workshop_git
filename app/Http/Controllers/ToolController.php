@@ -30,7 +30,7 @@ class ToolController extends Controller
   {
 
     $sparePartLabel = SparePartLabel::firstOrCreate(
-      ['title' => $request->name],
+      ['title' => $request->name,'spare_part_type' => 3],
       ['title' => $request->name,'spare_part_type' => 3]
     );
     $tool = new Tool;
@@ -80,7 +80,7 @@ class ToolController extends Controller
 
     // if ($count == 0) {
       $sparePartLabel = SparePartLabel::firstOrCreate(
-        ['title' => $request->name],
+        ['title' => $request->name,'spare_part_type' => 3],
         ['title' => $request->name,'spare_part_type' => 3]
       );
       $toolStock = Tool::find($request->id)->first('stock');

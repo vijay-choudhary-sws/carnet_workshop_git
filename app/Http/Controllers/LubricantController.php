@@ -31,7 +31,7 @@ class LubricantController extends Controller
   {
 
     $sparePartLabel = SparePartLabel::firstOrCreate(
-      ['title' => $request->name],
+      ['title' => $request->name,'spare_part_type' => 4],
       ['title' => $request->name,'spare_part_type' => 4]
     );
 
@@ -85,7 +85,7 @@ class LubricantController extends Controller
 
     // if ($count == 0) {
       $sparePartLabel = SparePartLabel::firstOrCreate(
-        ['title' => $request->name],
+        ['title' => $request->name,'spare_part_type' => 4],
         ['title' => $request->name,'spare_part_type' => 4]
       );
       $lubricantStock = Lubricant::where('id',$request->id)->first('stock');

@@ -25,8 +25,11 @@ class AccessoryRequest extends FormRequest
      */
     public function rules()
     {
+        $sparePartType = 1;
+        $spareId = $this->input('id') ?? 0;
+
         return [
-            'name' => ['required', new UniqueSparePartLabel],
+            'name' => ['required', new UniqueSparePartLabel($sparePartType, $spareId)],
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'unit_id' => 'required|integer',
             'brand' => 'nullable',

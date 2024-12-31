@@ -1,20 +1,32 @@
 <?php
 namespace App\Rules;
 
+use App\SparePart;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class UniqueSparePartLabel implements Rule
 {
+    protected $sparePartType;
+    protected $spareId;
+
+    public function __construct($sparePartType,$spareId)
+    {
+        $this->sparePartType = $sparePartType;
+        $this->spareId = $spareId;
+    }
     public function passes($attribute, $value)
     {
-        $exists = DB::table('spare_part_labels')
-            ->join('spare_parts', 'spare_parts.label_id', '=', 'spare_part_labels.id')
-            ->where('spare_part_labels.title', $value)
-            ->where('spare_parts.user_id', Auth::id())
-            // ->where('spare_parts.spare_part_type', 1)
-            ->exists();
+        
+        $exists = SparePart::with('label')
+        ->where('user_id', Auth::id())
+        ->whereHas('label', function ($qry) use ($value){
+            $qry->where('title', $value);
+            $qry->where('spare_part_type', $this->sparePartType);
+        })
+        ->whereNot('id',$this->spareId)
+        ->exists();
 
         return !$exists;
     }

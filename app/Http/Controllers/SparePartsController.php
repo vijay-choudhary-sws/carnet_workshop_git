@@ -34,7 +34,7 @@ class SparePartsController extends Controller
   {
 
     $sparePartLabel = SparePartLabel::firstOrCreate(
-      ['title' => $request->name],
+      ['title' => $request->name,'spare_part_type' => 2],
       ['title' => $request->name,'spare_part_type' => 2]
     );
 
@@ -88,7 +88,7 @@ class SparePartsController extends Controller
 
     // if ($count == 0) {
       $sparePartLabel = SparePartLabel::firstOrCreate(
-        ['title' => $request->name],
+        ['title' => $request->name,'spare_part_type' => 2],
         ['title' => $request->name,'spare_part_type' => 2]
       );
       $sparePartStock = Part::where('id',$request->id)->first('stock');

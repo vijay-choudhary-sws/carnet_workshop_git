@@ -29,7 +29,7 @@ class AccessoryController extends Controller
     // echo "<pre>";print_r($request->all());die;
 
     $sparePartLabel = SparePartLabel::firstOrCreate(
-      ['title' => $request->name],
+      ['title' => $request->name,'spare_part_type' => 1],
       ['title' => $request->name,'spare_part_type' => 1]
     );
     
@@ -81,7 +81,7 @@ class AccessoryController extends Controller
 
     // if ($count == 0) {
       $sparePartLabel = SparePartLabel::firstOrCreate(
-        ['title' => $request->name],
+        ['title' => $request->name,'spare_part_type' => 1],
         ['title' => $request->name,'spare_part_type' => 1]
       );
       $accessoryStock = Accessory::find($request->id)->first('stock');
