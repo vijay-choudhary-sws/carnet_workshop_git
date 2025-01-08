@@ -91,27 +91,26 @@
             $imageUrl = url('public/general_setting/' . getLogoSystem());
             ?>
             <img src="{{ $imageUrl }}" alt="Logo" width="40%">
-            <h4>Send quotation mail to customer for accept or declined</h4>
+            <h2>Vehicle Service Completed</h2>
         </div>
 
         <div class="note-card">
-            <h1>Hello, <b>{{ $data['customer'] }}</b></h1>
+            <p>Dear <b>{{ $data['customer'] }}</b>,</p>
 
-            <p>Thank you for choosing our service centre for your vehicle maintenance.</p>
+            <p>We are pleased to inform you that the service for your vehicle has been successfully completed.</p>
 
-            <p>We have thoroughly inspected your vehicle and prepared a service quotation for your
-                <b>{{ $data['vehicle'] }}</b>.</p>
+            <p><strong>Vehicle Details:</strong></p>
+            <ul>
+                <li>Model: {{ $data['vehicle'] }}</li>
+                <li>Vehicle Number: {{ $data['number'] }}</li>
+            </ul>
 
-            <p>Please find the attached estimate for your request.</p>
+            <p>We have attached the invoice for your reference. Please feel free to contact us if you have any questions.</p>
 
-            <p>Regards From, Carnet </p>
+            <p>Thank you for choosing our service!</p>
 
-            <p>Click the button below to respond:</p>
-
-            <a href="{{ $data['accept_url'] }}"
-                style="color: white; background-color: green; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Accept</a>
-            <a href="{{ $data['decline_url'] }}"
-                style="color: white; background-color: red; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Decline</a>
+            <p>Best regards,</p>
+            <p>Your Business Name</p>
 
             <div style="padding: 20px">
                 

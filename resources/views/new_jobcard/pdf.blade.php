@@ -133,7 +133,7 @@
                   <tbody>
                       <tr>
                           <td class="p-0 border-0">
-                              <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('general_setting/' . $logo->logo_image))) }}"
+                              <img src="data:image/png;base64,{{ file_exists(public_path('general_setting/' . $logo->logo_image)) ? base64_encode(file_get_contents(public_path('general_setting/' . $logo->logo_image))) : base64_encode(file_get_contents(public_path('general_setting/' . getLogoSystem()))) }}"
                                   alt="Logo" class="" style="max-width: 200px;">
                           </td>
                           <td class="p-0 border-0">
@@ -168,30 +168,30 @@
                       <tr>
                           <td style="vertical-align: top">
                               <p class="p-0 m-0">
-                                  Name:- {{ $customers->name }} {{ $customers->lastname }}
+                                  Name:- {{ $customer?->name }} {{ $customer?->lastname }}
                               </p>
-                              @if (!empty($customers->mobile_no))
+                              @if (!empty($customer?->mobile_no))
                                   <p class="p-0 m-0">
-                                      Mobile No:- {{ $customers->mobile_no ?? '9798765413210' }}
+                                      Mobile No:- {{ $customer?->mobile_no ?? 'NA' }}
                                   </p>
                               @endif
-                              @if (!empty($customers->email))
+                              @if (!empty($customer?->email))
                                   <p class="p-0 m-0">
-                                      Email:- {{ $customers->email }}
+                                      Email:- {{ $customer?->email ?? 'NA' }}
                                   </p>
                               @endif
-                              @if (!empty($customers->address))
+                              @if (!empty($customer?->address))
                                   <p class="p-0 m-0">
-                                      Address:- {{ $customers->address ?? 'Jawahar Colony, Madhya Pradesh, India' }}
+                                      Address:- {{ $customer?->address ?? 'NA' }}
                                   </p>
                               @endif
                           </td>
                           <td style="vertical-align: top">
                               <p class="m-0">
-                                  Vehicle Number:- {{ $vehicles->number_plate }}
+                                  Vehicle Number:- {{ $vehicles->number_plate ?? 'NA' }}
                               </p>
                               <p class="m-0">
-                                  Chassis Number:- {{ $vehicles->chassisno ?? ' - ' }}
+                                  Chassis Number:- {{ $vehicles->chassisno ?? 'NA' }}
                               </p>
                               <p class="m-0">
                                   Model:- {{ $vehicles?->brand?->vehicle_brand . ' / ' }}{{ $vehicles->modelname }}
@@ -216,23 +216,23 @@
                   </tbody>
               </table>
 
-              <div class="partCharges my-3"><strong>Parts Charges</strong></div>
+              @if (count($jobCardSpareParts) > 0)
+                  <div class="partCharges my-3"><strong>Parts Charges</strong></div>
 
-              <table class="table my-3">
-                  <thead>
-                      <tr>
-                          <th class="text-center">#</th>
-                          <th class="text-center">Parts</th>
-                          <th class="text-center">QTY</th>
-                          <th class="text-center">Unit Price (Rs.)</th>
-                          <th class="text-center">Discount(Rs.)</th>
-                          <th class="text-center">Amount(Rs.)</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      @if (count($jobCardSpareParts) > 0)
+                  <table class="table my-3">
+                      <thead>
+                          <tr>
+                              <th class="text-center">#</th>
+                              <th class="text-center">Parts</th>
+                              <th class="text-center">QTY</th>
+                              <th class="text-center">Unit Price (Rs.)</th>
+                              <th class="text-center">Discount(Rs.)</th>
+                              <th class="text-center">Amount(Rs.)</th>
+                          </tr>
+                      </thead>
+                      <tbody>
                           @php
-                              $total = 0;
+                              $partsTotal = 0;
                           @endphp
                           @foreach ($jobCardSpareParts as $jobCardSparePart)
                               <tr>
@@ -251,19 +251,18 @@
                                   </td>
                               </tr>
                               @php
-                                  $total += $jobCardSparePart->final_amount;
+                                  $partsTotal += $jobCardSparePart->final_amount;
                               @endphp
                           @endforeach
-                      @endif
-                  </tbody>
-                  <tfoot>
-                      <tr>
-                          <td class="text-end" colspan="5"><strong>Total(Rs.)</strong></td>
-                          <td class="text-end"><strong>{{ number_format($total, 2) }}</strong></td>
-                      </tr>
-                  </tfoot>
-              </table>
-
+                      </tbody>
+                      <tfoot>
+                          <tr>
+                              <td class="text-end" colspan="5"><strong>Total(Rs.)</strong></td>
+                              <td class="text-end"><strong>{{ number_format($partsTotal, 2) }}</strong></td>
+                          </tr>
+                      </tfoot>
+                  </table>
+              @endif
               @if (count($jobCardExtraCharges) > 0)
                   <div class="extraCharges my-3"><strong>Extra Charges</strong></div>
 
@@ -279,7 +278,7 @@
                       </thead>
                       <tbody>
 
-                          @php $total = 0; @endphp
+                          @php $chargeTotal = 0; @endphp
                           @foreach ($jobCardExtraCharges as $jobCardExtraCharge)
                               <tr>
                                   <td class="text-center" style="width:20px !important;">{{ $loop->iteration }}</td>
@@ -289,14 +288,14 @@
                                   <td class="text-end" style="width:120px !important;">
                                       {{ number_format($jobCardExtraCharge->charges, 2) }}</td>
                               </tr>
-                              @php $total += $jobCardExtraCharge->charges; @endphp
+                              @php $chargeTotal += $jobCardExtraCharge->charges; @endphp
                           @endforeach
 
                       </tbody>
                       <tfoot>
                           <tr>
                               <td class="text-end" colspan="3"><strong>Total(Rs.)</strong></td>
-                              <td class="text-end"><strong>{{ number_format($total, 2) }}</strong></td>
+                              <td class="text-end"><strong>{{ number_format($chargeTotal, 2) }}</strong></td>
                           </tr>
                       </tfoot>
                   </table>
@@ -352,69 +351,44 @@
                           </td>
                       </tr>
                       <tr>
-                        <td colspan="3" class="p-0  border-0">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Invoice Amount In Words</th>
-                                        <th>Authorised Signature and Payment Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td style="vertical-align: top;">
-                                            @php
-                                                $formatter = new \NumberFormatter("en", \NumberFormatter::SPELLOUT);
-                                                echo ucfirst($formatter->format($newjobcard->amount)) . ' Rupees Only';
-                                            @endphp
-                                        </td>
-                                        <td style="width:250px !important;vertical-align: bottom;height:80px;position:relative;">
-                                            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('general_setting/' . $logo->logo_image))) }}"
-                                                alt="Logo" class="" width="150">
-                                            @if (!empty($newjobcard->final_paid))
-                                                <div style="position:absolute;bottom:0;right:20px;">
-                                                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/jobcard_img/paid_stamp.png'))) }}"
-                                                        alt="Logo" class="" width="120">
-                                                </div>
-                                            @else
-                                                <div style="position:absolute;bottom:0;right:20px;">
-                                                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/jobcard_img/partial_paid.png'))) }}"
-                                                        alt="Logo" class="" width="120">
-                                                </div>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                      </tr>
-                      {{-- <tr>
-                          <th>Invoice Amount In Words</th>
-                          <th colspan="2">Authorised Signature and Payment Status</th>
-                      </tr>
-                      <tr>
-                          <td style="vertical-align: top;">
-                            @php
-                                $formatter = new \NumberFormatter("en", \NumberFormatter::SPELLOUT);
-                                echo ucfirst($formatter->format($newjobcard->amount)) . ' Rupees Only';
-                            @endphp
-                            </td>
-                          <td colspan="2" style="vertical-align: bottom;height:80px;position:relative;">
-                              <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('general_setting/' . $logo->logo_image))) }}"
-                                  alt="Logo" class="" width="150">
-                              @if (!empty($newjobcard->final_paid))
-                                  <div style="position:absolute;bottom:0;right:20px;">
-                                      <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/jobcard_img/paid_stamp.png'))) }}"
-                                          alt="Logo" class="" width="120">
-                                  </div>
-                              @else
-                                  <div style="position:absolute;bottom:0;right:20px;">
-                                      <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/jobcard_img/partial_paid.png'))) }}"
-                                          alt="Logo" class="" width="120">
-                                  </div>
-                              @endif
+                          <td colspan="3" class="p-0  border-0">
+                              <table class="table">
+                                  <thead>
+                                      <tr>
+                                          <th>Invoice Amount In Words</th>
+                                          <th>Authorised Signature and Payment Status</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      <tr>
+                                          <td style="vertical-align: top;">
+                                              @php
+                                                  $formatter = new \NumberFormatter('en', \NumberFormatter::SPELLOUT);
+                                                  echo ucfirst($formatter->format($newjobcard->amount)) .
+                                                      ' Rupees Only';
+                                              @endphp
+                                          </td>
+                                          <td
+                                              style="width:250px !important;vertical-align: bottom;height:80px;position:relative;">
+                                              <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('general_setting/' . $logo->logo_image))) }}"
+                                                  alt="Logo" class="" width="150">
+                                              @if (!empty($newjobcard->final_paid))
+                                                  <div style="position:absolute;bottom:0;right:20px;">
+                                                      <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/jobcard_img/paid_stamp.png'))) }}"
+                                                          alt="Logo" class="" width="120">
+                                                  </div>
+                                              @else
+                                                  <div style="position:absolute;bottom:0;right:20px;">
+                                                      <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('assets/jobcard_img/partial_paid.png'))) }}"
+                                                          alt="Logo" class="" width="120">
+                                                  </div>
+                                              @endif
+                                          </td>
+                                      </tr>
+                                  </tbody>
+                              </table>
                           </td>
-                      </tr> --}}
+                      </tr>
                       <tr>
                           <td colspan="3" class="">
                               @if (!empty($newjobcard->final_discount))

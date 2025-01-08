@@ -557,7 +557,8 @@
                                                         <div class="d-flex w-100">
                                                             <select class="form-control select2"
                                                                 id="labour-charges-dropdown"
-                                                                style="min-width: 200px !important;" onchange="addextracharge(this);return;false;">
+                                                                style="min-width: 200px !important;"
+                                                                onchange="addextracharge(this);return;false;">
                                                                 <option value="" selected disabled>--Select Labour
                                                                     charge --</option>
                                                             </select>
@@ -1113,7 +1114,7 @@
                                 <div class="footer align-items-center">
                                     <div>
                                         @if ($jobcard->status == 2 || $jobcard->status == 3)
-                                            <a href="{{ route('pdf.view') }}?url={{ base64_encode(route('download.invoice', [$jobcard->id,1])) }}"
+                                            <a href="{{ route('pdf.view') }}?url={{ base64_encode(route('download.invoice', [$jobcard->id, 1])) }}"
                                                 target="_blank" class="btn btn-secondary">
                                                 <i class="fa fa-print"></i></a>
                                             <a href="{{ route('download.invoice', ['id' => $jobcard->id, 'type' => 0]) }}"
@@ -1129,7 +1130,7 @@
                                         @endif
 
 
-                                        @if ($jobcard->status == 0 && $jobcard->step == 1)
+                                        @if ($jobcard->step != 0)
                                             <a href="javascript:void(0);" class="btn btn-secondary"
                                                 onclick="sendMail('{{ route('send.invoice.mail', $jobcard->id) }}')"><i
                                                     class="fa fa-envelope"></i></a>
@@ -1160,12 +1161,12 @@
                                                     onclick="stepCheck(1);qtyCheck(0);">
                                                     <small>Process Jobcard</small>
                                                 </button>
-                                            @else
+                                            {{-- @else
                                                 <button type="button" class="btn btn-primary rounded border-0 text-white"
                                                     onclick="qtyCheck(1);">
                                                     <small>Confirm Jobcard</small>
-                                                </button>
-                                            @endif
+                                                </button> --}}
+                                            @endif 
                                         @elseif ($jobcard->status == 1)
                                             <button type="button" class="btn btn-primary rounded border-0 text-white"
                                                 onclick="qtyCheck(2)">
@@ -1698,7 +1699,8 @@
                         select2function('tools-dropdown');
                         select2function('accessory-dropdown');
                         $('#labour-charges-dropdown').select2();
-                        $('#labour-charges-dropdown').parents('td').find('.select2-container').addClass('w-100');
+                        $('#labour-charges-dropdown').parents('td').find('.select2-container').addClass(
+                        'w-100');
                     } else {
                         toastr.info(res.msg, "INFO");
                     }
@@ -2446,9 +2448,9 @@
             $.ajax({
                 type: "GET",
                 url: contentUrl,
-                data:{
-                    price : price,
-                    title : title
+                data: {
+                    price: price,
+                    title: title
                 },
                 success: function(data) {
                     $('#labour-table tbody').append(data.newfield);

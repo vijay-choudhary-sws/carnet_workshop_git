@@ -14,7 +14,7 @@
 
 // For patch
 
-use App\Http\Controllers\{AccessoryController, CategoryController, ExpenseController, LubricantController, OrderController, PaymentController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, StockHistoryController, ToolController, UnitController};
+use App\Http\Controllers\{AccessoryController, CategoryController, CronJobController, ExpenseController, LubricantController, OrderController, PaymentController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, StockHistoryController, ToolController, UnitController};
 use Illuminate\Support\Facades\{Route, Auth, Artisan};
 
 Route::get('/updateDB', 'instaltionController@updateDB')->name('db_version');
@@ -1021,3 +1021,9 @@ Route::post('/create-order', [PaymentController::class, 'createOrder'])->name('p
 Route::post('/store-payment', [PaymentController::class, 'storePayment'])->name('payment.store');
 Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');
+
+Route::get('/generate-pdf', [CronJobController::class, 'generatePDF']);
+Route::get('/send-mail', [CronJobController::class, 'sendMail']);
+
+
+

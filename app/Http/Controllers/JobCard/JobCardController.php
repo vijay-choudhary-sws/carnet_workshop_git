@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\JobCard;
 
 use App\Http\Controllers\Controller;
-use App\{ExitNote, Image, JobCardExtraCharge, JobCardsDentMark, JobCardSparePart, JobCardImage, JobCardsInspection, NewJobCard, ProductStock, Setting, SparePartLabel, User, Vehicle};
+use App\{ExitNote, Image, JobCardExtraCharge, JobCardsDentMark, JobCardSparePart, JobCardImage, JobCardsInspection, NewJobCard, ProductStock, SendJobCardPdfMail, Setting, SparePartLabel, User, Vehicle};
 use App\Mail\EstimateMail;
+use App\Mail\InvoiceMail;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Mail};
@@ -221,6 +222,11 @@ class JobCardController extends Controller
             $jobcard->status = 3;
             $jobcard->save();
 
+            $SendJobCardPdfMail = new SendJobCardPdfMail;
+            $SendJobCardPdfMail->jobcard_id = $jobcard->id;
+            $SendJobCardPdfMail->template_type = 2;
+            $SendJobCardPdfMail->save();
+
             return response()->json(['status' => 1]);
         }
 
@@ -360,8 +366,11 @@ class JobCardController extends Controller
                 }
             }
             
-            if ($request->step == 1 && !empty($jobcard->user->email)) {
-                $this->sendInvoiceMail($jobcard->id);
+            if ($request->step == 1 || ($jobstatus == 1 && $request->status == 2)) {
+                $SendJobCardPdfMail = new SendJobCardPdfMail;
+                $SendJobCardPdfMail->jobcard_id = $jobcard->id;
+                $SendJobCardPdfMail->template_type = $request->step == 1 ? 0 : 1;
+                $SendJobCardPdfMail->save();
             }
             return response()->json(['status' => 1]);
         }
@@ -886,7 +895,7 @@ class JobCardController extends Controller
         $newjobcard = NewJobCard::with(['exitNote' => function ($query) {
             $query->select('note', 'new_job_card_id');
         }])->where('id', $request->id)->first();
-        $customers = User::select('name','lastname','mobile_no','email','address')->where('id', $newjobcard->customer_id)->first();
+        $customer = User::select('name','lastname','mobile_no','email','address')->where('id', $newjobcard->customer_id)->first();
         $vehicles = Vehicle::select('number_plate','chassisno','modelname','vehiclebrand_id')->where('id', $newjobcard->vehicle_id)->first();
         $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
         $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
@@ -895,13 +904,11 @@ class JobCardController extends Controller
         $jobCardCustomerVoice = $inspections->where('is_customer_voice', 1);
         $jobCardAccessories = $inspections->where('is_customer_voice', 0);
 
-        $exitNote = $newjobcard->exitNote; 
-
         // echo "<pre>";print_r($exitNote?->toArray());die;
         $title = 'View Invoice';
         $logo = DB::table('tbl_settings')->first();
 
-        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges','jobCardCustomerVoice','jobCardAccessories','exitNote');
+        $data = compact('title', 'logo', 'customer', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges','jobCardCustomerVoice','jobCardAccessories');
 
         $pdf = PDF::loadView('new_jobcard.pdf', $data)
         ->setPaper('a4', 'portrait');
@@ -1009,24 +1016,52 @@ class JobCardController extends Controller
 
     public function sendInvoiceMail($id)
     {
-        $newjobcard = NewJobCard::where('id', $id)->first();
+        
+        $newjobcard = NewJobCard::with(['exitNote' => function ($query) {
+            $query->select('note', 'new_job_card_id');
+        }])->where('id', $id)->first();
+
         if (!empty($newjobcard)) {
-            $customer = User::where('id', $newjobcard->customer_id)->first();
-            $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
-            $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $id)->get();
+            if($newjobcard->status == 2 || $newjobcard->status == 3){
 
-            $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $id)->get();
-            $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 1)->get();
-            $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 2)->get();
+                $customer = User::select('id','name','lastname','mobile_no','email','address')->where('id', $newjobcard->customer_id)->first();
+                $vehicles = Vehicle::select('number_plate','chassisno','modelname','vehiclebrand_id')->where('id', $newjobcard->vehicle_id)->first();
+                $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $id)->get();
+                $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $id)->get();
+        
+                $inspections = JobCardsInspection::select('customer_voice','is_customer_voice')->where('jobcard_number', $newjobcard->jobcard_number)->whereIn('is_customer_voice', [1,0])->get();
+                $jobCardCustomerVoice = $inspections->where('is_customer_voice', 1);
+                $jobCardAccessories = $inspections->where('is_customer_voice', 0);
+        
+                $exitNote = $newjobcard->exitNote; 
+        
+                $title = 'View Invoice';
+                $logo = DB::table('tbl_settings')->first();
+        
+                $data = compact('title', 'logo', 'customer', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges','jobCardCustomerVoice','jobCardAccessories','exitNote');
+        
+                Mail::to($customer->email)->send(new InvoiceMail($data));
+    
+                return response()->json(['status' => 1, 'msg' => "The invoice has been sent to the customer's mail successfully!"]);
+            }else{
 
-            $title = 'View Invoice';
-            $logo = DB::table('tbl_settings')->first();
+                $customer = User::where('id', $newjobcard->customer_id)->first();
+                $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
+                $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $id)->get();
 
-            $data = compact('title', 'logo', 'customer', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges', 'jobCardCustomerVoice', 'jobCardAccessories');
-
-            Mail::to($customer->email)->send(new EstimateMail($data));
-
-            return response()->json(['status' => 1, 'msg' => "The estimate has been sent to the customer's mail successfully!"]);
+                $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $id)->get();
+                $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 1)->get();
+                $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 2)->get();
+                
+                $title = 'View Invoice';
+                $logo = DB::table('tbl_settings')->first();
+                
+                $data = compact('title', 'logo', 'customer', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges', 'jobCardCustomerVoice', 'jobCardAccessories');
+                
+                Mail::to($customer->email)->send(new EstimateMail($data));
+                
+                return response()->json(['status' => 1, 'msg' => "The estimate has been sent to the customer's mail successfully!"]);
+            }
         }
         return response()->json(['status' => 0, 'msg' => "Something wrong found! Please try again."]);
 
