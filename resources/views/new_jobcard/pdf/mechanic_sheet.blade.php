@@ -237,7 +237,7 @@
                                   <td>{{ $loop->iteration }}</td>
                                   <td>{{ $jobCardSparePart->labels?->title ?? '-' }}</td>
                                   <td></td>
-                                  <td>{{getUserFullName($jobCardSparePart->machanic_id)}}</td>
+                                  <td>{{ getUserFullName($jobCardSparePart->machanic_id) }}</td>
                                   <td></td>
                               </tr>
                           @endforeach
@@ -261,7 +261,7 @@
                                   <td>{{ $loop->iteration }}</td>
                                   <td>{{ $jobCardSparePart->labels?->title ?? '-' }}</td>
                                   <td></td>
-                                  <td>{{getUserFullName($jobCardSparePart->machanic_id)}}</td>
+                                  <td>{{ getUserFullName($jobCardSparePart->machanic_id) }}</td>
                                   <td></td>
                               </tr>
                           @endforeach
@@ -285,7 +285,7 @@
                                   <td>{{ $loop->iteration }}</td>
                                   <td>{{ $jobCardSparePart->labels?->title ?? '-' }}</td>
                                   <td></td>
-                                  <td>{{getUserFullName($jobCardSparePart->machanic_id)}}</td>
+                                  <td>{{ getUserFullName($jobCardSparePart->machanic_id) }}</td>
                                   <td></td>
                               </tr>
                           @endforeach
@@ -309,7 +309,7 @@
                                   <td>{{ $loop->iteration }}</td>
                                   <td>{{ $jobCardSparePart->labels?->title ?? '-' }}</td>
                                   <td></td>
-                                  <td>{{getUserFullName($jobCardSparePart->machanic_id)}}</td>
+                                  <td>{{ getUserFullName($jobCardSparePart->machanic_id) }}</td>
                                   <td></td>
                               </tr>
                           @endforeach
@@ -343,11 +343,15 @@
               @endif
 
           </div>
-          <div class="inner-container">
-            <p style="text-align: center">Vehicle need to be ready by : {{ \carbon\carbon::parse($newjobcard->delivery_date)->format('d-m-Y') }} {{ \carbon\carbon::parse($newjobcard->delivery_time)->format('h:i A') }}</p>
-          </div>
+          @if ($newjobcard->step == 1)
+              <div class="inner-container">
+                  <p style="text-align: center">Vehicle need to be ready by :
+                      {{ \carbon\carbon::parse($newjobcard->delivery_date)->format('d-m-Y') }}
+                      {{ \carbon\carbon::parse($newjobcard->delivery_time)->format('h:i A') }}</p>
+              </div>
+          @endif
       </div>
-      
+
   </body>
 
   </html>

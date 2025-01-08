@@ -34,6 +34,8 @@
 
         #tools-table th,
         #tools-table .add-spare-btn,
+        #accessory-table th,
+        #accessory-table .add-spare-btn,
         .orange-variant,
         .orange-variant i.fa {
             background-color: #D84315 !important;
@@ -46,8 +48,7 @@
             color: white !important;
         }
 
-        #accessory-table th,
-        #accessory-table .add-spare-btn,
+
         .purple-variant,
         .purple-variant i.fa {
             background-color: #6A1B9A !important;
@@ -106,19 +107,22 @@
             border-top: 1px solid #ccc;
         }
 
-            /* Full-screen overlay */
-            #loader {
+        /* Full-screen overlay */
+        #loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.652); /* Light background with transparency */
-            z-index: 9999; /* Ensure it overlays everything */
+            background: rgba(0, 0, 0, 0.652);
+            /* Light background with transparency */
+            z-index: 9999;
+            /* Ensure it overlays everything */
             display: flex;
             justify-content: center;
             align-items: center;
-            visibility: hidden; /* Hidden by default */
+            visibility: hidden;
+            /* Hidden by default */
         }
 
         /* Spinner style */
@@ -126,7 +130,8 @@
             width: 50px;
             height: 50px;
             border: 5px solid rgba(0, 0, 0, 0.1);
-            border-top: 5px solid #3498db; /* Spinner color */
+            border-top: 5px solid #3498db;
+            /* Spinner color */
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -136,12 +141,13 @@
             from {
                 transform: rotate(0deg);
             }
+
             to {
                 transform: rotate(360deg);
             }
         }
     </style>
-      <div id="loader">
+    <div id="loader">
         <div class="spinner"></div>
     </div>
     <div class="right_col " role="main">
@@ -194,26 +200,32 @@
                                                 <label for="customer-dropdown" class="form-label">Customer Name</label>
                                                 <div class="input-group mb-3">
                                                     <select name="customer_name" id="customer-dropdown"
-                                                        class="form-control select2" style="width: 75%;"
-                                                        onchange="getVehicle(this)">
+                                                        class="form-control @if ($jobcard->status == 0) select2 @endif"
+                                                        style="width: 75%;" onchange="getVehicle(this)" @readonly($jobcard->status != 0)>
                                                         <option value="{{ $jobcard->customer_id }}" selected>
                                                             {{ $jobcard->customer_name ?? '' }}</option>
                                                     </select>
-                                                    <button type="button" data-bs-toggle="modal" data-bs-target="#myModal"
-                                                        class="btn btn-outline-secondary input-group-text fl margin-left-0">{{ trans('+') }}</button>
+                                                    @if ($jobcard->status == 0)
+                                                        <button type="button" data-bs-toggle="modal"
+                                                            data-bs-target="#myModal"
+                                                            class="btn btn-outline-secondary input-group-text fl margin-left-0">{{ trans('+') }}</button>
+                                                    @endif
                                                 </div>
 
                                                 <label for="vehicle-id" class="form-label">Vehical Name</label>
                                                 <div class="input-group mb-3">
-                                                    <select name="vehicle_id" id="vehicle-id" class="form-control select2"
-                                                        style="width: 75% !important;">
+                                                    <select name="vehicle_id" id="vehicle-id"
+                                                        class="form-control @if ($jobcard->status == 0) select2 @endif modelnameappend"
+                                                        style="width: 75% !important;" @readonly($jobcard->status != 0)>
                                                         <option value="{{ $jobcard->vehicle_id }}" selected>
                                                             {{ $jobcard->vehical_number ?? '' }}</option>
                                                     </select>
-                                                    <button type="button" data-bs-toggle="modal"
-                                                        data-bs-target="#vehiclemymodel"
-                                                        class="btn btn-outline-secondary  input-group-text vehiclemodel">{{ trans('+') }}
-                                                    </button>
+                                                    @if ($jobcard->status == 0)
+                                                        <button type="button" data-bs-toggle="modal"
+                                                            data-bs-target="#vehiclemymodel"
+                                                            class="btn btn-outline-secondary  input-group-text vehiclemodel">{{ trans('+') }}
+                                                        </button>
+                                                    @endif
                                                 </div>
 
                                             </div>
@@ -232,26 +244,37 @@
                                                         <div class="form-floating mb-3">
                                                             <input type="number" name="km_reading" class="form-control"
                                                                 id="km_reading" value="{{ $jobcard->km_runing }}"
-                                                                min="1">
+                                                                min="1" @readonly($jobcard->status != 0)>
                                                             <label for="km_reading">KM Reading</label>
                                                         </div>
                                                     </div>
                                                     <div class="col-4">
                                                         <label for="fual level" class="form-label">Fual Level</label>
                                                         <input type="range" class="form-range" id="fual level"
-                                                            name="fual_level" min="0" max="100"
-                                                            value="{{ $jobcard->fual_level }}">
+                                                            @if ($jobcard->status == 0) name="fual_level" @endif
+                                                            min="0" max="100"
+                                                            value="{{ $jobcard->fual_level }}"
+                                                            @disabled($jobcard->status != 0)>
+                                                        @if ($jobcard->status != 0)
+                                                            <input type="hidden" name="fual_level"
+                                                                value="{{ $jobcard->fual_level }}">
+                                                        @endif
                                                     </div>
                                                     <div class="col-4">
                                                         <div class="form-floating">
                                                             <select class="form-select" id="supervisor" name="supervisor"
-                                                                aria-label="Floating label select example" required>
+                                                                aria-label="Floating label example" required
+                                                                @disabled($jobcard->status != 0)>
                                                                 @foreach ($supervisors as $supervisor)
                                                                     <option value="{{ $supervisor->id }}"
                                                                         @selected($supervisor->id == $jobcard->supervisor_id)>
                                                                         {{ getUserFullName($supervisor->id) }}</option>
                                                                 @endforeach
                                                             </select>
+                                                            @if ($jobcard->status != 0)
+                                                                <input type="hidden" name="supervisor"
+                                                                    value="{{ $jobcard->supervisor_id }}">
+                                                            @endif
                                                             <label for="supervisor">Supervisor</label>
                                                         </div>
                                                     </div>
@@ -405,7 +428,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-2">
+                                    {{-- <div class="col-2">
                                         <div class="card">
                                             <div class="card-body p-0" id="tools-table-counter">
                                                 <a href="javascript:void(0)"
@@ -428,12 +451,12 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                     <div class="col-2">
                                         <div class="card">
                                             <div class="card-body p-0" id="accessory-table-counter">
                                                 <a href="javascript:void(0)"
-                                                    class="d-flex justify-content-between purple-variant px-1 py-2 rounded-top text-white"
+                                                    class="d-flex justify-content-between orange-variant px-1 py-2 rounded-top text-white"
                                                     onclick="viewTable(this);" target-table="accessory-table">
                                                     <p class="m-0"><b>Accessory(<span class="tr-count">0</span>)</b>
                                                     </p>
@@ -444,7 +467,7 @@
                                                     </p>
                                                 </a>
                                                 <div class="d-flex justify-content-between align-items-center p-1 ps-0 ">
-                                                    <div class="fs-5 purple-variant rounded mx-1 px-2"><i
+                                                    <div class="fs-5 orange-variant rounded mx-1 px-2"><i
                                                             class="fa-solid fa-toolbox text-white"></i></div>
                                                     <div class="text-end">
                                                         <p class="m-0 ">Total: ₹<span
@@ -484,6 +507,7 @@
                                         <thead>
                                             <th>Label</th>
                                             <th>Amount</th>
+                                            <th>Assign Machanic</th>
                                             <th>Action</th>
                                         </thead>
                                         <tbody>
@@ -503,6 +527,19 @@
                                                                 value="{{ $jobCardExtraCharge->charges }}">
                                                         </td>
                                                         <td>
+                                                            <select name="employee[]" class="form-select"
+                                                                style="max-width: 200px !important;">
+                                                                <option value="" selected disabled>-- Select Machanic
+                                                                    --</option>
+                                                                @foreach ($employee as $item)
+                                                                    <option value="{{ $item->id }}"
+                                                                        @selected($jobCardExtraCharge->machanic_id == $item->id)>
+                                                                        {{ $item->display_name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </td>
+                                                        <td>
                                                             <button type="button"
                                                                 class="btn btn-danger btn-sm remove-field rounded text-white border-white"
                                                                 style="margin-top: 5px;" fdprocessedid="dak07">
@@ -516,11 +553,23 @@
                                         <tfoot>
                                             <tr>
                                                 <td>
-                                                    <button type="button" class="btn btn-outline-secondary add-spare-btn"
-                                                        title="Click here for add new row."
-                                                        onclick="addextracharge(this);return;false;"
-                                                        style="background-color:#4b5f71;color:white;"> + </button>
+                                                    @if ($jobcard->status == 0 || $jobcard->status == 1)
+                                                        <div class="d-flex w-100">
+                                                            <select class="form-control select2"
+                                                                id="labour-charges-dropdown"
+                                                                style="min-width: 200px !important;" onchange="addextracharge(this);return;false;">
+                                                                <option value="" selected disabled>--Select Labour
+                                                                    charge --</option>
+                                                            </select>
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary add-spare-btn"
+                                                                title="Click here for add new row."
+                                                                onclick="addextracharge(this);return;false;"
+                                                                style="background-color:#4b5f71;color:white;"> + </button>
+                                                        </div>
+                                                    @endif
                                                 </td>
+                                                <td></td>
                                                 <td></td>
                                                 <td></td>
                                             </tr>
@@ -538,7 +587,6 @@
                                                 <th>Total Amount</th>
                                                 <th>Discount</th>
                                                 <th>Final Amount</th>
-                                                <th>Assigned Mechanic</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -571,36 +619,35 @@
                                                             name="jobcard_final_amount[]"
                                                             value="{{ $sparePartItem->final_amount }}" min="1"
                                                             step="1" readonly></td>
-                                                    <td>
-                                                        <select name="employee[]" class="select2">
-                                                            @foreach ($employee as $item)
-                                                                <option value="{{ $item->id }}"
-                                                                    @checked($sparePartItem->machanic_id)>{{ $item->display_name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white"
-                                                            onclick="removeJobCardRow(this)">Remove</button></td>
+                                                    <td><button type="button"
+                                                            class="btn btn-sm btn-danger rounded border-0 text-white"
+                                                            onclick="removeJobCardRow(this)"><i class="fa fa-trash"
+                                                                aria-hidden="true"></i></button></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                         <tfoot>
                                             <tr>
                                                 <td>
-                                                    <div class="d-flex">
-                                                        <select class="form-control select2" id="spare-parts-dropdown"
-                                                            onchange="addJobCardRow(this,'spare-part-table')"
-                                                            style="min-width: 300px !important;">
-                                                            <option value="" selected disabled>--Select Spare Part --
-                                                            </option>
-                                                        </select>
-                                                        <button type="button"
-                                                            class="btn btn-outline-secondary add-spare-btn"
-                                                            onclick=addForm(this);return;false;> + </button>
-                                                    </div>
+                                                    @if ($jobcard->status == 0 || $jobcard->status == 1)
+                                                        <div class="d-flex">
+                                                            <select class="form-control select2" id="spare-parts-dropdown"
+                                                                onchange="addJobCardRow(this,'spare-part-table')"
+                                                                style="min-width: 200px !important;">
+                                                                <option value="" selected disabled>--Select Spare
+                                                                    Part --
+                                                                </option>
+                                                            </select>
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary add-spare-btn"
+                                                                onclick=addForm(this);return;false;> + </button>
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-outline-secondary add-spare-btn"
+                                                                onclick=addStock(this);return;false;> <span>Add
+                                                                    Stock</span></button>
+                                                        </div>
+                                                    @endif
                                                 </td>
-                                                <td></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
@@ -622,7 +669,6 @@
                                                 <th>Total Amount</th>
                                                 <th>Discount</th>
                                                 <th>Final Amount</th>
-                                                <th>Assigned Mechanic</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -655,36 +701,35 @@
                                                             name="jobcard_final_amount[]"
                                                             value="{{ $sparePartItem->final_amount }}" min="1"
                                                             step="1" readonly></td>
-                                                    <td>
-                                                        <select name="employee[]" class="select2">
-                                                            @foreach ($employee as $item)
-                                                                <option value="{{ $item->id }}"
-                                                                    @checked($sparePartItem->machanic_id)>{{ $item->display_name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white"
-                                                            onclick="removeJobCardRow(this)">Remove</button></td>
+                                                    <td><button type="button"
+                                                            class="btn btn-sm btn-danger rounded border-0 text-white"
+                                                            onclick="removeJobCardRow(this)"><i class="fa fa-trash"
+                                                                aria-hidden="true"></i></button></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                         <tfoot>
                                             <tr>
                                                 <td>
-                                                    <div class="d-flex">
-                                                        <select class="form-control select2" id="lubes-dropdown"
-                                                            onchange="addJobCardRow(this,'lubes-table')"
-                                                            style="min-width: 300px !important;">
-                                                            <option value="" selected disabled>--Select Spare Part --
-                                                            </option>
-                                                        </select>
-                                                        <button type="button"
-                                                            class="btn btn-outline-secondary add-spare-btn"
-                                                            onclick=addForm(this);return;false;> + </button>
-                                                    </div>
+                                                    @if ($jobcard->status == 0 || $jobcard->status == 1)
+                                                        <div class="d-flex">
+                                                            <select class="form-control select2" id="lubes-dropdown"
+                                                                onchange="addJobCardRow(this,'lubes-table')"
+                                                                style="min-width: 300px !important;">
+                                                                <option value="" selected disabled>--Select Spare
+                                                                    Part --
+                                                                </option>
+                                                            </select>
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary add-spare-btn"
+                                                                onclick=addForm(this);return;false;> + </button>
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-outline-secondary add-spare-btn"
+                                                                onclick=addStock(this);return;false;> <span>Add
+                                                                    Stock</span></button>
+                                                        </div>
+                                                    @endif
                                                 </td>
-                                                <td></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
@@ -695,7 +740,7 @@
                                         </tfoot>
                                     </table>
                                 </div>
-                                <div class="mt-4 table-view" id="tools-table" style="display: none;">
+                                {{-- <div class="mt-4 table-view" id="tools-table" style="display: none;">
                                     <table class="table table-bordered" id="tools-table">
                                         <thead>
                                             <tr>
@@ -705,7 +750,6 @@
                                                 <th>Total Amount</th>
                                                 <th>Discount</th>
                                                 <th>Final Amount</th>
-                                                <th>Assigned Mechanic</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -738,15 +782,6 @@
                                                             name="jobcard_final_amount[]"
                                                             value="{{ $sparePartItem->final_amount }}" min="1"
                                                             step="1" readonly></td>
-                                                    <td>
-                                                        <select name="employee[]" class="select2">
-                                                            @foreach ($employee as $item)
-                                                                <option value="{{ $item->id }}"
-                                                                    @checked($sparePartItem->machanic_id)>{{ $item->display_name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
                                                     <td><button class="btn btn-sm btn-danger rounded border-0 text-white"
                                                             onclick="removeJobCardRow(this)">Remove</button></td>
                                                 </tr>
@@ -773,11 +808,10 @@
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
-                                                <td></td>
                                             </tr>
                                         </tfoot>
                                     </table>
-                                </div>
+                                </div> --}}
                                 <div class="mt-4 table-view" id="accessory-table" style="display: none;">
                                     <table class="table table-bordered" id="accessory-table">
                                         <thead>
@@ -788,7 +822,6 @@
                                                 <th>Total Amount</th>
                                                 <th>Discount</th>
                                                 <th>Final Amount</th>
-                                                <th>Assigned Mechanic</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -821,36 +854,35 @@
                                                             name="jobcard_final_amount[]"
                                                             value="{{ $sparePartItem->final_amount }}" min="1"
                                                             step="1" readonly></td>
-                                                    <td>
-                                                        <select name="employee[]" class="select2">
-                                                            @foreach ($employee as $item)
-                                                                <option value="{{ $item->id }}"
-                                                                    @checked($sparePartItem->machanic_id)>{{ $item->display_name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </td>
-                                                    <td><button class="btn btn-sm btn-danger rounded border-0 text-white"
-                                                            onclick="removeJobCardRow(this)">Remove</button></td>
+                                                    <td><button type="button"
+                                                            class="btn btn-sm btn-danger rounded border-0 text-white"
+                                                            onclick="removeJobCardRow(this)"><i class="fa fa-trash"
+                                                                aria-hidden="true"></i></button></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                         <tfoot>
                                             <tr>
                                                 <td>
-                                                    <div class="d-flex">
-                                                        <select class="form-control select2" id="accessory-dropdown"
-                                                            onchange="addJobCardRow(this,'accessory-table')"
-                                                            style="min-width: 300px !important;">
-                                                            <option value="" selected disabled>--Select Spare Part --
-                                                            </option>
-                                                        </select>
-                                                        <button type="button"
-                                                            class="btn btn-outline-secondary add-spare-btn"
-                                                            onclick=addForm(this);return;false;> + </button>
-                                                    </div>
+                                                    @if ($jobcard->status == 0 || $jobcard->status == 1)
+                                                        <div class="d-flex">
+                                                            <select class="form-control select2" id="accessory-dropdown"
+                                                                onchange="addJobCardRow(this,'accessory-table')"
+                                                                style="min-width: 300px !important;">
+                                                                <option value="" selected disabled>--Select Spare
+                                                                    Part --
+                                                                </option>
+                                                            </select>
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary add-spare-btn"
+                                                                onclick=addForm(this);return;false;> + </button>
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-outline-secondary add-spare-btn"
+                                                                onclick=addStock(this);return;false;> <span>Add
+                                                                    Stock</span></button>
+                                                        </div>
+                                                    @endif
                                                 </td>
-                                                <td></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
@@ -931,7 +963,7 @@
                                                                 Estimate</label>
                                                             <input type="text" id="cost-estimate" name="cost-estimate"
                                                                 value="0" placeholder="Cost Estimate"
-                                                                class="form-control rounded">
+                                                                class="form-control rounded" readonly>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
@@ -960,45 +992,119 @@
                                         <div class="card  h-100">
                                             <div class="card-body ">
                                                 <h5>Billing Details</h5>
-                                                <div class="mb-3">
-                                                    <label for="total-amount" class="form-label">Total Amount</label>
-                                                    <input type="text" id="total-amount" name="total_amount"
-                                                        value="0" placeholder="Total Amount"
-                                                        class="form-control w-50 bg-secondary text-white rounded" readonly>
-                                                    <input type="hidden" name="total_discount" id="total-discount"
-                                                        value="0">
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <div class="mb-3">
-                                                            <label for="final-amount" class="form-label">Payable
-                                                                Amount</label>
-                                                            <input type="text" id="final-amount" name="final_amount"
-                                                                value="0" placeholder="Payable Amount"
-                                                                class="form-control bg-secondary text-white rounded"
-                                                                readonly>
+                                                @if ($jobcard->status == 2 || $jobcard->status == 3)
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label for="total-amount" class="form-label">Total
+                                                                    Amount</label>
+                                                                <input type="text" id="total-amount"
+                                                                    name="total_amount" value="0"
+                                                                    placeholder="Total Amount"
+                                                                    class="form-control bg-secondary text-white rounded"
+                                                                    readonly>
+                                                                <input type="hidden" name="total_discount"
+                                                                    id="total-discount" value="0">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label for="final_discount"
+                                                                    class="form-label">Discount</label>
+                                                                <input type="number" id="final_discount"
+                                                                    name="final_discount"
+                                                                    value="{{ $jobcard->final_discount ?? 0 }}"
+                                                                    min="0" step="1" placeholder="Discount"
+                                                                    class="form-control rounded" oninput="totalCounter()">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label for="final-amount" class="form-label">Payable
+                                                                    Amount</label>
+                                                                <input type="text" id="final-amount"
+                                                                    name="final_amount" value="0"
+                                                                    placeholder="Payable Amount"
+                                                                    class="form-control bg-secondary text-white rounded"
+                                                                    readonly>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-4">
-                                                        <div class="mb-3">
-                                                            <label for="advance" class="form-label">Advance</label>
-                                                            <input type="text" id="advance" name="advance"
-                                                                value="{{ $jobcard->advance }}" placeholder="Advance"
-                                                                class="form-control rounded" oninput="totalCounter()">
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label for="advance" class="form-label">Advance
+                                                                    Received</label>
+                                                                <input type="text" id="advance" name="advance"
+                                                                    value="{{ $jobcard->advance }}" placeholder="Advance"
+                                                                    class="form-control bg-secondary text-white rounded"
+                                                                    readonly>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label for="final_paid" class="form-label">Pay</label>
+                                                                <input type="number" id="final_paid" name="final_paid"
+                                                                    value="{{ $jobcard->final_paid ?? 0 }}"
+                                                                    placeholder="Pay" min="0" step="1"
+                                                                    class="form-control rounded" oninput="totalCounter()">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label for="pending-amount" class="form-label">Pending
+                                                                    Amount</label>
+                                                                <input type="text" id="pending-amount"
+                                                                    name="balance_amount" value="0"
+                                                                    placeholder="Pending Amount"
+                                                                    class="form-control bg-secondary text-white rounded"
+                                                                    readonly>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-4">
-                                                        <div class="mb-3">
-                                                            <label for="pending-amount" class="form-label">Pending
-                                                                Amount</label>
-                                                            <input type="text" id="pending-amount"
-                                                                name="balance_amount" value="0"
-                                                                placeholder="Pending Amount"
-                                                                class="form-control bg-secondary text-white rounded"
-                                                                readonly>
+                                                @else
+                                                    <div class="mb-3">
+                                                        <label for="total-amount" class="form-label">Total Amount</label>
+                                                        <input type="text" id="total-amount" name="total_amount"
+                                                            value="0" placeholder="Total Amount"
+                                                            class="form-control w-50 bg-secondary text-white rounded"
+                                                            readonly>
+                                                        <input type="hidden" name="total_discount" id="total-discount"
+                                                            value="0">
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label for="final-amount" class="form-label">Payable
+                                                                    Amount</label>
+                                                                <input type="text" id="final-amount"
+                                                                    name="final_amount" value="0"
+                                                                    placeholder="Payable Amount"
+                                                                    class="form-control bg-secondary text-white rounded"
+                                                                    readonly>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label for="advance" class="form-label">Advance</label>
+                                                                <input type="text" id="advance" name="advance"
+                                                                    value="{{ $jobcard->advance }}" placeholder="Advance"
+                                                                    class="form-control rounded" oninput="totalCounter()">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="mb-3">
+                                                                <label for="pending-amount" class="form-label">Pending
+                                                                    Amount</label>
+                                                                <input type="text" id="pending-amount"
+                                                                    name="balance_amount" value="0"
+                                                                    placeholder="Pending Amount"
+                                                                    class="form-control bg-secondary text-white rounded"
+                                                                    readonly>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -1006,37 +1112,75 @@
 
                                 <div class="footer align-items-center">
                                     <div>
-                                        <a href="javascript:void(0);" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#pdfPrint"><i class="fa fa-print"></i></a>
-                                        <a href="javascript:void(0);" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#pdfDownload"><i class="fa fa-file-pdf-o"></i></a>
-                                        <a href="javascript:void(0);" class="btn btn-secondary" onclick="sendMail('{{ route('send.invoice.mail', $jobcard->id) }}')"><i class="fa fa-envelope"></i></a>
-                                        <a href="javascript:void(0);" class="btn btn-secondary"><i class="fa fa-whatsapp"></i></a>
+                                        @if ($jobcard->status == 2 || $jobcard->status == 3)
+                                            <a href="{{ route('pdf.view') }}?url={{ base64_encode(route('download.invoice', [$jobcard->id,1])) }}"
+                                                target="_blank" class="btn btn-secondary">
+                                                <i class="fa fa-print"></i></a>
+                                            <a href="{{ route('download.invoice', ['id' => $jobcard->id, 'type' => 0]) }}"
+                                                class="btn btn-secondary">
+                                                <i class="fa fa-file-pdf-o"></i></a>
+                                        @else
+                                            <a href="javascript:void(0);" class="btn btn-secondary"
+                                                data-bs-toggle="modal" data-bs-target="#pdfPrint"><i
+                                                    class="fa fa-print"></i></a>
+                                            <a href="javascript:void(0);" class="btn btn-secondary"
+                                                data-bs-toggle="modal" data-bs-target="#pdfDownload"><i
+                                                    class="fa fa-file-pdf-o"></i></a>
+                                        @endif
+
+
+                                        @if ($jobcard->status == 0 && $jobcard->step == 1)
+                                            <a href="javascript:void(0);" class="btn btn-secondary"
+                                                onclick="sendMail('{{ route('send.invoice.mail', $jobcard->id) }}')"><i
+                                                    class="fa fa-envelope"></i></a>
+                                        @endif
+                                        {{-- <a href="javascript:void(0);" class="btn btn-secondary"><i
+                                                class="fa fa-whatsapp"></i></a> --}}
                                     </div>
                                     <div class="form-check form-switch ">
                                         <input class="form-check-input fs-3" type="checkbox" role="switch"
-                                            id="sms-alert">
+                                            id="sms-alert" name="sms_alert" @checked($jobcard->sms_alert == 1) value="1">
                                         <label class="form-check-label fs-5" for="sms-alert">SMS Alert</label>
                                     </div>
                                     <div>
-                                        <a class="btn btn-danger rounded border-0 text-white sa-warning"
+                                        {{-- <a class="btn btn-danger rounded border-0 text-white sa-warning"
                                             url="{{ route('newjobcard.destory', $jobcard->id) }}">
                                             {{ trans('message.Delete') }}
-                                        </a>
-                                        <button type="button" class="btn btn-primary rounded border-0 text-white"
-                                            onclick="qtyCheck(0)">
-                                            <small>Update Jobcard</small>
-                                        </button>
-                                        @if ($jobcard->status == 2)
+                                        </a> --}}
+                                        @if ($jobcard->status == 0 || $jobcard->status == 1)
+                                            <button type="button" class="btn btn-primary rounded border-0 text-white"
+                                                onclick="qtyCheck({{ $jobcard->status }})">
+                                                <small>Update Jobcard</small>
+                                            </button>
+                                        @endif
+
+                                        @if ($jobcard->status == 0)
+                                            @if ($jobcard->step == 0)
+                                                <button type="button" class="btn btn-primary rounded border-0 text-white"
+                                                    onclick="stepCheck(1);qtyCheck(0);">
+                                                    <small>Process Jobcard</small>
+                                                </button>
+                                            @else
+                                                <button type="button" class="btn btn-primary rounded border-0 text-white"
+                                                    onclick="qtyCheck(1);">
+                                                    <small>Confirm Jobcard</small>
+                                                </button>
+                                            @endif
+                                        @elseif ($jobcard->status == 1)
+                                            <button type="button" class="btn btn-primary rounded border-0 text-white"
+                                                onclick="qtyCheck(2)">
+                                                <small>Complete Jobcard</small>
+                                            </button>
+                                        @elseif ($jobcard->status == 2)
                                             <button type="button" class="btn btn-primary rounded border-0 text-white"
                                                 onclick="qtyCheck(3)">
                                                 <small>Close Jobcard</small>
                                             </button>
                                         @else
-                                            <button type="button" class="btn btn-primary rounded border-0 text-white"
-                                                onclick="qtyCheck(2)">
-                                                <small>Complete Jobcard</small>
-                                            </button>
+                                            <span class="btn btn-warning border-0">Jobcard Closed</span>
                                         @endif
 
+                                        <input type="hidden" name="step" id="step" />
                                         <input type="hidden" name="status" id="status" />
                                     </div>
                                 </div>
@@ -1065,10 +1209,16 @@
                         <div class="py-4">
                             <input class="form-check-input" type="radio" name="pdf_type" id="machanic-worksheet"
                                 value="1" checked>
-                            <label class="" for="machanic-worksheet">Machanic Worksheet</label>
+                            <label class="" for="machanic-worksheet">
+                                @if ($jobcard->status == 0 && $jobcard->step == 0)
+                                    Machanic Copy
+                                @else
+                                    Machanic Worksheet
+                                @endif
+                            </label>
 
                             <input class="form-check-input" type="radio" name="pdf_type" id="estimate-invoice"
-                                value="2">
+                                value="2" @disabled($jobcard->status == 0 && $jobcard->step == 0)>
                             <label class="" for="estimate-invoice">Estimate</label>
                         </div>
 
@@ -1096,12 +1246,18 @@
                         <h5>Please select type <span class="text-danger">*</span></h5>
 
                         <div class="py-4">
-                            <input class="form-check-input" type="radio" name="print_pdf_type" id="machanic-worksheet-print"
-                                value="1" checked>
-                            <label class="" for="machanic-worksheet-print">Machanic Worksheet</label>
+                            <input class="form-check-input" type="radio" name="print_pdf_type"
+                                id="machanic-worksheet-print" value="1" checked>
+                            <label class="" for="machanic-worksheet-print">
+                                @if ($jobcard->status == 0 && $jobcard->step == 0)
+                                    Machanic Copy
+                                @else
+                                    Machanic Worksheet
+                                @endif
+                            </label>
 
-                            <input class="form-check-input" type="radio" name="print_pdf_type" id="estimate-invoice-print"
-                                value="2">
+                            <input class="form-check-input" type="radio" name="print_pdf_type"
+                                id="estimate-invoice-print" value="2" @disabled($jobcard->status == 0 && $jobcard->step == 0)>
                             <label class="" for="estimate-invoice-print">Estimate</label>
                         </div>
 
@@ -1146,31 +1302,35 @@
             tableCounter('accessory-table');
             getextracharges();
 
-            $('#customer-dropdown').select2({
-                placeholder: 'Search By Name, Mobile No. or Vehicle No.',
-                minimumInputLength: 2,
-                ajax: {
-                    url: '{{ route('newjobcard.getData') }}',
-                    type: 'GET',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            query: params.term,
-                            page: params.page || 1,
-                        };
+            @if ($jobcard->status == 0)
+                $('#customer-dropdown').select2({
+                    placeholder: 'Search By Name, Mobile No. or Vehicle No.',
+                    minimumInputLength: 2,
+                    ajax: {
+                        url: '{{ route('newjobcard.getData') }}',
+                        type: 'GET',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                query: params.term,
+                                page: params.page || 1,
+                            };
+                        },
+                        processResults: function(data) {
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination.more,
+                                },
+                            };
+                        },
+                        cache: true,
                     },
-                    processResults: function(data) {
-                        return {
-                            results: data.results,
-                            pagination: {
-                                more: data.pagination.more,
-                            },
-                        };
-                    },
-                    cache: true,
-                },
-            });
+                });
+            @endif
+
+
 
             $('body').on('change', '.chooseImage', function() {
                 var imageName = $(this).val();
@@ -1323,7 +1483,13 @@
                         $(".addcustomermsg").removeClass("hide");
 
                         $('.hidden_customer_id').val(data['customerId']);
-                        $('#myModal').modal('toggle');
+                        let option = "<option value='" + data['customerId'] + "' selected>" +
+                            data['customer_fullname'] + "</option>";
+                        $('#customer-dropdown').append(option);
+                        $('.modelnameappend').html('');
+                        getVehicle("#customer-dropdown");
+                        $('.select2').select2();
+                        $('#myModal').modal('hide');
                         toastr.success("Customer Addes Successfully.", "Success");
 
                     },
@@ -1374,6 +1540,12 @@
                         setTimeout(() => {
                             window.location.replace("{{ route('newjobcard.list') }}");
                         }, 2000);
+                    } else {
+                        Swal.fire({
+                            title: "Oops...",
+                            html: response.msg || "Something wrong found! Please try again.",
+                            icon: "error",
+                        });
                     }
                 },
                 error: function(xhr) {
@@ -1446,14 +1618,13 @@
                 success: function(response) {
 
                     toastr.clear();
-
                     if (response.status == 'success') {
                         toastr.success(response.message, 'Success');
+                        $("#bs-example-modal-xl").modal("hide");
+                        $(".modal-body-data").html('');
+                    } else {
+                        toastr.error("Something Error Found! Please try again.", 'Error');
                     }
-
-                    // Hide modal and clear modal body
-                    $("#bs-example-modal-xl").modal("hide");
-                    $(".modal-body-data").html('');
                 },
                 error: function(xhr) {
                     toastr.clear();
@@ -1520,11 +1691,14 @@
                         $('#lubes-dropdown').html(res.lube);
                         $('#tools-dropdown').html(res.tool);
                         $('#accessory-dropdown').html(res.accessory);
-                        // $('.select2').select2();
+                        $('#labour-charges-dropdown').html(res.labourCharges);
+
                         select2function('spare-parts-dropdown');
                         select2function('lubes-dropdown');
                         select2function('tools-dropdown');
                         select2function('accessory-dropdown');
+                        $('#labour-charges-dropdown').select2();
+                        $('#labour-charges-dropdown').parents('td').find('.select2-container').addClass('w-100');
                     } else {
                         toastr.info(res.msg, "INFO");
                     }
@@ -1623,6 +1797,11 @@
             let finalTotal = 0;
             let chargeAmount = 0;
 
+            @if ($jobcard->status == 2 || $jobcard->status == 3)
+                let final_discount = 0;
+                let final_paid = 0;
+            @endif
+
             // Calculate chargeAmount
             $('input[name="charge[]"]').each(function() {
                 let chargeValue = parseFloat($(this).val()) || 0;
@@ -1656,10 +1835,18 @@
             $('#cost-estimate').val(total);
             $('#total-amount').val(total);
             $('#total-discount').val(discount);
+            @if ($jobcard->status == 2 || $jobcard->status == 3)
+                finalTotal -= (parseFloat($('#final_discount').val()) || 0);
+            @endif
+
             $('#final-amount').val(finalTotal);
 
-            // Calculate and update pending amount
             let pendingAmount = parseFloat(finalTotal) - parseFloat($('#advance').val());
+
+            @if ($jobcard->status == 2 || $jobcard->status == 3)
+                pendingAmount -= (parseFloat($('#final_paid').val()) || 0);
+            @endif
+
             $('#pending-amount').val(pendingAmount);
         }
 
@@ -1713,10 +1900,13 @@
                 },
                 success: function(res) {
                     if (res.status == 1) {
-                        $('#' + tableId + ' tbody select[name="item[]"]').eq(row - 1).html(res.html);
-                        $('#' + tableId + ' tbody input[name="quantity[]"]').eq(row - 1).val('0');
+                        $('#' + tableId + ' tbody select[name="item[]"]').eq(row - 1).html(res
+                            .html);
+                        $('#' + tableId + ' tbody input[name="quantity[]"]').eq(row - 1).val(
+                            '0');
                         $('#' + tableId + ' tbody input[name="price[]"]').eq(row - 1).val('0');
-                        $('#' + tableId + ' tbody input[name="total_price[]"]').eq(row - 1).val('0');
+                        $('#' + tableId + ' tbody input[name="total_price[]"]').eq(row - 1).val(
+                            '0');
 
                         totalAmount();
                     } else {
@@ -1754,7 +1944,8 @@
                 },
                 success: function(res) {
                     if (res.status == 1) {
-                        $('input[name="quantity[]"]').eq(row - 1).attr('max', res.stock).val('1');
+                        $('input[name="quantity[]"]').eq(row - 1).attr('max', res.stock).val(
+                            '1');
                         $('input[name="price[]"]').eq(row - 1).val(res.price);
                         $('input[name="total_price[]"]').eq(row - 1).val(res.price);
                         totalAmount();
@@ -1820,6 +2011,12 @@
             });
 
             $('#totalAmount').val(totalAmount);
+
+            if (totalAmount > 0) {
+                $('#pay-for-PO').show();
+            } else {
+                $('#pay-for-PO').hide();
+            }
         }
 
         function addRowmodel() {
@@ -2030,7 +2227,8 @@
                     } else {
                         toastr.info(res.msg, "INFO");
                         $('#vehicle-id').html(
-                            '<option value="" selected disabled>-- Select vehicle --</option>');
+                            '<option value="" selected disabled>-- Select vehicle --</option>'
+                        );
                     }
                 },
                 error: function(xhr, status, error) {
@@ -2039,6 +2237,10 @@
                     console.error("Response: " + xhr.responseText);
                 }
             });
+        }
+
+        function stepCheck() {
+            $('#step').val('1');
         }
 
         function qtyCheck(status) {
@@ -2057,7 +2259,8 @@
             });
 
             if (qtyCheck) {
-                toastr.info("Please check Item QTY or price. Value must me equal to or more than 1.", "INFO");
+                toastr.info("Please check Item QTY or price. Value must me equal to or more than 1.",
+                    "INFO");
                 return;
             }
 
@@ -2236,13 +2439,22 @@
                 return;
             }
 
+            let price = $('#labour-charges-dropdown option:selected').attr('data-price') || 0;
+            let title = $('#labour-charges-dropdown option:selected').attr('data-title') || '';
+
             var contentUrl = "{{ route('newjobcard.addextrafields') }}";
             $.ajax({
                 type: "GET",
                 url: contentUrl,
+                data:{
+                    price : price,
+                    title : title
+                },
                 success: function(data) {
                     $('#labour-table tbody').append(data.newfield);
                     $('.newInputFieldOuter').removeClass('d-none');
+                    $('#labour-charges-dropdown').val('');
+                    $('#labour-charges-dropdown').select2();
                     getextracharges();
                 },
                 error: function() {
@@ -2272,10 +2484,11 @@
                     if ($('.remove-field').length < 1) {
                         $('.newInputFieldOuter').addClass('d-none');
                     }
+                    $('.select2').select2();
                     getextracharges();
                     Swal.fire({
                         title: "Deleted!",
-                        text: "Other charge field has been deleted.",
+                        text: "Labour field has been deleted.",
                         icon: "success",
                         showConfirmButton: false,
                         timer: 1500
@@ -2327,7 +2540,7 @@
             if (btnClick) {
                 return;
             }
-            
+
             btnClick = true;
             showLoader();
             $.ajax({
@@ -2373,11 +2586,11 @@
         function downloadPdf() {
 
             let type = $('input[name="pdf_type"]:checked').val();
-            let url = "{{ route('download.mechanic.sheet', [$jobcard->id,0]) }}";
-            if(type == 1){
-                 url = "{{ route('download.mechanic.sheet', [$jobcard->id,0]) }}";
-            }else if(type == 2){
-                 url = "{{ route('download.estimate.invoice', [$jobcard->id,0]) }}";
+            let url = "{{ route('download.mechanic.sheet', [$jobcard->id, 0]) }}";
+            if (type == 1) {
+                url = "{{ route('download.mechanic.sheet', [$jobcard->id, 0]) }}";
+            } else if (type == 2) {
+                url = "{{ route('download.estimate.invoice', [$jobcard->id, 0]) }}";
             }
 
             const link = document.createElement('a');
@@ -2397,16 +2610,17 @@
             });
 
         }
+
         function printPdf() {
 
             let type = $('input[name="print_pdf_type"]:checked').val();
-            let url = "{{ base64_encode(route('download.mechanic.sheet', [$jobcard->id,1])) }}";
-            if(type == 1){
-                 url = "{{ base64_encode(route('download.mechanic.sheet', [$jobcard->id,1])) }}";
-            }else if(type == 2){
-                 url = "{{ base64_encode(route('download.estimate.invoice', [$jobcard->id,1])) }}";
+            let url = "{{ base64_encode(route('download.mechanic.sheet', [$jobcard->id, 1])) }}";
+            if (type == 1) {
+                url = "{{ base64_encode(route('download.mechanic.sheet', [$jobcard->id, 1])) }}";
+            } else if (type == 2) {
+                url = "{{ base64_encode(route('download.estimate.invoice', [$jobcard->id, 1])) }}";
             }
-            
+
             const link = document.createElement('a');
             link.href = "{{ route('pdf.view') }}?url=" + url;
             link.target = "_blank";
@@ -2425,6 +2639,281 @@
         // Hide the loader
         function hideLoader() {
             document.getElementById('loader').style.visibility = 'hidden';
+        }
+
+        function addStock(e) {
+            var contentUrl = "{{ route('stock.add') }}";
+            $("#bs-example-modal-xl .modal-body-data").html('');
+            $.ajax({
+                method: "GET",
+                url: contentUrl,
+                dataType: "json",
+                success: function(data) {
+                    if (data.status == 1) {
+                        $("#bs-example-modal-xl .modal-body-data").html(data.html);
+                        $("#bs-example-modal-xl").modal("show");
+                    }
+                },
+                error: function() {
+                    console.error("Error: ", error);
+                    alert("Failed to load content.");
+                }
+            });
+        }
+
+        function addStockRowmodel() {
+            var contentUrl = "{{ route('stock.add.row') }}";
+            $.ajax({
+                method: "GET",
+                url: contentUrl,
+                dataType: "json",
+                success: function(data) {
+                    if (data.status == 1) {
+                        $('#addStock-Form tbody').append(data.html);
+                    }
+                },
+                error: function() {
+                    console.error("Error: ", error);
+                    alert("Failed to load content.");
+                }
+            });
+        }
+
+        function removeAddStockRow(e) {
+            $(e).parents('tr').remove();
+        }
+
+        function addSearch(e) {
+            let text = $(e).text();
+            $(e).parents('td').find('input').val(text);
+            let resultsContainer = $(e).parents('tr').find('.searchResults');
+            resultsContainer.empty();
+            resultsContainer.hide();
+        }
+
+        function getSearchData(e) {
+            let query = $(e).val();
+
+            if (query.length > 0) {
+                $.ajax({
+                    url: "{{ route('stock.search') }}",
+                    method: 'GET',
+                    data: {
+                        query: query
+                    },
+                    success: function(data) {
+                        let resultsContainer = $(e).parents('tr').find('.searchResults');
+                        resultsContainer.empty();
+                        let html = `<ul class="list-unstyled">`;
+                        if (data.length > 0) {
+                            data.forEach(function(item) {
+                                html +=
+                                    `<li class="dropdown-item border-bottom" onclick="addSearch(this)">${item.title}</li>`;
+                            });
+                            html += `</ul>`;
+                            resultsContainer.append(html);
+                            resultsContainer.show();
+                        } else {
+                            resultsContainer.hide();
+                        }
+                    }
+                });
+            } else {
+                $(e).parents('tr').find('.searchResults').hide();
+            }
+        }
+
+        // async function makePayment() {
+        //     const amount = document.getElementById('totalAmount').value;
+
+
+        //     const response = await fetch("{!! url('create-order') !!}", {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        //         },
+        //         body: JSON.stringify({
+        //             amount
+        //         }),
+        //     });
+
+        //     const {
+        //         order_id,
+        //         amount: orderAmount
+        //     } = await response.json();
+
+        //     const options = {
+        //         key: '{{ config('services.razorpay.key') }}',
+        //         amount: orderAmount,
+        //         currency: 'INR',
+        //         order_id: order_id,
+        //         handler: function(response) {
+        //             fetch("{!! url('store-payment') !!}", {
+        //                 method: 'POST',
+        //                 headers: {
+        //                     'Content-Type': 'application/json',
+        //                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        //                 },
+        //                 body: JSON.stringify({
+        //                     razorpay_payment_id: response.razorpay_payment_id,
+        //                     razorpay_order_id: response.razorpay_order_id,
+        //                     razorpay_signature: response.razorpay_signature,
+        //                     amount: orderAmount,
+        //                 }),
+        //             }).then(() => {
+        //                 const paymentId = response.razorpay_payment_id;
+        //                 const customParam = "example_value";
+        //                 const redirectUrl =
+        //                     `{!! url('payment-success') !!}?payment_id=${paymentId}&order_id=${order_id}&amount=${orderAmount / 100}&custom_param=${customParam}`;
+        //                 window.location.href = redirectUrl;
+        //             });
+        //         },
+        //     };
+
+        //     const rzp = new Razorpay(options);
+        //     rzp.open();
+        // }
+
+        function createCustomer() {
+            var contentUrl = "{{ route('create.razorpay.customer') }}";
+            let name = "{{ Auth::user()->name ?? '' }}";
+            let email = "{{ Auth::user()->email ?? '' }}";
+            let contact = "{{ Auth::user()->mobile_no ?? '' }}";
+
+            if (!name.trim() || !email.trim() || !contact.trim()) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    html: "User details are not proper! <br> Please update your profile.",
+                    footer: '<a href="{{ url('setting/profile') }}" target="_blank">Update profile</a>'
+                });
+                return;
+            }
+
+            $.ajax({
+                method: "post",
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                url: contentUrl,
+                dataType: "json",
+                data: {
+                    name: name,
+                    email: email,
+                    contact: contact,
+                },
+                success: function(data) {
+                    if (data.success) {
+                        $('#customer_id').val(data.customer_id);
+                        makePayment();
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: data.message,
+                            icon: "error",
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error: ", error);
+                    alert("Failed to create customer. Please try again.");
+                }
+            });
+        }
+
+        async function makePayment() {
+            const amount = document.getElementById('totalAmount').value;
+            let user = "{{ Auth::id() }}";
+
+            const response = await fetch("{!! url('create-order') !!}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    customer_id: $('#customer_id').val(),
+                }),
+            });
+
+            const {
+                success,
+                order_id,
+                amount: orderAmount
+            } = await response.json();
+
+            if (success) {
+                const options = {
+                    key: '{{ config('services.razorpay.key') }}',
+                    amount: orderAmount,
+                    currency: 'INR',
+                    name: '{{ Auth::user()->name }}',
+                    description: 'Payment for purchase order',
+                    order_id: order_id,
+                    handler: function(response) {
+                        fetch("{{ route('payment.store') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    amount: orderAmount,
+                                    user: user,
+                                }),
+                            }).then((res) => res.json())
+                            .then((data) => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: 'Payment Successful!',
+                                        icon: "success",
+                                        showConfirmButton: false,
+                                        timer: 2000
+                                    });
+                                    $('#payment_id').val(data.payment_id);
+                                    $('#pay-for-PO').hide();
+                                } else {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: "Payment failed. Please try again.",
+                                        icon: "error",
+                                        showConfirmButton: false,
+                                        timer: 2000
+                                    });
+                                }
+                            })
+                            .catch((error) => {
+                                console.error("Error:", error);
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Something went wrong. Please try again.",
+                                    icon: "error",
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                });
+                            });
+                    },
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } else {
+                Swal.fire({
+                    title: "Error",
+                    text: "Failed to create order!",
+                    icon: "error",
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
         }
     </script>
 @endsection

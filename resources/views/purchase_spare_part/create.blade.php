@@ -62,8 +62,12 @@
                     <td>
                         <input type="text" class="form-control bg-light" name="total_amount" value="0"
                             id="totalAmount" readonly>
+                        </td>
+                        <td>
+                            <a href="javascript:void(0)" id="pay-for-PO" class="btn btn-success btn-sm border-0 text-white" onclick="createCustomer()" style="display: none;">Pay Now</a>
+                            <input type="hidden" name="customer_id" id="customer_id" value="">
+                            <input type="hidden" name="payment_id" id="payment_id" value="">
                     </td>
-                    <td></td>
                 </tr>
             </tfoot>
         </table>

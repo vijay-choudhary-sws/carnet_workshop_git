@@ -42,7 +42,8 @@ class OrderController extends Controller
   public function accept(Request $request)
   {
     
-    $order_item = OrderItem::where('id', $request->id)->first();
+    $order_item = OrderItem::with('order')->where('id', $request->id)->first();
+    // echo "<pre>";print_r($order_item->toArray());die;
     
     if ($request->status == 1) {
 
@@ -58,7 +59,7 @@ class OrderController extends Controller
         $stockProducts->category_id = $order_item->category;
         $stockProducts->stock = $order_item->quantity;
         $stockProducts->price = $order_item->price;
-        $stockProducts->user_id = Auth::user()->id;
+        $stockProducts->user_id = $order_item->order->user_id;
         $stockProducts->save();
       } else {
         $stockProduct->stock = $stockProduct->stock + $order_item->quantity;

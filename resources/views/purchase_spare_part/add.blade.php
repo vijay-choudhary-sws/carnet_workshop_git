@@ -15,9 +15,9 @@
         }
 
         /* .toast {
-                font-size: 16px;
-                border-radius: 5px;
-            } */
+                        font-size: 16px;
+                        border-radius: 5px;
+                    } */
     </style>
     <div class="right_col" role="main">
         <div class="">
@@ -25,8 +25,8 @@
                 <div class="nav_menu">
                     <nav>
                         <div class="nav toggle">
-                            <a id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></a><a href="{{ route('purchase_spare_part.list') }}"
-                                id=""><i class="">
+                            <a id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></a><a
+                                href="{{ route('purchase_spare_part.list') }}" id=""><i class="">
                                     <img src="{{ URL::asset('public/supplier/Back Arrow.png') }}"
                                         class="back-arrow"></i><span class="titleup">
                                     {{ trans('message.Purchase Spare Parts') }}</span></a>
@@ -46,10 +46,6 @@
                                 class="form-horizontal form-label-left purchase-spare-partForm">
 
                                 <div>
-                                    <div class="mb-3">
-                                        <button type="button" class="btn btn-success rounded" onclick="addRow()">Add
-                                            Row</button>
-                                    </div>
                                     <table class="table border">
                                         <thead>
                                             <tr>
@@ -103,12 +99,26 @@
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <td colspan="4" class="text-end">Total</td>
+                                                <td>
+                                                    <div class="mb-3">
+                                                        <button type="button" class="btn btn-success rounded"
+                                                            onclick="addRow()">Add
+                                                            Row</button>
+                                                    </div>
+                                                </td>
+                                                <td colspan="3" class="text-end">Total</td>
                                                 <td>
                                                     <input type="text" class="form-control bg-light" name="total_amount"
                                                         value="0" id="totalAmount" readonly>
                                                 </td>
-                                                <td></td>
+                                                <td>
+                                                    <a href="javascript:void(0)" id="pay-for-PO"
+                                                        class="btn btn-success btn-sm border-0 text-white"
+                                                        onclick="createCustomer()" style="display: none;">Pay Now</a>
+                                                    <input type="hidden" name="customer_id" id="customer_id"
+                                                        value="">
+                                                    <input type="hidden" name="payment_id" id="payment_id" value="">
+                                                </td>
                                             </tr>
                                         </tfoot>
                                     </table>
@@ -138,6 +148,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
     <script>
@@ -320,6 +331,12 @@
             });
 
             $('#totalAmount').val(totalAmount);
+
+            if (totalAmount > 0) {
+                $('#pay-for-PO').show();
+            } else {
+                $('#pay-for-PO').hide();
+            }
         }
 
         function addRow() {
@@ -391,6 +408,147 @@
                 $(this).attr('data-row', $i++);
             });
             totalAmount();
+        }
+
+        function createCustomer() {
+            var contentUrl = "{{ route('create.razorpay.customer') }}";
+            let name = "{{ Auth::user()->name ?? '' }}";
+            let email = "{{ Auth::user()->email ?? '' }}";
+            let contact = "{{ Auth::user()->mobile_no ?? '' }}";
+
+            if (!name.trim() || !email.trim() || !contact.trim()) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    html: "User details are not proper! <br> Please update your profile.",
+                    footer: '<a href="{{ url('setting/profile') }}" target="_blank">Update profile</a>'
+                });
+                return;
+            }
+
+            $.ajax({
+                method: "post",
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                url: contentUrl,
+                dataType: "json",
+                data: {
+                    name: name,
+                    email: email,
+                    contact: contact,
+                },
+                success: function(data) {
+                    if (data.success) {
+                        $('#customer_id').val(data.customer_id);
+                        makePayment();
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: data.message,
+                            icon: "error",
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error: ", error);
+                    alert("Failed to create customer. Please try again.");
+                }
+            });
+        }
+
+        async function makePayment() {
+            const amount = document.getElementById('totalAmount').value;
+            let user = "{{ Auth::id() }}";
+
+            const response = await fetch("{!! url('create-order') !!}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    customer_id: $('#customer_id').val(),
+                }),
+            });
+
+            const {
+                success,
+                order_id,
+                amount: orderAmount
+            } = await response.json();
+
+            if (success) {
+                const options = {
+                    key: '{{ config('services.razorpay.key') }}',
+                    amount: orderAmount,
+                    currency: 'INR',
+                    name: '{{ Auth::user()->name }}',
+                    description: 'Payment for purchase order',
+                    order_id: order_id,
+                    handler: function(response) {
+                        fetch("{{ route('payment.store') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    amount: orderAmount,
+                                    user: user,
+                                }),
+                            }).then((res) => res.json())
+                            .then((data) => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: "Success",
+                                        text: 'Payment Successful!',
+                                        icon: "success",
+                                        showConfirmButton: false,
+                                        timer: 2000
+                                    });
+                                    $('#payment_id').val(data.payment_id);
+                                    $('#pay-for-PO').hide();
+                                } else {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: "Payment failed. Please try again.",
+                                        icon: "error",
+                                        showConfirmButton: false,
+                                        timer: 2000
+                                    });
+                                }
+                            })
+                            .catch((error) => {
+                                console.error("Error:", error);
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Something went wrong. Please try again.",
+                                    icon: "error",
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                });
+                            });
+                    },
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } else {
+                Swal.fire({
+                    title: "Error",
+                    text: "Failed to create order!",
+                    icon: "error",
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
         }
     </script>
 

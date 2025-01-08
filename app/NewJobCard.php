@@ -15,4 +15,13 @@ class NewJobCard extends Model
     public function jobCardSpareParts(){
         return $this->hasMany(JobCardSparePart::class,'jobcard_id');
     }
+    
+    public function user(){
+        return $this->belongsTo(User::class,'customer_id');
+    }
+    
+    public function exitNote(){
+        return $this->hasOne(ExitNote::class);
+    }
+
 }

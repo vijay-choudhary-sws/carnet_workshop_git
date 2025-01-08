@@ -20,62 +20,62 @@ class DomainController extends Controller
         $domain_name = $request->domain_name;
         $licence_key = $request->purchase_key;
         $purchase_email = $request->purchase_email;
-        $api_server = 'license.dasinfomedia.com';
+        // $api_server = 'license.dasinfomedia.com';
 
-        // $whitelist = [
-        //     '192.168.1.62',
-        // ];
-        // if (!in_array($domain_name, $whitelist)) {
+        // // $whitelist = [
+        // //     '192.168.1.62',
+        // // ];
+        // // if (!in_array($domain_name, $whitelist)) {
 
-        $fp = @fsockopen($api_server, 80, $errno, $errstr, 2);
-        if (!$fp) {
-            $server_rerror = 'Down';
-        } else {
-            $server_rerror = "up";
-        }
+        // $fp = @fsockopen($api_server, 80, $errno, $errstr, 2);
+        // if (!$fp) {
+        //     $server_rerror = 'Down';
+        // } else {
+        //     $server_rerror = "up";
+        // }
 
-        if ($server_rerror == "up") {
-            $url = 'https://license.dasinfomedia.com/admin/api/license/register';
-            $fields = array(
-                'pkey' => $licence_key,
-                'email' => $purchase_email,
-                'domain' => $domain_name
-            );
+        // if ($server_rerror == "up") {
+        //     $url = 'https://license.dasinfomedia.com/admin/api/license/register';
+        //     $fields = array(
+        //         'pkey' => $licence_key,
+        //         'email' => $purchase_email,
+        //         'domain' => $domain_name
+        //     );
 
-            $ch = curl_init();
+        //     $ch = curl_init();
 
-            curl_setopt_array($ch, array(
-                CURLOPT_URL => $url,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $fields
-            ));
+        //     curl_setopt_array($ch, array(
+        //         CURLOPT_URL => $url,
+        //         CURLOPT_RETURNTRANSFER => true,
+        //         CURLOPT_POST => true,
+        //         CURLOPT_POSTFIELDS => $fields
+        //     ));
 
-            $response = curl_exec($ch);
+        //     $response = curl_exec($ch);
 
-            curl_close($ch);
+        //     curl_close($ch);
 
-            // Parse the JSON response
-            $response_data = json_decode($response, true);
-            $result = $response_data['message'];
+        //     // Parse the JSON response
+        //     $response_data = json_decode($response, true);
+        //     $result = $response_data['message'];
 
-            if ($result == 'Invalid license') {
-                return redirect('/domain')->with('message', '1');
-                die;
-            } elseif ($result == 'License already registered') {
-                return redirect('/domain')->with('message', '2');
-                die;
-            } elseif ($result == 'Please enter a valid URL') {
-                return redirect('/domain')->with('message', '3');
-                die;
-            } elseif ($result == 'Failed to register license') {
-                return redirect('/domain')->with('message', '4');
-                die;
-            }
-        } else {
-            return redirect('/domain')->with('message', '5');
-            die;
-        }
+        //     if ($result == 'Invalid license') {
+        //         return redirect('/domain')->with('message', '1');
+        //         die;
+        //     } elseif ($result == 'License already registered') {
+        //         return redirect('/domain')->with('message', '2');
+        //         die;
+        //     } elseif ($result == 'Please enter a valid URL') {
+        //         return redirect('/domain')->with('message', '3');
+        //         die;
+        //     } elseif ($result == 'Failed to register license') {
+        //         return redirect('/domain')->with('message', '4');
+        //         die;
+        //     }
+        // } else {
+        //     return redirect('/domain')->with('message', '5');
+        //     die;
+        // }
         // }
 
         $setting = Setting::first();

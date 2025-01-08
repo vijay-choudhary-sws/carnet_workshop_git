@@ -26,4 +26,8 @@ class Vehicle extends Model
     {
         return $this->morphMany(Notes::class, 'entity', 'entity_type', 'entity_id');
     }
+
+    public function brand(){
+        return $this->belongsTo(Vehiclebrand::class, 'vehiclebrand_id');
+    }
 }

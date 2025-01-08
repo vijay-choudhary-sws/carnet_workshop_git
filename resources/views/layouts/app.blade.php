@@ -506,6 +506,7 @@
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.3.3/js/bootstrap-colorpicker.min.js">
     </script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 </head>
 <?php

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PurcahseSparePartRequest;
 use App\Order;
 use App\OrderItem;
+use App\Payment;
 use App\SparePart;
 use App\SparePartLabel;
 use App\User;
@@ -22,8 +23,7 @@ class PurchaseSparePartController extends Controller
 
 	public function index()
 	{
-
-		$orders = Order::all();
+		$orders = Order::where('user_id',Auth::id())->get();
 		return view('purchase_spare_part.list', compact('orders'));
 	}
 
@@ -78,36 +78,42 @@ class PurchaseSparePartController extends Controller
 
 	public function store(PurcahseSparePartRequest $request)
 	{
+		$payment = Payment::find($request->payment_id);
 
-		$category = $request->category;
-		$item = $request->item;
-		$quantity = $request->quantity;
-		$price = $request->price;
-		$total_price = $request->total_price;
+		if ($payment->user_id == Auth::id()) {
+			$category = $request->category;
+			$item = $request->item;
+			$quantity = $request->quantity;
+			$price = $request->price;
+			$total_price = $request->total_price;
 
-		$order = new Order;
-		$order->order_date = Carbon::now();
-		$order->total_amount = $request->total_amount;
-		$order->total_quantity = array_sum($request->quantity);
-		$order->total_item = count($request->item);
-		$order->save();
+			$order = new Order;
+			$order->order_date = Carbon::now();
+			$order->total_amount = $request->total_amount;
+			$order->total_quantity = array_sum($request->quantity);
+			$order->total_item = count($request->item);
+			$order->user_id = $request->user()->id;
+			$order->payment_id = $payment->id;
+			$order->save();
 
-		foreach ($category as $key => $value) {
+			foreach ($category as $key => $value) {
 
-			$userId = SparePart::where('id', $item[$key])->select('user_id')->first()->user_id;
+				$userId = SparePart::where('id', $item[$key])->select('user_id')->first()->user_id;
 
-			$orderItem = new OrderItem;
-			$orderItem->spare_part_id = $item[$key];
-			$orderItem->user_id = $userId;
-			$orderItem->quantity = $quantity[$key];
-			$orderItem->price = $price[$key];
-			$orderItem->total_amount = $total_price[$key];
-			$orderItem->category = $value;
-			$orderItem->order_id = $order->id;
-			$orderItem->save();
+				$orderItem = new OrderItem;
+				$orderItem->spare_part_id = $item[$key];
+				$orderItem->user_id = $userId;
+				$orderItem->quantity = $quantity[$key];
+				$orderItem->price = $price[$key];
+				$orderItem->total_amount = $total_price[$key];
+				$orderItem->category = $value;
+				$orderItem->order_id = $order->id;
+				$orderItem->save();
+			}
+
+			return response()->json(['status' => 'success']);
 		}
-
-		return response()->json(['status' => 'success']);
+		return response()->json(['status' => 'error']);
 	}
 
 	public function addRowmodel(Request $request)

@@ -14,7 +14,7 @@
 
 // For patch
 
-use App\Http\Controllers\{AccessoryController, CategoryController, ExpenseController, LubricantController, OrderController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, StockHistoryController, ToolController, UnitController};
+use App\Http\Controllers\{AccessoryController, CategoryController, ExpenseController, LubricantController, OrderController, PaymentController, ProductStockcontroller, PurchaseSparePartController, ServicesControler, SparePartsController, StockHistoryController, ToolController, UnitController};
 use Illuminate\Support\Facades\{Route, Auth, Artisan};
 
 Route::get('/updateDB', 'instaltionController@updateDB')->name('db_version');
@@ -915,8 +915,13 @@ Route::middleware('auth')->prefix('order')->group(function () {
 });
 Route::group(['prefix' => 'stock'], function () {
 	Route::get('list', [ProductStockcontroller::class, 'index'])->name('stock.list'); 
+	Route::get('add', [ProductStockcontroller::class, 'add'])->name('stock.add'); 
+	Route::post('add', [ProductStockcontroller::class, 'store'])->name('stock.store'); 
+	Route::post('store', [ProductStockcontroller::class, 'bulkStore'])->name('stock.bulk.store'); 
 	Route::get('list/view/{id}', [ProductStockcontroller::class, 'view'])->name('stock.view'); 
 	Route::post('list/accept', [ProductStockcontroller::class, 'accept'])->name('stock.accept'); 
+	Route::get('search', [ProductStockcontroller::class, 'search'])->name('stock.search'); 
+	Route::get('add-row', [ProductStockcontroller::class, 'addrow'])->name('stock.add.row'); 
 });
 
 Route::group(['prefix' => 'stock_history'], function () {
@@ -954,7 +959,7 @@ Route::middleware('auth')->prefix('job-card')->group(function () {
 	Route::get('add-customer-view', [App\Http\Controllers\JobCard\JobCardController::class, 'addCustomerView'])->name('newjobcard.customerview');
 	Route::get('delte-dent-mark', [App\Http\Controllers\JobCard\JobCardController::class, 'deleteDentMark'])->name('newjobcard.deleteDentMark'); 
 	Route::get('view-invoice', [App\Http\Controllers\JobCard\JobCardController::class, 'viewInvoice'])->name('newjobcard.viewInvoice'); 
-	Route::get('/download-invoice/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'downloadInvoice'])->name('download.invoice');
+	Route::get('/download-invoice/{id}/{type}', [App\Http\Controllers\JobCard\JobCardController::class, 'downloadInvoice'])->name('download.invoice');
 	Route::get('add-extra', [App\Http\Controllers\JobCard\JobCardController::class, 'addextrafields'])->name('newjobcard.addextrafields');
 
 
@@ -966,7 +971,6 @@ Route::middleware('auth')->prefix('job-card')->group(function () {
 	Route::get('/download-estimate-invoice/{id}/{type}', [App\Http\Controllers\JobCard\JobCardController::class, 'downloadEstimateInvoice'])->name('download.estimate.invoice');
 	Route::get('/download-open-invoice/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'downloadOpenInvoice'])->name('download.open.invoice');
 	Route::get('/invoice-email-template/{id}', [App\Http\Controllers\JobCard\JobCardController::class, 'sendInvoiceMail'])->name('send.invoice.mail');
-
 	
 	
 	Route::post('/jobcard-status/change',  [App\Http\Controllers\JobCard\JobCardController::class, 'changeStatus'])->name('jobcard.status');
@@ -1009,3 +1013,11 @@ Route::get('/config-cache', function () {
 	$exitCode = Artisan::call('config:cache');
 	return '<h1>Clear Config cleared</h1>';
 });
+
+
+Route::get('/payment', [PaymentController::class, 'index'])->name('payment.index');
+Route::post('/create-customer', [PaymentController::class, 'createOrFetchCustomer'])->name('create.razorpay.customer');
+Route::post('/create-order', [PaymentController::class, 'createOrder'])->name('payment.createOrder');
+Route::post('/store-payment', [PaymentController::class, 'storePayment'])->name('payment.store');
+Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment-failed', [PaymentController::class, 'failed'])->name('payment.failed');

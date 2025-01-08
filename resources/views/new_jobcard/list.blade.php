@@ -92,7 +92,8 @@
             @include('success_message.message')
             <div class="row">
                 <div class="col-lg-3 col-md-6 col-12 mb-3">
-                    <div class="card overflow-hidden" onclick="$('#status-filter-input').val(0);$('#statusFilter').submit();">
+                    <div class="card overflow-hidden"
+                        onclick="$('#status-filter-input').val(0);$('#statusFilter').submit();">
                         <div class="card-body bg-danger text-white d-flex justify-content-between">
                             <span><b><i class="fa-solid fa-unlock"></i> Open</b></span>
                             <span><b>(
@@ -108,7 +109,8 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 col-12 mb-3">
-                    <div class="card overflow-hidden" onclick="$('#status-filter-input').val(1);$('#statusFilter').submit();">
+                    <div class="card overflow-hidden"
+                        onclick="$('#status-filter-input').val(1);$('#statusFilter').submit();">
                         <div class="card-body bg-primary text-white d-flex justify-content-between">
                             <span><b><i class="fa-solid fa-circle-check"></i> Confirmed</b></span>
                             <span><b>(
@@ -124,9 +126,10 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 col-12 mb-3">
-                    <div class="card overflow-hidden" onclick="$('#status-filter-input').val(2);$('#statusFilter').submit();">
-                        <div class="card-body bg-info text-white d-flex justify-content-between">
-                            <span><b><i class="fa-solid fa-arrows-rotate"></i> In-Progress</b></span>
+                    <div class="card overflow-hidden"
+                        onclick="$('#status-filter-input').val(2);$('#statusFilter').submit();">
+                        <div class="card-body bg-success text-white d-flex justify-content-between">
+                            <span><b><i class="fa-solid fa-flag-checkered"></i> Completed</b></span>
                             <span><b>(
                                     @if (!empty($jobcardsCount) && count($jobcardsCount) > 0)
                                         {{ count($jobcardsCount->where('status', 2)) }}
@@ -134,15 +137,15 @@
                                         0
                                     @endif
                                     )
-                                </b>
-                            </span>
+                                </b></span>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 col-12 mb-3">
-                    <div class="card overflow-hidden" onclick="$('#status-filter-input').val(3);$('#statusFilter').submit();">
-                        <div class="card-body bg-success text-white d-flex justify-content-between">
-                            <span><b><i class="fa-solid fa-flag-checkered"></i> Completed</b></span>
+                    <div class="card overflow-hidden"
+                        onclick="$('#status-filter-input').val(3);$('#statusFilter').submit();">
+                        <div class="card-body bg-info text-white d-flex justify-content-between">
+                            <span><b><i class="fa-solid fa-close"></i> Closed</b></span>
                             <span><b>(
                                     @if (!empty($jobcardsCount) && count($jobcardsCount) > 0)
                                         {{ count($jobcardsCount->where('status', 3)) }}
@@ -150,7 +153,8 @@
                                         0
                                     @endif
                                     )
-                                </b></span>
+                                </b>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -228,13 +232,14 @@
                                                     @case(1)
                                                         <span class="badge bg-primary">Confirmed</span>
                                                     @break
-
+                                                    
                                                     @case(2)
-                                                        <span class="badge bg-info">In-Progress</span>
-                                                    @break
-                                                    @case(3)
                                                         <span class="badge bg-success">Completed</span>
                                                     @break
+                                                    @case(3)
+                                                        <span class="badge bg-info">Closed</span>
+                                                    @break
+
 
                                                     @default
                                                         <span class="badge bg-danger">Open</span>

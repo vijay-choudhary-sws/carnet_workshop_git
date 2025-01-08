@@ -39,5 +39,9 @@ return [
             'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE', 300),
         ],
     ],
+    'razorpay' => [
+        'key' => env('RAZORPAY_KEY'),
+        'secret' => env('RAZORPAY_SECRET'),
+    ],
 
 ];

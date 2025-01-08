@@ -20,6 +20,7 @@ use App\Holiday;
 use App\RepairCategory;
 use App\JobcardDetail;
 use App\JobCardSparePart;
+use App\LabourCharge;
 use App\Notes;
 use App\SparePartLabel;
 use App\Stock;
@@ -1703,8 +1704,12 @@ class ServicesControler extends Controller
         $cat = 'Lubricant';
         $labels = $mergedData[4] ?? [];
         $lube = view('jobcard.component.labels', compact('labels', 'cat'))->render();
+        
+        $labourCharges = LabourCharge::select('id','title','price')->where('user_id',Auth::id())->get();
+        $labourCharges = view('jobcard.component.labour-charge', compact('labourCharges'))->render();
+        // echo "<pre>";print_r($labourCharges->toArray());die;
 
-        return response()->json(['status' => 1, 'accessory' => $accessory, 'spare' => $spare, 'tool' => $tool, 'lube' => $lube]);
+        return response()->json(['status' => 1, 'accessory' => $accessory, 'spare' => $spare, 'tool' => $tool, 'lube' => $lube,'labourCharges' => $labourCharges]);
     }
     public function addRow(Request $request)
     {
@@ -1739,12 +1744,9 @@ class ServicesControler extends Controller
             ];
         }
 
-        $employee = User::where(['role' => 'employee', 'soft_delete' => 0])->get();
-
-
         //   echo "<pre>";print_r($employee->toArray());die;
 
-        $html = view('jobcard.component.add_row', compact('employee', 'row', 'mergedData'))->render();
+        $html = view('jobcard.component.add_row', compact('row', 'mergedData'))->render();
         return response()->json(['status' => 1, 'html' => $html]);
     }
 }

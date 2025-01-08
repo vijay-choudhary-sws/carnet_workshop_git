@@ -40,6 +40,9 @@ class PurcahseSparePartRequest extends FormRequest
             'total_price.*' => ['required', 'numeric', 'min:0'],
 
             'total_amount' => ['required', 'numeric', 'min:0'],
+
+            'payment_id' => 'required|numeric|exists:payments,id',
+
         ];
     }
 
@@ -83,6 +86,8 @@ class PurcahseSparePartRequest extends FormRequest
             'total_amount.required' => 'The total amount field is required.',
             'total_amount.numeric' => 'The total amount must be a valid number.',
             'total_amount.min' => 'The total amount must be greater than or equal to 0.',
+
+            'payment_id.required' => 'The payment has not been completed yet.',
         ];
 
     }

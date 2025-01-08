@@ -13,9 +13,19 @@
             <div class="page-title">
                 <div class="nav_menu">
                     <nav>
-                        <div class="nav toggle">
+                        {{-- <div class="nav toggle">
                             <a id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></a>
                             <span class="titleup">{{ trans('message.Stock') }} </span>
+                        </div> --}}
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars sidemenu_toggle"></i></a>
+                            <span class="titleup">{{ trans('message.Stock') }}
+                                @can('stock_add')
+                                    <a href="{{ route('stock.add') }}" id="" class="addbotton">
+                                        <img src="{{ URL::asset('public/img/icons/plus Button.png') }}">
+                                    </a>
+                                @endcan
+                            </span>
                         </div>
                         @include('dashboard.profile')
                     </nav>
@@ -32,6 +42,7 @@
                                         <th>Spare Part</th>
                                         <th>Category</th>
                                         <th>Stock</th>
+                                        <th>Price</th>
                                         
                                     </tr>
                                 </thead>
@@ -61,6 +72,7 @@
                                                     @default
                                                 @endswitch </td> 
                                             <td>{{ $product_stock->stock }}</td> 
+                                            <td>{{ number_format($product_stock->price,2) ?? 0 }}</td> 
                                              
                                         </tr>
                                         <?php $i++; ?>

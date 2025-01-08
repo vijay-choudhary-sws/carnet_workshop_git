@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\JobCard;
 
 use App\Http\Controllers\Controller;
-use App\{Image, JobCardExtraCharge, JobCardsDentMark, JobCardSparePart, JobCardImage, JobCardsInspection, NewJobCard, Setting, SparePartLabel, User, Vehicle};
+use App\{ExitNote, Image, JobCardExtraCharge, JobCardsDentMark, JobCardSparePart, JobCardImage, JobCardsInspection, NewJobCard, ProductStock, Setting, SparePartLabel, User, Vehicle};
 use App\Mail\EstimateMail;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\{Auth, DB, Storage, Mail};
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class JobCardController extends Controller
 {
@@ -25,17 +26,17 @@ class JobCardController extends Controller
     }
     public function index()
     {
-        $jobcardsCount = NewJobCard::all();
+        $jobcardsCount = NewJobCard::where('user_id', Auth::id())->get();
         if (isset($_GET['type'])) {
             $type = $_GET['type'];
 
             if ($_GET['type'] == "") {
-                $jobcards = NewJobCard::all();
+                $jobcards = NewJobCard::where('user_id', Auth::id())->orderBy('id', 'DESC')->get();
             } else {
-                $jobcards = NewJobCard::where('status', $type)->get();
+                $jobcards = NewJobCard::where(['status' => $type, 'user_id' => Auth::id()])->orderBy('id', 'DESC')->get();
             }
         } else {
-            $jobcards = NewJobCard::all();
+            $jobcards = NewJobCard::where('user_id', Auth::id())->orderBy('id', 'DESC')->get();
         }
 
         return view('new_jobcard.list', compact('jobcards', 'jobcardsCount'));
@@ -63,23 +64,23 @@ class JobCardController extends Controller
                 'jobcard_number' => 'required|string|max:255',
                 'customer_name' => 'required|exists:users,id',
                 'vehicle_id' => 'required|exists:tbl_vehicles,id',
-                'total_amount' => 'required|numeric|min:1',
-                'total_discount' => 'required|numeric|min:0',
-                'final_amount' => 'required|numeric|min:1',
-                'advance' => 'required|numeric|min:0',
-                'balance_amount' => 'required|numeric',
-                'km_reading' => 'required|integer|min:1',
+                // 'total_amount' => 'required|numeric|min:1',
+                // 'total_discount' => 'required|numeric|min:0',
+                // 'final_amount' => 'required|numeric|min:1',
+                // 'advance' => 'required|numeric|min:0',
+                // 'balance_amount' => 'required|numeric',
+                'km_reading' => 'required|integer|min:0',
                 'fual_level' => 'required|integer|min:1',
-                'supervisor' => 'required|integer|min:1',
-                'jobcard_item_id.*' => 'required|integer|min:1',
-                'jobcard_quantity.*' => 'required|integer|min:1',
-                'jobcard_price.*' => 'required|numeric|min:1',
-                'jobcard_total_amount.*' => 'required|numeric|min:1',
-                'jobcard_discount.*' => 'required|numeric|min:0',
-                'jobcard_final_amount.*' => 'required|numeric|min:1',
-                'employee.*' => 'required|integer|min:1',
-                'label.*' => 'required|string|max:255',
-                'charge.*' => 'required|numeric|min:1',
+                'supervisor' => 'required|integer',
+                // 'jobcard_item_id.*' => 'required|integer|min:1',
+                // 'jobcard_quantity.*' => 'required|integer|min:1',
+                // 'jobcard_price.*' => 'required|numeric|min:1',
+                // 'jobcard_total_amount.*' => 'required|numeric|min:1',
+                // 'jobcard_discount.*' => 'required|numeric|min:0',
+                // 'jobcard_final_amount.*' => 'required|numeric|min:1',
+                // 'employee.*' => 'required|integer|min:1',
+                // 'label.*' => 'required|string|max:255',
+                // 'charge.*' => 'required|numeric|min:1',
             ],
             [
                 'customer_name.required' => 'The Customer Name field is required.',
@@ -88,14 +89,14 @@ class JobCardController extends Controller
                 'vehicle_id.exists' => 'The selected Vehicle is invalid.',
             ]
         );
-        $items = $request->jobcard_item_id;
-        $qty = $request->jobcard_quantity;
-        $price = $request->jobcard_price;
-        $totalAmount = $request->jobcard_total_amount;
-        $discount = $request->jobcard_discount;
-        $finalAmount = $request->jobcard_final_amount;
-        $machanic = $request->employee;
-        $vehicleId = $request->vehicle_id;
+        // $items = $request->jobcard_item_id ?? 0;
+        // $qty = $request->jobcard_quantity ?? 0;
+        // $price = $request->jobcard_price ?? 0;
+        // $totalAmount = $request->jobcard_total_amount ?? 0;
+        // $discount = $request->jobcard_discount ?? 0;
+        // $finalAmount = $request->jobcard_final_amount ?? 0;
+        // $machanic = $request->employee ?? 0;
+        $vehicleId = $request->vehicle_id ?? 0;
         // echo "<pre>";print_r($machanic);die;
         $customer = User::with([
             'vehicles' => function ($qry) use ($vehicleId) {
@@ -109,46 +110,48 @@ class JobCardController extends Controller
         $jobcard->vehicle_id = $vehicleId;
         $jobcard->vehical = $customer->vehicles->first()->modelname;
         $jobcard->vehical_number = $customer->vehicles->first()->number_plate;
-        // $jobcard->entry_date = Carbon::now();
-        $jobcard->amount = $request->total_amount;
-        $jobcard->discount = $request->total_discount;
-        $jobcard->final_amount = $request->final_amount;
-        $jobcard->advance = $request->advance;
-        $jobcard->balance_amount = $request->balance_amount;
+        $jobcard->entry_date = Carbon::now();
+        $jobcard->amount = $request->total_amount ?? 0;
+        $jobcard->discount = $request->total_discount ?? 0;
+        $jobcard->final_amount = $request->final_amount ?? 0;
+        $jobcard->advance = $request->advance ?? 0;
+        $jobcard->balance_amount = $request->balance_amount ?? 0;
         $jobcard->km_runing = $request->km_reading;
         $jobcard->fual_level = $request->fual_level;
         $jobcard->supervisor_id = $request->supervisor;
+        $jobcard->sms_alert = $request->sms_alert ?? 0;
         $jobcard->delivery_date = $request->delivery_date;
         $jobcard->delivery_time = $request->delivery_time;
+        $jobcard->user_id = $request->user()->id;
         $jobcard->save();
-        if (!empty($items)) {
-            if (count($items) > 0) {
-                foreach ($items as $itemKey => $itemValue) {
-                    $labelName = SparePartLabel::select('title')->find($itemValue);
-                    $item = new JobCardSparePart;
-                    $item->jobcard_id = $jobcard->id;
-                    $item->stock_label_id = $itemValue;
-                    $item->stock_label_name = $labelName->title;
-                    $item->quantity = $qty[$itemKey];
-                    $item->price = $price[$itemKey];
-                    $item->total_amount = $totalAmount[$itemKey];
-                    $item->discount = $discount[$itemKey];
-                    $item->final_amount = $finalAmount[$itemKey];
-                    $item->machanic_id = $machanic[$itemKey];
-                    $item->save();
-                }
-            }
-        }
+        // if (!empty($items)) {
+        //     if (count($items) > 0) {
+        //         foreach ($items as $itemKey => $itemValue) {
+        //             $labelName = SparePartLabel::select('title')->find($itemValue);
+        //             $item = new JobCardSparePart;
+        //             $item->jobcard_id = $jobcard->id;
+        //             $item->stock_label_id = $itemValue;
+        //             $item->stock_label_name = $labelName->title;
+        //             $item->quantity = $qty[$itemKey];
+        //             $item->price = $price[$itemKey];
+        //             $item->total_amount = $totalAmount[$itemKey];
+        //             $item->discount = $discount[$itemKey];
+        //             $item->final_amount = $finalAmount[$itemKey];
+        //             $item->machanic_id = $machanic[$itemKey];
+        //             $item->save();
+        //         }
+        //     }
+        // }
 
-        if (isset($request->label)) {
-            foreach ($request->label as $key => $label) {
-                $extraCharge = new JobCardExtraCharge;
-                $extraCharge->jobcard_id = $jobcard->id;
-                $extraCharge->label = $label;
-                $extraCharge->charges = $request->charge[$key];
-                $extraCharge->save();
-            }
-        }
+        // if (isset($request->label)) {
+        //     foreach ($request->label as $key => $label) {
+        //         $extraCharge = new JobCardExtraCharge;
+        //         $extraCharge->jobcard_id = $jobcard->id;
+        //         $extraCharge->label = $label;
+        //         $extraCharge->charges = $request->charge[$key];
+        //         $extraCharge->save();
+        //     }
+        // }
 
         return response()->json(['status' => 1]);
     }
@@ -180,6 +183,46 @@ class JobCardController extends Controller
 
     public function update(Request $request)
     {
+        $jobcard = NewJobCard::find($request->id);
+
+        $jobstatus = $jobcard->status;
+        // echo "<pre>";print_r($request->all());die;
+
+        if ($jobcard->status == 2) {
+
+            $this->validate(
+                $request,
+                [
+                    'id' => 'required|exists:new_job_cards,id',
+                    'final_discount' => 'required|numeric|min:0',
+                    'final_paid' => 'required|numeric|min:0',
+                    'balance_amount' => 'required|in:0|numeric',
+                ],
+                [
+                    'final_discount.required' => "Discount Field is required.",
+                    'final_paid.required' => "Pay Field is required.",
+                    'final_discount.numeric' => "Discount Field should be a valid number.",
+                    'final_paid.numeric' => "Pay Field should be a valid number.",
+                    'final_discount.min' => "Discount Field should be a valid number.",
+                    'final_paid.min' => "Pay Field should be a valid number.",
+                    'balance_amount.in' => 'The Pending amount must be zero.',
+                    'balance_amount.required' => 'The Pending amount is required.',
+                    'balance_amount.numeric' => 'The Pending amount must be a number.',
+                ]
+            );
+
+            $jobcard->final_discount = $request->final_discount;
+            $jobcard->final_paid = $request->final_paid;
+            $jobcard->amount = $request->total_amount;
+            $jobcard->discount = $request->total_discount;
+            $jobcard->final_amount = $request->final_amount;
+            $jobcard->advance = $request->advance;
+            $jobcard->balance_amount = $request->balance_amount;
+            $jobcard->status = 3;
+            $jobcard->save();
+
+            return response()->json(['status' => 1]);
+        }
 
         // echo "<pre>";print_r($request->all());die;
         $this->validate(
@@ -194,9 +237,9 @@ class JobCardController extends Controller
                 'final_amount' => 'required|numeric|min:1',
                 'advance' => 'required|numeric|min:0',
                 'balance_amount' => 'required|numeric',
-                'km_reading' => 'required|integer|min:1',
+                'km_reading' => 'required|integer|min:0',
                 'fual_level' => 'required|integer|min:1',
-                'supervisor' => 'required|integer|min:1',
+                'supervisor' => 'required|integer',
                 'jobcard_item_id.*' => 'required|integer|min:1',
                 'jobcard_quantity.*' => 'required|integer|min:1',
                 'jobcard_price.*' => 'required|numeric|min:1',
@@ -215,6 +258,7 @@ class JobCardController extends Controller
             ]
         );
 
+
         $items = $request->jobcard_item_id;
         $qty = $request->jobcard_quantity;
         $price = $request->jobcard_price;
@@ -223,14 +267,36 @@ class JobCardController extends Controller
         $finalAmount = $request->jobcard_final_amount;
         $machanic = $request->employee;
         $vehicleId = $request->vehicle_id;
-        // echo count($items);die;
+
         $customer = User::with([
             'vehicles' => function ($qry) use ($vehicleId) {
                 $qry->where('id', $vehicleId);
             }
         ])->find($request->customer_name);
 
-        $jobcard = NewJobCard::find($request->id);
+        $error = false;
+        $decreaseStockId = [];
+
+        if ($jobstatus == 1 && $request->status == 2 && !empty($items)) {
+            foreach ($items as $itemKey => $itemValue) {
+                $stock = ProductStock::where(['label_id' => $itemValue, 'price' => $price[$itemKey], 'user_id' => Auth::id()])->first();
+
+                if($stock){
+                    if($stock->stock < $qty[$itemKey]){
+                        $error = true;
+                    }else{
+                        $decreaseStockId[] = [$stock->id,$qty[$itemKey]];
+                    }
+                }else{
+                    $error = true;
+                }
+            }
+        }
+
+        if($error){
+            return response()->json(['status' => 0, 'msg' => "Stock is not available for this order. <br> Add stock and try again."]); 
+        }
+
         if (!empty($jobcard)) {
             $jobcard->customer_id = $request->customer_name;
             $jobcard->customer_name = strtoupper($customer->name . ' ' . $customer->lastname);
@@ -248,6 +314,10 @@ class JobCardController extends Controller
             if ($request->status != 0) {
                 $jobcard->status = $request->status;
             }
+            if (!empty($request->step)) {
+                $jobcard->step = $request->step;
+            }
+            $jobcard->sms_alert = $request->sms_alert;
             $jobcard->delivery_date = $request->delivery_date;
             $jobcard->delivery_time = $request->delivery_time;
             $jobcard->save();
@@ -265,7 +335,6 @@ class JobCardController extends Controller
                         $item->total_amount = $totalAmount[$itemKey];
                         $item->discount = $discount[$itemKey];
                         $item->final_amount = $finalAmount[$itemKey];
-                        $item->machanic_id = $machanic[$itemKey];
                         $item->save();
                     }
                 }
@@ -279,10 +348,21 @@ class JobCardController extends Controller
                     $extraCharge->jobcard_id = $jobcard->id;
                     $extraCharge->label = $label;
                     $extraCharge->charges = $request->charge[$key];
+                    $extraCharge->machanic_id = $machanic[$key];
                     $extraCharge->save();
                 }
             }
-
+            if(count($decreaseStockId) > 0){
+                foreach ($decreaseStockId as $keyValue) {
+                    $productStock = ProductStock::find($keyValue[0]);
+                    $productStock->stock = $productStock->stock - $keyValue[1];
+                    $productStock->save();
+                }
+            }
+            
+            if ($request->step == 1 && !empty($jobcard->user->email)) {
+                $this->sendInvoiceMail($jobcard->id);
+            }
             return response()->json(['status' => 1]);
         }
         return response()->json(['status' => 0, 'msg' => "Details Not Found."]);
@@ -343,12 +423,17 @@ class JobCardController extends Controller
         // Generate a unique file name
         $fileName = 'marked_car_' . str::random(10) . '.png';
 
-        // Store the image in the storage folder
-        $path = Storage::put('public/images/' . $fileName, $image);
+
+        // Define the path to store the image in the public folder
+        $path = public_path('uploads/' . $fileName);
+
+        // Store the image in the public/images folder
+        file_put_contents($path, $image);
+
 
         // Save the image path to the database
         $carImage = new Image();
-        $carImage->path = 'storage/images/' . $fileName;
+        $carImage->path = 'uploads/' . $fileName;
         $carImage->save();
 
         $jobCardsDentMark = new JobCardsDentMark();
@@ -798,31 +883,46 @@ class JobCardController extends Controller
     public function downloadInvoice(Request $request)
     {
 
-        $newjobcard = NewJobCard::where('id', $request->id)->first();
-        $customers = User::where('id', $newjobcard->customer_id)->first();
-        $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
+        $newjobcard = NewJobCard::with(['exitNote' => function ($query) {
+            $query->select('note', 'new_job_card_id');
+        }])->where('id', $request->id)->first();
+        $customers = User::select('name','lastname','mobile_no','email','address')->where('id', $newjobcard->customer_id)->first();
+        $vehicles = Vehicle::select('number_plate','chassisno','modelname','vehiclebrand_id')->where('id', $newjobcard->vehicle_id)->first();
         $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
         $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
 
+        $inspections = JobCardsInspection::select('customer_voice','is_customer_voice')->where('jobcard_number', $newjobcard->jobcard_number)->whereIn('is_customer_voice', [1,0])->get();
+        $jobCardCustomerVoice = $inspections->where('is_customer_voice', 1);
+        $jobCardAccessories = $inspections->where('is_customer_voice', 0);
+
+        $exitNote = $newjobcard->exitNote; 
+
+        // echo "<pre>";print_r($exitNote?->toArray());die;
         $title = 'View Invoice';
         $logo = DB::table('tbl_settings')->first();
 
-        // Prepare data for the PDF
-        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges');
+        $data = compact('title', 'logo', 'customers', 'newjobcard', 'vehicles', 'jobCardSpareParts', 'jobCardExtraCharges','jobCardCustomerVoice','jobCardAccessories','exitNote');
 
-        // Load the view and convert to PDF in landscape orientation
         $pdf = PDF::loadView('new_jobcard.pdf', $data)
-            ->setPaper([0, 0, 595.28, 1000]);
-        ;
+        ->setPaper('a4', 'portrait');
 
-        // Stream the generated PDF to the browser
-        return $pdf->stream('invoice_' . $newjobcard->id . '.pdf');
+        if ($request->type) {
+            return $pdf->stream('invoice_' . $newjobcard->jobcard_number . '.pdf');
+        }
+        return $pdf->download('invoice_' . $newjobcard->jobcard_number . '.pdf');
+
     }
 
 
     public function addextrafields(Request $request)
     {
-        $html = view('new_jobcard.component.add-other-charges')->render();
+
+        $price = $request->price ?? 0;
+        $title = $request->title ?? '';
+
+        $employee = User::where(['role' => 'employee', 'soft_delete' => 0])->get();
+
+        $html = view('new_jobcard.component.add-other-charges', compact('employee','price','title'))->render();
 
         return response()->json([
             'success' => 1,
@@ -880,7 +980,7 @@ class JobCardController extends Controller
         if ($request->type) {
             return $pdf->stream('estimate_invoice_' . $newjobcard->jobcard_number . '.pdf');
         }
-        
+
         return $pdf->download('estimate_invoice_' . $newjobcard->jobcard_number . '.pdf');
     }
     public function downloadOpenInvoice(Request $request)
@@ -907,15 +1007,15 @@ class JobCardController extends Controller
         return $pdf->download('invoice' . $newjobcard->jobcard_number . '.pdf');
     }
 
-    public function sendInvoiceMail(Request $request)
+    public function sendInvoiceMail($id)
     {
-        $newjobcard = NewJobCard::where('id', $request->id)->first();
+        $newjobcard = NewJobCard::where('id', $id)->first();
         if (!empty($newjobcard)) {
             $customer = User::where('id', $newjobcard->customer_id)->first();
             $vehicles = Vehicle::where('id', $newjobcard->vehicle_id)->first();
-            $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $request->id)->get();
+            $jobCardSpareParts = JobCardSparePart::where('jobcard_id', $id)->get();
 
-            $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $request->id)->get();
+            $jobCardExtraCharges = JobCardExtraCharge::where('jobcard_id', $id)->get();
             $jobCardCustomerVoice = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 1)->get();
             $jobCardAccessories = JobCardsInspection::where('jobcard_number', $newjobcard->jobcard_number)->where('is_customer_voice', 2)->get();
 
