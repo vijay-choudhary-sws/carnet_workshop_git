@@ -13,6 +13,7 @@ use App\Vehicle;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 
 class CronJobController extends Controller
@@ -120,9 +121,14 @@ class CronJobController extends Controller
                     try {
                         Mail::to($customer->email)->send(new SendInvoiceMail($data));
 
-                        SendJobCardPdfMail::where('id', $value->id)->update([
-                            'is_send' => 1,
-                        ]);
+                        $filePath = public_path('uploads/invoice_pdfs/' . $attachData);
+                        
+                        SendJobCardPdfMail::where('id', $value->id)->delete();
+
+                        if (File::exists($filePath)) {
+                            File::delete($filePath);
+                        }
+
                     } catch (\Exception $e) {
                         $err[] = 'Mail sending failed for Job Card ID: ' . $value->id . '. Error: ' . $e->getMessage();
                     }
